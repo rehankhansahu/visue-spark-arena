@@ -1,0 +1,2675 @@
+/* ============================================================================
+   VISUE SPARK 2026 - Comprehensive Dark / Light Theme & Obsidian UI Styles
+   COMSATS University Islamabad, Vehari Campus
+   60 FPS Transitions, Frosted Glassmorphism, Adaptive Code Workspace
+   ============================================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap');
+
+/* ============================================================================
+   THEME DESIGN TOKENS (LIGHT & DARK ROOTS)
+   ============================================================================ */
+
+:root {
+  /* LIGHT MODE (Clean, High-Tech Pearl & Cyber-Lime) */
+  --bg-main: #f8fafc;
+  --bg-card: rgba(255, 255, 255, 0.94);
+  --bg-card-solid: #ffffff;
+  --bg-subtle: #f1f5f9;
+  --bg-input: #ffffff;
+  --border-glass: rgba(15, 23, 42, 0.12);
+  --border-glass-hover: rgba(15, 23, 42, 0.24);
+  --text-main: #0f172a;
+  --text-heading: #090d16;
+  --text-muted: #334155;
+  --text-subtle: #64748b;
+  
+  --editor-bg: #ffffff;
+  --editor-lines-bg: #f8fafc;
+  --editor-lines-text: #94a3b8;
+  --editor-code-text: #0f172a;
+  --editor-border: rgba(15, 23, 42, 0.14);
+
+  --terminal-bg: #090d16;
+  --terminal-border: rgba(16, 185, 129, 0.35);
+  --terminal-text: #e2e8f0;
+  --terminal-subtext: #94a3b8;
+
+  --cyber-lime: #059669;
+  --cyber-lime-bright: #10b981;
+  --electric-cyan: #0284c7;
+  --electric-cyan-bright: #0ea5e9;
+
+  --podium-bg: #ffffff;
+  --gold-glow: #eab308;
+  --silver-glow: #94a3b8;
+  --bronze-glow: #d97706;
+
+  --pass-bg: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(6, 182, 212, 0.12) 50%, rgba(163, 230, 53, 0.08) 100%), #ffffff;
+  --pass-border: rgba(2, 132, 199, 0.35);
+  --pass-watermark: rgba(15, 23, 42, 0.04);
+  --pass-text-main: #0f172a;
+  --pass-text-sub: #475569;
+
+  --table-head-bg: #f1f5f9;
+  --table-border: rgba(15, 23, 42, 0.1);
+  --table-hover: rgba(241, 245, 249, 0.85);
+
+  --grid-dot-1: rgba(0, 0, 0, 0.07);
+  --grid-dot-2: rgba(5, 150, 105, 0.06);
+
+  --scrollbar-track: #f1f5f9;
+  --scrollbar-thumb: #cbd5e1;
+}
+
+html.dark {
+  /* DARK MODE (Dark Obsidian #090d16 & Electric Cyber-Lime) */
+  --bg-main: #090d16;
+  --bg-card: rgba(15, 23, 42, 0.76);
+  --bg-card-solid: #0f172a;
+  --bg-subtle: #1e293b;
+  --bg-input: #0b0f19;
+  --border-glass: rgba(255, 255, 255, 0.09);
+  --border-glass-hover: rgba(255, 255, 255, 0.2);
+  --text-main: #f1f5f9;
+  --text-heading: #ffffff;
+  --text-muted: #94a3b8;
+  --text-subtle: #64748b;
+
+  --editor-bg: #0b0f19;
+  --editor-lines-bg: #080c14;
+  --editor-lines-text: #475569;
+  --editor-code-text: #e2e8f0;
+  --editor-border: rgba(255, 255, 255, 0.09);
+
+  --terminal-bg: #060911;
+  --terminal-border: rgba(16, 185, 129, 0.22);
+  --terminal-text: #e2e8f0;
+  --terminal-subtext: #64748b;
+
+  --cyber-lime: #10b981;
+  --cyber-lime-bright: #a3e635;
+  --electric-cyan: #06b6d4;
+  --electric-cyan-bright: #38bdf8;
+
+  --podium-bg: rgba(15, 23, 42, 0.85);
+  --gold-glow: #eab308;
+  --silver-glow: #94a3b8;
+  --bronze-glow: #d97706;
+
+  --pass-bg: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(6, 182, 212, 0.12) 50%, rgba(163, 230, 53, 0.08) 100%), #0c1220;
+  --pass-border: rgba(56, 189, 248, 0.3);
+  --pass-watermark: rgba(255, 255, 255, 0.03);
+  --pass-text-main: #ffffff;
+  --pass-text-sub: #94a3b8;
+
+  --table-head-bg: rgba(2, 6, 23, 0.85);
+  --table-border: rgba(255, 255, 255, 0.06);
+  --table-hover: rgba(30, 41, 59, 0.45);
+
+  --grid-dot-1: rgba(255, 255, 255, 0.05);
+  --grid-dot-2: rgba(16, 185, 129, 0.04);
+
+  --scrollbar-track: #090d16;
+  --scrollbar-thumb: #1e293b;
+}
+
+* {
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.1s ease;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--bg-main) !important;
+  color: var(--text-main) !important;
+  overflow-x: hidden;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1 1 0%;
+  min-height: 0;
+}
+
+/* 100% Screen Fit for Laptop Screens (Zero outer scrollbar) */
+@media (min-height: 580px) {
+  body {
+    overflow-y: hidden !important;
+  }
+}
+
+.font-mono, pre, code, textarea, .terminal-box {
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+/* Custom Sleek Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--cyber-lime);
+}
+
+/* Glassmorphism Classes */
+.glass-panel {
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-glass);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+}
+html.dark .glass-panel {
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+}
+
+.glass-panel-hover {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.glass-panel-hover:hover {
+  border-color: var(--border-glass-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 36px 0 rgba(0, 0, 0, 0.18);
+}
+
+/* ============================================================================
+   UNIVERSAL HIGH-CONTRAST SELECTION & FORM CONTROLS
+   Ensures text selection is vivid & readable across Dark & Light modes
+   ============================================================================ */
+::selection {
+  background-color: #0284c7 !important; /* Electric Cyan */
+  color: #ffffff !important;
+}
+::-moz-selection {
+  background-color: #0284c7 !important;
+  color: #ffffff !important;
+}
+
+input::selection, textarea::selection, pre::selection, code::selection {
+  background-color: #0284c7 !important;
+  color: #ffffff !important;
+}
+
+/* Form Controls Base */
+input, select, textarea {
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+/* DARK MODE FORMS */
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  caret-color: #38bdf8 !important;
+}
+html.dark input:focus,
+html.dark textarea:focus,
+html.dark select:focus {
+  border-color: #38bdf8 !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.28) !important;
+}
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748b !important;
+  opacity: 0.85;
+}
+html.dark select option {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  padding: 8px 12px !important;
+}
+html.dark select option:checked {
+  background-color: #0284c7 !important;
+  color: #ffffff !important;
+}
+
+/* LIGHT MODE FORMS */
+html:not(.dark) input,
+html:not(.dark) textarea,
+html:not(.dark) select,
+html.light input,
+html.light textarea,
+html.light select {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: rgba(15, 23, 42, 0.22) !important;
+  caret-color: #0284c7 !important;
+}
+html:not(.dark) input:focus,
+html:not(.dark) textarea:focus,
+html:not(.dark) select:focus,
+html.light input:focus,
+html.light textarea:focus,
+html.light select:focus {
+  border-color: #0284c7 !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.22) !important;
+}
+html:not(.dark) input::placeholder,
+html:not(.dark) textarea::placeholder,
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: #64748b !important;
+  opacity: 0.9;
+}
+html:not(.dark) select option,
+html.light select option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  padding: 8px 12px !important;
+}
+html:not(.dark) select option:checked,
+html.light select option:checked {
+  background-color: #0284c7 !important;
+  color: #ffffff !important;
+}
+
+/* ============================================================================
+   CODE EDITOR WORKSPACE
+   ============================================================================ */
+.code-editor-frame {
+  background-color: var(--editor-bg) !important;
+  border: 1px solid var(--editor-border) !important;
+}
+.code-editor-header {
+  border-bottom: 1px solid var(--editor-border) !important;
+}
+html.dark .code-editor-header {
+  background-color: #090d16 !important;
+  color: #94a3b8 !important;
+}
+html:not(.dark) .code-editor-header,
+html.light .code-editor-header {
+  background-color: #f1f5f9 !important;
+  color: #334155 !important;
+  border-color: #e2e8f0 !important;
+}
+html:not(.dark) .code-editor-title,
+html.light .code-editor-title {
+  color: #0f172a !important;
+}
+
+.code-editor-body {
+  background-color: var(--editor-bg) !important;
+}
+#codeEditor {
+  background-color: var(--editor-bg) !important;
+  color: var(--editor-code-text) !important;
+  caret-color: var(--cyber-lime-bright);
+}
+#codeEditor::placeholder {
+  color: var(--text-subtle) !important;
+  opacity: 0.7;
+}
+
+/* Read-Only Solution Mode */
+#codeEditor[readonly],
+textarea#codeEditor[readonly] {
+  cursor: default !important;
+  opacity: 0.95 !important;
+}
+
+html:not(.dark) #codeEditor[readonly],
+html.light #codeEditor[readonly] {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+html.dark #codeEditor[readonly] {
+  background-color: #050b14 !important;
+  color: #e2e8f0 !important;
+}
+
+/* Terminal Console (Developer Tool Aesthetic) */
+.terminal-window {
+  background: var(--terminal-bg) !important;
+  color: var(--terminal-text) !important;
+  border: 1px solid var(--terminal-border) !important;
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.6) !important;
+}
+html:not(.dark) .terminal-window,
+html.light .terminal-window {
+  background: #090d16 !important;
+  color: #e2e8f0 !important;
+  border-color: rgba(16, 185, 129, 0.35) !important;
+}
+html:not(.dark) .terminal-window *,
+html.light .terminal-window * {
+  color: #e2e8f0 !important;
+}
+html:not(.dark) .terminal-window .text-slate-500,
+html.light .terminal-window .text-slate-500 {
+  color: #94a3b8 !important;
+}
+html:not(.dark) .terminal-window .text-slate-400,
+html.light .terminal-window .text-slate-400 {
+  color: #cbd5e1 !important;
+}
+html:not(.dark) .terminal-window .text-slate-300,
+html.light .terminal-window .text-slate-300 {
+  color: #f1f5f9 !important;
+}
+html:not(.dark) .terminal-window .text-slate-200,
+html.light .terminal-window .text-slate-200 {
+  color: #ffffff !important;
+}
+html:not(.dark) .terminal-window .bg-emerald-500\/20,
+html.light .terminal-window .bg-emerald-500\/20 {
+  background-color: rgba(16, 185, 129, 0.25) !important;
+  color: #34d399 !important;
+  border-color: rgba(16, 185, 129, 0.5) !important;
+}
+
+/* ============================================================================
+   TOAST NOTIFICATION SYSTEM (Obsidian Dark vs High-Tech Crisp Light)
+   ============================================================================ */
+#toastContainer {
+  position: fixed;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  pointer-events: none;
+}
+
+.visue-toast {
+  pointer-events: auto;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border-radius: 0.875rem;
+  min-width: 290px;
+  max-width: 380px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 12px 35px -4px rgba(0, 0, 0, 0.45), 0 4px 12px -2px rgba(0, 0, 0, 0.25);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.visue-toast-icon {
+  font-size: 1.15rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.visue-toast-title {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.25;
+}
+
+.visue-toast-msg {
+  font-size: 0.75rem;
+  margin-top: 0.2rem;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.visue-toast-close {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.5rem;
+  background: transparent;
+  border: none;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  padding: 0.2rem;
+}
+.visue-toast-close:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* DARK MODE TOASTS */
+html.dark .visue-toast {
+  background: rgba(15, 23, 42, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+html.dark .visue-toast-info {
+  border-color: rgba(6, 182, 212, 0.5);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.7), 0 0 16px rgba(6, 182, 212, 0.2);
+}
+html.dark .visue-toast-info .visue-toast-title { color: #38bdf8; }
+
+html.dark .visue-toast-success {
+  border-color: rgba(16, 185, 129, 0.5);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.7), 0 0 16px rgba(16, 185, 129, 0.2);
+}
+html.dark .visue-toast-success .visue-toast-title { color: #34d399; }
+
+html.dark .visue-toast-warning {
+  border-color: rgba(245, 158, 11, 0.5);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.7), 0 0 16px rgba(245, 158, 11, 0.2);
+}
+html.dark .visue-toast-warning .visue-toast-title { color: #fbbf24; }
+
+html.dark .visue-toast-error {
+  border-color: rgba(244, 63, 94, 0.5);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.7), 0 0 16px rgba(244, 63, 94, 0.2);
+}
+html.dark .visue-toast-error .visue-toast-title { color: #f43f5e; }
+
+html.dark .visue-toast-msg {
+  color: #cbd5e1;
+}
+html.dark .visue-toast-close {
+  color: #94a3b8;
+}
+
+/* LIGHT MODE TOASTS (Clean, Solid High-Contrast Pearl White Cards) */
+html:not(.dark) .visue-toast,
+html.light .visue-toast {
+  background: #ffffff !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  box-shadow: 0 14px 40px -4px rgba(15, 23, 42, 0.18), 0 4px 14px -2px rgba(15, 23, 42, 0.08) !important;
+}
+
+html:not(.dark) .visue-toast-info,
+html.light .visue-toast-info {
+  border-left: 5px solid #0284c7 !important;
+  border-color: rgba(2, 132, 199, 0.3) !important;
+  border-left-color: #0284c7 !important;
+}
+html:not(.dark) .visue-toast-info .visue-toast-title,
+html.light .visue-toast-info .visue-toast-title {
+  color: #0369a1 !important;
+}
+
+html:not(.dark) .visue-toast-success,
+html.light .visue-toast-success {
+  border-left: 5px solid #059669 !important;
+  border-color: rgba(5, 150, 105, 0.3) !important;
+  border-left-color: #059669 !important;
+}
+html:not(.dark) .visue-toast-success .visue-toast-title,
+html.light .visue-toast-success .visue-toast-title {
+  color: #047857 !important;
+}
+
+html:not(.dark) .visue-toast-warning,
+html.light .visue-toast-warning {
+  border-left: 5px solid #d97706 !important;
+  border-color: rgba(217, 119, 6, 0.3) !important;
+  border-left-color: #d97706 !important;
+}
+html:not(.dark) .visue-toast-warning .visue-toast-title,
+html.light .visue-toast-warning .visue-toast-title {
+  color: #b45309 !important;
+}
+
+html:not(.dark) .visue-toast-error,
+html.light .visue-toast-error {
+  border-left: 5px solid #dc2626 !important;
+  border-color: rgba(220, 38, 38, 0.3) !important;
+  border-left-color: #dc2626 !important;
+}
+html:not(.dark) .visue-toast-error .visue-toast-title,
+html.light .visue-toast-error .visue-toast-title {
+  color: #b91c1c !important;
+}
+
+html:not(.dark) .visue-toast-msg,
+html.light .visue-toast-msg {
+  color: #334155 !important;
+  font-weight: 500 !important;
+}
+html:not(.dark) .visue-toast-close,
+html.light .visue-toast-close {
+  color: #475569 !important;
+}
+
+/* Glowing Neon Elements */
+.glow-lime {
+  box-shadow: 0 0 18px rgba(16, 185, 129, 0.35);
+}
+.glow-lime-hover:hover {
+  box-shadow: 0 0 24px rgba(16, 185, 129, 0.6);
+}
+.glow-cyan {
+  box-shadow: 0 0 18px rgba(6, 182, 212, 0.35);
+}
+.glow-cyan-hover:hover {
+  box-shadow: 0 0 24px rgba(6, 182, 212, 0.6);
+}
+
+/* Podium Glows (Gold, Silver, Bronze) */
+.podium-card {
+  background-color: var(--podium-bg) !important;
+  border: 1px solid var(--border-glass);
+}
+
+/* Previous Test Standings Banner (Dark Theme) */
+#podiumArchiveBanner {
+  background: rgba(245, 158, 11, 0.12) !important;
+  border: 1.5px solid rgba(245, 158, 11, 0.45) !important;
+  color: #fcd34d !important;
+  box-shadow: 0 4px 18px rgba(245, 158, 11, 0.15) !important;
+  backdrop-filter: blur(8px);
+  margin-top: 1rem !important;
+  margin-bottom: 2.25rem !important;
+}
+#podiumArchiveBanner span {
+  color: #fcd34d !important;
+}
+
+/* Registration Contest Locked Banner (Dark Theme) */
+#regContestLockedBanner {
+  background: rgba(239, 68, 68, 0.12) !important;
+  border: 1.5px solid rgba(239, 68, 68, 0.45) !important;
+  color: #fca5a5 !important;
+  box-shadow: 0 4px 18px rgba(239, 68, 68, 0.15) !important;
+}
+#regContestLockedBanner #regLockedTitle {
+  color: #f87171 !important;
+}
+#regContestLockedBanner #regLockedMessage {
+  color: #fecaca !important;
+}
+.podium-gold {
+  border: 2px solid rgba(234, 179, 8, 0.85) !important;
+  box-shadow: 0 0 30px rgba(234, 179, 8, 0.3), inset 0 0 15px rgba(234, 179, 8, 0.1) !important;
+  animation: pulseGold 3s infinite alternate;
+}
+.podium-silver {
+  border: 2px solid rgba(148, 163, 184, 0.85) !important;
+  box-shadow: 0 0 25px rgba(148, 163, 184, 0.25), inset 0 0 12px rgba(148, 163, 184, 0.08) !important;
+  animation: pulseSilver 3.5s infinite alternate;
+}
+.podium-bronze {
+  border: 2px solid rgba(217, 119, 6, 0.85) !important;
+  box-shadow: 0 0 25px rgba(217, 119, 6, 0.25), inset 0 0 12px rgba(217, 119, 6, 0.08) !important;
+  animation: pulseBronze 4s infinite alternate;
+}
+
+@keyframes pulseGold {
+  0% { box-shadow: 0 0 18px rgba(234, 179, 8, 0.2); }
+  100% { box-shadow: 0 0 35px rgba(234, 179, 8, 0.45); }
+}
+@keyframes pulseSilver {
+  0% { box-shadow: 0 0 14px rgba(148, 163, 184, 0.15); }
+  100% { box-shadow: 0 0 28px rgba(148, 163, 184, 0.35); }
+}
+@keyframes pulseBronze {
+  0% { box-shadow: 0 0 14px rgba(217, 119, 6, 0.15); }
+  100% { box-shadow: 0 0 28px rgba(217, 119, 6, 0.35); }
+}
+
+/* Pulsing Status Dot */
+.live-pulse-dot {
+  position: relative;
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  background-color: var(--cyber-lime-bright);
+  border-radius: 50%;
+}
+.live-pulse-dot::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background-color: rgba(16, 185, 129, 0.6);
+  animation: livePing 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes livePing {
+  0% { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+
+/* Holographic Student Pass */
+.holographic-pass {
+  background: var(--pass-bg) !important;
+  border: 1px solid var(--pass-border) !important;
+  color: var(--pass-text-main) !important;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.2), 0 0 20px rgba(6, 182, 212, 0.15);
+}
+html.dark .holographic-pass {
+  box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.7), 0 0 20px rgba(6, 182, 212, 0.2);
+}
+
+.holographic-pass::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent 40%, rgba(255, 255, 255, 0.12) 50%, transparent 60%);
+  transform: rotate(25deg);
+  animation: holoSheen 6s infinite linear;
+  pointer-events: none;
+}
+@keyframes holoSheen {
+  0% { transform: translateY(-50%) rotate(25deg); }
+  100% { transform: translateY(50%) rotate(25deg); }
+}
+
+/* Button Micro-interactions */
+.btn-cyber {
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+.btn-cyber:active {
+  transform: scale(0.97);
+}
+.btn-cyber::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 120%;
+  height: 120%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.25) 0%, transparent 70%);
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+  transition: transform 0.4s ease, opacity 0.3s ease;
+}
+.btn-cyber:active::after {
+  transform: translate(-50%, -50%) scale(2);
+  opacity: 1;
+}
+
+/* Fade in for dynamic view transitions */
+.view-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Adaptive High-tech Grid Background pattern */
+.cyber-grid-bg {
+  background-image: 
+    radial-gradient(var(--grid-dot-1) 1px, transparent 1px),
+    radial-gradient(var(--grid-dot-2) 1px, transparent 1px);
+  background-size: 32px 32px;
+  background-position: 0 0, 16px 16px;
+}
+
+/* Theme Toggle Button */
+.theme-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  color: var(--text-main);
+  transition: all 0.2s ease;
+}
+.theme-toggle-btn:hover {
+  border-color: var(--cyber-lime-bright);
+  transform: translateY(-1px);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
+}
+.theme-icon-spin {
+  display: inline-block;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.theme-toggle-btn:active .theme-icon-spin {
+  transform: rotate(360deg);
+}
+
+/* Adaptive Table Elements */
+table thead {
+  background-color: var(--table-head-bg) !important;
+}
+table tbody tr {
+  border-color: var(--table-border) !important;
+}
+table tbody tr:hover {
+  background-color: var(--table-hover) !important;
+}
+
+/* ============================================================================
+   LIGHT MODE TYPOGRAPHY, SURFACES & ACCENTS (AAA High Contrast Engine)
+   ============================================================================ */
+
+html:not(.dark),
+html.light {
+  color-scheme: light;
+}
+
+html:not(.dark) body,
+html.light body {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* Headings & High-Emphasis Text */
+html:not(.dark) h1, 
+html:not(.dark) h2, 
+html:not(.dark) h3, 
+html:not(.dark) h4, 
+html:not(.dark) .text-white,
+html:not(.dark) .text-slate-100,
+html:not(.dark) .text-slate-200,
+html.light h1, 
+html.light h2, 
+html.light h3, 
+html.light h4, 
+html.light .text-white,
+html.light .text-slate-100,
+html.light .text-slate-200 {
+  color: #090d16 !important;
+}
+
+/* Secondary & Body Text */
+html:not(.dark) .text-slate-300,
+html.light .text-slate-300 {
+  color: #1e293b !important;
+}
+html:not(.dark) .text-slate-400,
+html.light .text-slate-400 {
+  color: #334155 !important;
+  font-weight: 500;
+}
+html:not(.dark) .text-slate-500,
+html.light .text-slate-500 {
+  color: #64748b !important;
+}
+
+/* Accent Colors on Light Mode (Darkened for 7:1+ Contrast Ratio on White) */
+html:not(.dark) .text-emerald-400,
+html:not(.dark) .text-emerald-300,
+html:not(.dark) .text-emerald-500,
+html.light .text-emerald-400,
+html.light .text-emerald-300,
+html.light .text-emerald-500 {
+  color: #047857 !important; /* Deep Emerald */
+  font-weight: 600;
+}
+
+html:not(.dark) .text-cyan-400,
+html:not(.dark) .text-cyan-300,
+html:not(.dark) .text-cyan-500,
+html:not(.dark) .text-sky-400,
+html.light .text-cyan-400,
+html.light .text-cyan-300,
+html.light .text-cyan-500,
+html.light .text-sky-400 {
+  color: #0284c7 !important; /* Deep Ocean Cyan */
+  font-weight: 600;
+}
+
+html:not(.dark) .text-amber-400,
+html:not(.dark) .text-amber-300,
+html:not(.dark) .text-amber-500,
+html:not(.dark) .text-yellow-400,
+html.light .text-amber-400,
+html.light .text-amber-300,
+html.light .text-amber-500,
+html.light .text-yellow-400 {
+  color: #b45309 !important; /* Rich Dark Amber / Gold */
+  font-weight: 700;
+}
+
+html:not(.dark) .text-rose-400,
+html:not(.dark) .text-rose-300,
+html:not(.dark) .text-rose-500,
+html:not(.dark) .text-red-400,
+html.light .text-rose-400,
+html.light .text-rose-300,
+html.light .text-rose-500,
+html.light .text-red-400 {
+  color: #b91c1c !important; /* Deep Crimson Red */
+  font-weight: 600;
+}
+
+html:not(.dark) .text-purple-300,
+html:not(.dark) .text-purple-400,
+html.light .text-purple-300,
+html.light .text-purple-400 {
+  color: #6b21a8 !important; /* Royal Purple */
+  font-weight: 600;
+}
+
+/* Hover States in Light Mode (Ensure text is never white on light background) */
+html:not(.dark) .hover\:text-white:hover,
+html.light .hover\:text-white:hover {
+  color: #090d16 !important;
+}
+html:not(.dark) .hover\:bg-slate-800:hover,
+html.light .hover\:bg-slate-800:hover {
+  background-color: #e2e8f0 !important;
+  color: #090d16 !important;
+}
+html:not(.dark) .hover\:bg-slate-700:hover,
+html.light .hover\:bg-slate-700:hover {
+  background-color: #cbd5e1 !important;
+  color: #090d16 !important;
+}
+
+/* Navbar Navigation Buttons in Light Mode */
+html:not(.dark) nav button:not(.text-emerald-400):hover,
+html.light nav button:not(.text-emerald-400):hover {
+  color: #0f172a !important;
+  background-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+/* Surfaces & Containers in Light Mode */
+html:not(.dark) .glass-panel,
+html.light .glass-panel {
+  background: rgba(255, 255, 255, 0.94) !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+  box-shadow: 0 6px 24px -2px rgba(15, 23, 42, 0.07), 0 2px 8px -1px rgba(15, 23, 42, 0.04) !important;
+}
+
+html:not(.dark) .bg-slate-950,
+html:not(.dark) .bg-slate-950\/60,
+html:not(.dark) .bg-slate-950\/80,
+html:not(.dark) .bg-slate-950\/90,
+html.light .bg-slate-950,
+html.light .bg-slate-950\/60,
+html.light .bg-slate-950\/80,
+html.light .bg-slate-950\/90 {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: rgba(15, 23, 42, 0.1) !important;
+}
+
+html:not(.dark) .bg-slate-900,
+html:not(.dark) .bg-slate-900\/60,
+html:not(.dark) .bg-slate-900\/70,
+html:not(.dark) .bg-slate-900\/80,
+html:not(.dark) .bg-slate-900\/90,
+html:not(.dark) .bg-slate-900\/95,
+html.light .bg-slate-900,
+html.light .bg-slate-900\/60,
+html.light .bg-slate-900\/70,
+html.light .bg-slate-900\/80,
+html.light .bg-slate-900\/90,
+html.light .bg-slate-900\/95 {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+}
+
+html:not(.dark) .bg-slate-800,
+html:not(.dark) .bg-slate-800\/40,
+html:not(.dark) .bg-slate-800\/60,
+html:not(.dark) .bg-slate-800\/80,
+html:not(.dark) .bg-slate-800\/90,
+html.light .bg-slate-800,
+html.light .bg-slate-800\/40,
+html.light .bg-slate-800\/60,
+html.light .bg-slate-800\/80,
+html.light .bg-slate-800\/90 {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  border-color: rgba(15, 23, 42, 0.1) !important;
+}
+
+html:not(.dark) .bg-slate-700,
+html:not(.dark) .bg-slate-700\/60,
+html.light .bg-slate-700,
+html.light .bg-slate-700\/60 {
+  background-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html:not(.dark) .bg-black\/30,
+html:not(.dark) .bg-white\/5,
+html.light .bg-black\/30,
+html.light .bg-white\/5 {
+  background-color: #f8fafc !important;
+  border-color: rgba(15, 23, 42, 0.1) !important;
+}
+
+html:not(.dark) .border-white\/5,
+html:not(.dark) .border-white\/10,
+html:not(.dark) .border-white\/15,
+html:not(.dark) .border-white\/20,
+html:not(.dark) .border-slate-800,
+html:not(.dark) .border-slate-700,
+html.light .border-white\/5,
+html.light .border-white\/10,
+html.light .border-white\/15,
+html.light .border-white\/20,
+html.light .border-slate-800,
+html.light .border-slate-700 {
+  border-color: rgba(15, 23, 42, 0.12) !important;
+}
+
+/* Badges & Pills in Light Mode (Crisp Pastel Backgrounds + High Contrast Text) */
+html:not(.dark) .bg-emerald-500\/10,
+html:not(.dark) .bg-emerald-500\/15,
+html:not(.dark) .bg-emerald-500\/20,
+html:not(.dark) .bg-emerald-500\/30,
+html:not(.dark) .bg-emerald-950\/40,
+html:not(.dark) .bg-emerald-950\/60,
+html:not(.dark) .bg-emerald-950\/80,
+html:not(.dark) .bg-emerald-900\/50,
+html:not(.dark) .bg-emerald-900\/60,
+html:not(.dark) .bg-emerald-900\/80,
+html.light .bg-emerald-500\/10,
+html.light .bg-emerald-500\/15,
+html.light .bg-emerald-500\/20,
+html.light .bg-emerald-500\/30,
+html.light .bg-emerald-950\/40,
+html.light .bg-emerald-950\/60,
+html.light .bg-emerald-950\/80,
+html.light .bg-emerald-900\/50,
+html.light .bg-emerald-900\/60,
+html.light .bg-emerald-900\/80 {
+  background-color: #ecfdf5 !important;
+  color: #047857 !important;
+  border-color: #a7f3d0 !important;
+}
+
+html:not(.dark) .bg-cyan-500\/10,
+html:not(.dark) .bg-cyan-500\/20,
+html:not(.dark) .bg-cyan-500\/30,
+html:not(.dark) .bg-cyan-950\/60,
+html:not(.dark) .bg-cyan-900\/50,
+html.light .bg-cyan-500\/10,
+html.light .bg-cyan-500\/20,
+html.light .bg-cyan-500\/30,
+html.light .bg-cyan-950\/60,
+html.light .bg-cyan-900\/50 {
+  background-color: #f0f9ff !important;
+  color: #0284c7 !important;
+  border-color: #bae6fd !important;
+}
+
+html:not(.dark) .bg-amber-500\/10,
+html:not(.dark) .bg-amber-500\/20,
+html:not(.dark) .bg-amber-500\/30,
+html:not(.dark) .bg-amber-950\/40,
+html:not(.dark) .bg-amber-950\/60,
+html:not(.dark) .bg-amber-900\/40,
+html.light .bg-amber-500\/10,
+html.light .bg-amber-500\/20,
+html.light .bg-amber-500\/30,
+html.light .bg-amber-950\/40,
+html.light .bg-amber-950\/60,
+html.light .bg-amber-900\/40 {
+  background-color: #fffbeb !important;
+  color: #b45309 !important;
+  border-color: #fde68a !important;
+}
+
+html:not(.dark) .bg-rose-500\/10,
+html:not(.dark) .bg-rose-500\/20,
+html:not(.dark) .bg-rose-950\/30,
+html:not(.dark) .bg-rose-950\/40,
+html:not(.dark) .bg-rose-950\/60,
+html:not(.dark) .bg-rose-900\/40,
+html.light .bg-rose-500\/10,
+html.light .bg-rose-500\/20,
+html.light .bg-rose-950\/30,
+html.light .bg-rose-950\/40,
+html.light .bg-rose-950\/60,
+html.light .bg-rose-900\/40 {
+  background-color: #fef2f2 !important;
+  color: #b91c1c !important;
+  border-color: #fecaca !important;
+}
+
+html:not(.dark) .bg-purple-950\/20,
+html:not(.dark) .bg-purple-600\/30,
+html:not(.dark) .bg-purple-600\/50,
+html.light .bg-purple-950\/20,
+html.light .bg-purple-600\/30,
+html.light .bg-purple-600\/50 {
+  background-color: #faf5ff !important;
+  color: #6b21a8 !important;
+  border-color: #e9d5ff !important;
+}
+
+/* Problem Navigation Tabs */
+html:not(.dark) .problem-tab,
+html.light .problem-tab {
+  background-color: #ffffff !important;
+  color: #334155 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+html:not(.dark) .problem-tab:hover,
+html.light .problem-tab:hover {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+html:not(.dark) .problem-tab.bg-emerald-500\/20,
+html.light .problem-tab.bg-emerald-500\/20 {
+  background-color: #ecfdf5 !important;
+  color: #047857 !important;
+  border-color: #10b981 !important;
+}
+
+/* Arena Sample Cases & Code Pre Blocks */
+html:not(.dark) pre.bg-slate-950,
+html.light pre.bg-slate-950 {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+/* Active Navigation Buttons */
+html:not(.dark) #nav-btn-arena.text-emerald-400,
+html:not(.dark) #nav-btn-leaderboard.text-emerald-400,
+html:not(.dark) #nav-btn-pass.text-emerald-400,
+html:not(.dark) #nav-btn-admin.text-emerald-400,
+html.light #nav-btn-arena.text-emerald-400,
+html.light #nav-btn-leaderboard.text-emerald-400,
+html.light #nav-btn-pass.text-emerald-400,
+html.light #nav-btn-admin.text-emerald-400 {
+  background-color: #ecfdf5 !important;
+  color: #047857 !important;
+  border-color: #10b981 !important;
+}
+
+/* Navbar Specifics in Light Mode */
+html:not(.dark) header .bg-slate-950,
+html.light header .bg-slate-950 {
+  background-color: #f1f5f9 !important;
+}
+html:not(.dark) #navbarTimerContainer,
+html.light #navbarTimerContainer {
+  background-color: #fffbeb !important;
+  border-color: #fde68a !important;
+  color: #b45309 !important;
+}
+html:not(.dark) #timerCountdown,
+html.light #timerCountdown {
+  color: #b45309 !important;
+}
+html:not(.dark) #timerStatusLabel,
+html.light #timerStatusLabel {
+  color: #78350f !important;
+}
+html:not(.dark) #liveStatusText,
+html.light #liveStatusText {
+  color: #0f172a !important;
+}
+
+/* Arena Welcome Hero & Completion Banner in Light Mode */
+html:not(.dark) #arenaWelcomeHero,
+html:not(.dark) #arenaLockedHero,
+html:not(.dark) #allCompletedBanner,
+html:not(.dark) #podiumPendingNotice,
+html.light #arenaWelcomeHero,
+html.light #arenaLockedHero,
+html.light #allCompletedBanner,
+html.light #podiumPendingNotice {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.08) !important;
+}
+html:not(.dark) #arenaAllCompletedBadge > div,
+html.light #arenaAllCompletedBadge > div {
+  background-color: #ecfdf5 !important;
+  color: #047857 !important;
+  border-color: #a7f3d0 !important;
+}
+html:not(.dark) #arenaWelcomeHero .bg-slate-900\/80,
+html.light #arenaWelcomeHero .bg-slate-900\/80 {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+html:not(.dark) #arenaWelcomeHero .text-slate-100,
+html:not(.dark) #allCompletedBanner h3,
+html:not(.dark) #podiumPendingNotice h3,
+html.light #arenaWelcomeHero .text-slate-100,
+html.light #allCompletedBanner h3,
+html.light #podiumPendingNotice h3 {
+  color: #090d16 !important;
+}
+html:not(.dark) #arenaWelcomeHero .text-slate-300,
+html:not(.dark) #allCompletedBanner p,
+html:not(.dark) #podiumPendingNotice p,
+html.light #arenaWelcomeHero .text-slate-300,
+html.light #allCompletedBanner p,
+html.light #podiumPendingNotice p {
+  color: #334155 !important;
+}
+html:not(.dark) #arenaWelcomeHero .text-slate-400,
+html.light #arenaWelcomeHero .text-slate-400 {
+  color: #64748b !important;
+}
+
+/* Previous Test Standings Banner (Light Theme) */
+html:not(.dark) #podiumArchiveBanner,
+html.light #podiumArchiveBanner {
+  background: #fef3c7 !important;
+  border: 1.5px solid #d97706 !important;
+  color: #92400e !important;
+  box-shadow: 0 4px 16px rgba(217, 119, 6, 0.18) !important;
+  margin-top: 1rem !important;
+  margin-bottom: 2.25rem !important;
+}
+html:not(.dark) #podiumArchiveBanner span,
+html.light #podiumArchiveBanner span {
+  color: #92400e !important;
+}
+
+/* Registration Contest Locked Banner (Light Theme) */
+html:not(.dark) #regContestLockedBanner,
+html.light #regContestLockedBanner {
+  background: #fef2f2 !important;
+  border: 1.5px solid #dc2626 !important;
+  color: #991b1b !important;
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.12) !important;
+}
+html:not(.dark) #regContestLockedBanner #regLockedTitle,
+html.light #regContestLockedBanner #regLockedTitle {
+  color: #b91c1c !important;
+}
+html:not(.dark) #regContestLockedBanner #regLockedMessage,
+html.light #regContestLockedBanner #regLockedMessage {
+  color: #475569 !important;
+  font-weight: 500 !important;
+}
+
+/* Holographic Student Pass (Light Mode Refinement) */
+html:not(.dark) .holographic-pass,
+html.light .holographic-pass {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(6, 182, 212, 0.12) 50%, rgba(163, 230, 53, 0.08) 100%), #ffffff !important;
+  border: 1.5px solid rgba(2, 132, 199, 0.35) !important;
+  color: #0f172a !important;
+  box-shadow: 0 12px 35px -5px rgba(15, 23, 42, 0.12), 0 0 20px rgba(6, 182, 212, 0.15) !important;
+}
+html:not(.dark) .holographic-pass *,
+html.light .holographic-pass * {
+  text-shadow: none !important;
+}
+html:not(.dark) .holographic-pass h3,
+html.light .holographic-pass h3,
+html:not(.dark) .holographic-pass .text-slate-100,
+html.light .holographic-pass .text-slate-100 {
+  color: #090d16 !important;
+}
+html:not(.dark) .holographic-pass .text-slate-300,
+html.light .holographic-pass .text-slate-300 {
+  color: #1e293b !important;
+}
+html:not(.dark) .holographic-pass .text-slate-400,
+html.light .holographic-pass .text-slate-400 {
+  color: #334155 !important;
+  font-weight: 600 !important;
+}
+html:not(.dark) .holographic-pass .bg-black\/30,
+html.light .holographic-pass .bg-black\/30 {
+  background-color: #f8fafc !important;
+  border-color: rgba(15, 23, 42, 0.1) !important;
+}
+
+/* Top 3 Podium Cards */
+html:not(.dark) .podium-card,
+html.light .podium-card {
+  background-color: #ffffff !important;
+  box-shadow: 0 10px 30px -4px rgba(15, 23, 42, 0.1) !important;
+}
+html:not(.dark) .podium-card h3,
+html:not(.dark) .podium-card h4,
+html.light .podium-card h3,
+html.light .podium-card h4 {
+  color: #090d16 !important;
+}
+html:not(.dark) .podium-gold,
+html.light .podium-gold {
+  border: 2px solid #ca8a04 !important;
+  box-shadow: 0 0 28px rgba(234, 179, 8, 0.28), 0 10px 25px rgba(15, 23, 42, 0.1) !important;
+}
+html:not(.dark) .podium-silver,
+html.light .podium-silver {
+  border: 2px solid #64748b !important;
+  box-shadow: 0 0 22px rgba(100, 116, 139, 0.22), 0 10px 25px rgba(15, 23, 42, 0.1) !important;
+}
+html:not(.dark) .podium-bronze,
+html.light .podium-bronze {
+  border: 2px solid #c2410c !important;
+  box-shadow: 0 0 22px rgba(194, 65, 12, 0.22), 0 10px 25px rgba(15, 23, 42, 0.1) !important;
+}
+
+/* Primary Action Buttons */
+html:not(.dark) .btn-cyber.bg-gradient-to-r,
+html:not(.dark) #btnSubmitCode,
+html.light .btn-cyber.bg-gradient-to-r,
+html.light #btnSubmitCode {
+  color: #090d16 !important;
+  font-weight: 800 !important;
+}
+html:not(.dark) button[type="submit"],
+html.light button[type="submit"] {
+  font-weight: 800 !important;
+}
+
+/* Sir's Desk Table & Actions in Light Mode */
+html:not(.dark) #sirDashboard .border-l-4.border-purple-500 .text-purple-300,
+html.light #sirDashboard .border-l-4.border-purple-500 .text-purple-300 {
+  color: #6b21a8 !important;
+  font-weight: 700 !important;
+}
+html:not(.dark) #sirSubmissionsTableBody td button.bg-slate-800,
+html.light #sirSubmissionsTableBody td button.bg-slate-800 {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  font-weight: 600 !important;
+}
+html:not(.dark) #sirSubmissionsTableBody td button.bg-slate-800:hover,
+html.light #sirSubmissionsTableBody td button.bg-slate-800:hover {
+  background-color: #e2e8f0 !important;
+  color: #090d16 !important;
+}
+html:not(.dark) #sirSubmissionsTableBody td button.bg-amber-500\/20,
+html.light #sirSubmissionsTableBody td button.bg-amber-500\/20 {
+  background-color: #fffbeb !important;
+  color: #b45309 !important;
+  border-color: #fde68a !important;
+  font-weight: 700 !important;
+}
+html:not(.dark) #sirSubmissionsTableBody td button.bg-amber-500\/20:hover,
+html.light #sirSubmissionsTableBody td button.bg-amber-500\/20:hover {
+  background-color: #fef3c7 !important;
+}
+
+/* =========================================================================
+   Code Inspector Modal (Dark & Light Themes - Spacious & High-Contrast)
+   ========================================================================= */
+.code-inspect-dialog {
+  background: #090d16;
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.75);
+}
+
+.code-inspect-header {
+  background: #0f172a;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.code-inspect-close-btn {
+  background: #1e293b;
+  color: #94a3b8;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.code-inspect-close-btn:hover {
+  background: #334155;
+  color: #ffffff;
+}
+
+.code-inspect-body {
+  background: #030712;
+}
+.code-inspect-body pre code {
+  color: #e2e8f0;
+  font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+}
+
+.code-inspect-footer {
+  background: #0f172a;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.code-inspect-btn-txt {
+  background: #1e293b;
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.code-inspect-btn-txt:hover {
+  background: #334155;
+  color: #ffffff;
+}
+.code-inspect-btn-src {
+  background: rgba(6, 78, 59, 0.6);
+  color: #6ee7b7;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+.code-inspect-btn-src:hover {
+  background: rgba(6, 78, 59, 0.9);
+  color: #ffffff;
+}
+.code-inspect-btn-grade {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fcd34d;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+.code-inspect-btn-grade:hover {
+  background: rgba(245, 158, 11, 0.25);
+  color: #ffffff;
+}
+.code-inspect-btn-bonus {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fde047;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+.code-inspect-btn-close {
+  background: #1e293b;
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.code-inspect-btn-close:hover {
+  background: #334155;
+  color: #ffffff;
+}
+
+/* Light Theme Code Inspector Modal (Clean, Bright, Black Code on White) */
+html:not(.dark) #codeInspectModal,
+html.light #codeInspectModal {
+  background: rgba(15, 23, 42, 0.6) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+html:not(.dark) #codeInspectModal .code-inspect-dialog,
+html.light #codeInspectModal .code-inspect-dialog {
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
+  box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.25) !important;
+}
+
+html:not(.dark) #codeInspectModal .code-inspect-header,
+html.light #codeInspectModal .code-inspect-header {
+  background: #f8fafc !important;
+  border-bottom: 1.5px solid #e2e8f0 !important;
+}
+html:not(.dark) #codeInspectModal #inspectStudentName,
+html.light #codeInspectModal #inspectStudentName {
+  color: #0f172a !important;
+}
+html:not(.dark) #codeInspectModal #inspectProblem,
+html.light #codeInspectModal #inspectProblem {
+  color: #475569 !important;
+}
+html:not(.dark) #codeInspectModal .code-inspect-close-btn,
+html.light #codeInspectModal .code-inspect-close-btn {
+  background: #e2e8f0 !important;
+  color: #1e293b !important;
+  border: 1px solid #cbd5e1 !important;
+}
+html:not(.dark) #codeInspectModal .code-inspect-close-btn:hover,
+html.light #codeInspectModal .code-inspect-close-btn:hover {
+  background: #cbd5e1 !important;
+  color: #000000 !important;
+}
+
+html:not(.dark) #codeInspectModal .code-inspect-body,
+html.light #codeInspectModal .code-inspect-body {
+  background: #ffffff !important;
+  border-top: 1px solid #e2e8f0 !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+html:not(.dark) #codeInspectModal #inspectCodeBody,
+html.light #codeInspectModal #inspectCodeBody,
+html:not(.dark) #codeInspectModal pre code,
+html.light #codeInspectModal pre code {
+  color: #090d16 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+
+html:not(.dark) #codeInspectModal .code-inspect-footer,
+html.light #codeInspectModal .code-inspect-footer {
+  background: #f8fafc !important;
+  border-top: 1.5px solid #e2e8f0 !important;
+}
+html:not(.dark) #codeInspectModal .code-inspect-btn-txt,
+html.light #codeInspectModal .code-inspect-btn-txt {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1.5px solid #cbd5e1 !important;
+}
+html:not(.dark) #codeInspectModal .code-inspect-btn-txt:hover,
+html.light #codeInspectModal .code-inspect-btn-txt:hover {
+  background: #f1f5f9 !important;
+}
+html:not(.dark) #codeInspectModal .code-inspect-btn-src,
+html.light #codeInspectModal .code-inspect-btn-src {
+  background: #ecfdf5 !important;
+  color: #047857 !important;
+  border: 1.5px solid #6ee7b7 !important;
+}
+html:not(.dark) #codeInspectModal .code-inspect-btn-src:hover,
+html.light #codeInspectModal .code-inspect-btn-src:hover {
+  background: #d1fae5 !important;
+}
+html:not(.dark) #codeInspectModal .code-inspect-btn-grade,
+html.light #codeInspectModal .code-inspect-btn-grade {
+  background: #fef3c7 !important;
+  color: #92400e !important;
+  border: 1.5px solid #f59e0b !important;
+}
+html:not(.dark) #codeInspectModal .code-inspect-btn-grade:hover,
+html.light #codeInspectModal .code-inspect-btn-grade:hover {
+  background: #fde68a !important;
+}
+html:not(.dark) #codeInspectModal .code-inspect-btn-bonus,
+html.light #codeInspectModal .code-inspect-btn-bonus {
+  background: #fef3c7 !important;
+  color: #92400e !important;
+  border: 1.5px solid #f59e0b !important;
+}
+html:not(.dark) #codeInspectModal .code-inspect-btn-bonus:hover,
+html.light #codeInspectModal .code-inspect-btn-bonus:hover {
+  background: #fde68a !important;
+}
+html:not(.dark) #codeInspectModal .code-inspect-btn-close,
+html.light #codeInspectModal .code-inspect-btn-close {
+  background: #e2e8f0 !important;
+  color: #1e293b !important;
+  border: 1.5px solid #cbd5e1 !important;
+}
+html:not(.dark) #codeInspectModal .code-inspect-btn-close:hover,
+html.light #codeInspectModal .code-inspect-btn-close:hover {
+  background: #cbd5e1 !important;
+}
+
+/* Developer Portfolio Badge (Muhammad Rehan - BS Software Engineering) */
+.developer-badge {
+  text-decoration: none !important;
+  cursor: pointer;
+}
+html:not(.dark) .developer-badge,
+html.light .developer-badge {
+  background-color: #ffffff !important;
+  border-color: rgba(15, 23, 42, 0.16) !important;
+  box-shadow: 0 4px 14px -2px rgba(15, 23, 42, 0.08) !important;
+}
+html:not(.dark) .developer-badge:hover,
+html.light .developer-badge:hover {
+  background-color: #f8fafc !important;
+  border-color: #059669 !important;
+  box-shadow: 0 6px 18px -2px rgba(5, 150, 105, 0.15) !important;
+}
+html:not(.dark) .developer-badge span.text-slate-300,
+html.light .developer-badge span.text-slate-300 {
+  color: #334155 !important;
+}
+html:not(.dark) .developer-badge strong,
+html.light .developer-badge strong {
+  color: #059669 !important;
+}
+html:not(.dark) .developer-badge span.bg-emerald-500\/15,
+html.light .developer-badge span.bg-emerald-500\/15 {
+  background-color: #ecfdf5 !important;
+  color: #047857 !important;
+  border-color: #a7f3d0 !important;
+}
+html:not(.dark) .developer-badge span.bg-cyan-500\/10,
+html.light .developer-badge span.bg-cyan-500\/10 {
+  background-color: #f0fdf4 !important;
+  color: #0284c7 !important;
+  border-color: #bae6fd !important;
+}
+
+/* Add New Question Modal in Light & Dark Mode */
+#newQuestionModal {
+  z-index: 9999;
+}
+html:not(.dark) #newQuestionModal .glass-panel,
+html.light #newQuestionModal .glass-panel {
+  background: #ffffff !important;
+  border: 1px solid rgba(15, 23, 42, 0.16) !important;
+  box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.25), 0 0 25px rgba(2, 132, 199, 0.1) !important;
+}
+html:not(.dark) #newQuestionModal .text-white,
+html.light #newQuestionModal .text-white {
+  color: #090d16 !important;
+}
+html:not(.dark) #newQuestionModal button.bg-slate-800,
+html.light #newQuestionModal button.bg-slate-800 {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+  font-weight: 600;
+}
+html:not(.dark) #newQuestionModal button.bg-slate-800:hover,
+html.light #newQuestionModal button.bg-slate-800:hover {
+  background-color: #e2e8f0 !important;
+  color: #090d16 !important;
+}
+
+/* Ensure Sir Dashboard Section Headers never get clipped */
+#view-admin {
+  scroll-margin-top: 1rem;
+}
+#sirDashboard > div {
+  scroll-margin-top: 1rem;
+}
+
+/* =========================================================================
+   Sir Portal High-Visibility Logout Button (Dark & Light Mode)
+   ========================================================================= */
+.btn-sir-logout {
+  background: linear-gradient(135deg, rgba(225, 29, 72, 0.2), rgba(159, 18, 57, 0.3));
+  border: 1px solid rgba(244, 63, 94, 0.5);
+  color: #fda4af;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(225, 29, 72, 0.18);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-sir-logout:hover {
+  background: linear-gradient(135deg, rgba(225, 29, 72, 0.45), rgba(159, 18, 57, 0.55));
+  border-color: rgba(251, 113, 133, 0.9);
+  color: #ffffff;
+  box-shadow: 0 6px 22px rgba(225, 29, 72, 0.45);
+  transform: translateY(-1px);
+}
+
+.btn-sir-logout:active {
+  transform: translateY(0);
+}
+
+/* Light Theme: Bold, High-Contrast Crimson Red Button */
+html:not(.dark) .btn-sir-logout,
+html.light .btn-sir-logout {
+  background: linear-gradient(135deg, #e11d48, #be123c) !important;
+  color: #ffffff !important;
+  border: 1px solid #9f1239 !important;
+  box-shadow: 0 4px 14px rgba(225, 29, 72, 0.28) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25) !important;
+}
+
+html:not(.dark) .btn-sir-logout:hover,
+html.light .btn-sir-logout:hover {
+  background: linear-gradient(135deg, #f43f5e, #e11d48) !important;
+  color: #ffffff !important;
+  border-color: #be123c !important;
+  box-shadow: 0 6px 20px rgba(225, 29, 72, 0.42) !important;
+}
+
+/* Judge Avatar Container in Light Mode */
+html:not(.dark) .judge-avatar-inner,
+html.light .judge-avatar-inner {
+  background-color: #ffffff !important;
+  border: 1px solid rgba(168, 85, 247, 0.25) !important;
+}
+
+/* =========================================================================
+   Edit Timer Modal (Sir Custom Timer Control) - Light & Dark Mode
+   ========================================================================= */
+html:not(.dark) #editTimerModal .glass-panel,
+html.light #editTimerModal .glass-panel {
+  background: #ffffff !important;
+  border: 1px solid rgba(15, 23, 42, 0.16) !important;
+  box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.25), 0 0 25px rgba(245, 158, 11, 0.15) !important;
+}
+
+html:not(.dark) #editTimerModal h3,
+html.light #editTimerModal h3,
+html:not(.dark) #editTimerModal .text-white,
+html.light #editTimerModal .text-white {
+  color: #0f172a !important;
+}
+
+html:not(.dark) #editTimerModal .text-slate-300,
+html.light #editTimerModal .text-slate-300 {
+  color: #334155 !important;
+}
+
+html:not(.dark) #editTimerModal .text-slate-400,
+html.light #editTimerModal .text-slate-400 {
+  color: #475569 !important;
+}
+
+html:not(.dark) #editTimerModal button.bg-slate-800,
+html.light #editTimerModal button.bg-slate-800 {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+  font-weight: 700 !important;
+}
+
+html:not(.dark) #editTimerModal button.bg-slate-800:hover,
+html.light #editTimerModal button.bg-slate-800:hover {
+  background-color: #e2e8f0 !important;
+  color: #090d16 !important;
+}
+
+html:not(.dark) #editTimerModal button.bg-amber-500\/15,
+html.light #editTimerModal button.bg-amber-500\/15 {
+  background-color: #fffbeb !important;
+  color: #b45309 !important;
+  border: 1px solid #fde68a !important;
+  font-weight: 800 !important;
+}
+
+html:not(.dark) #editTimerModal button.bg-amber-500\/15:hover,
+html.light #editTimerModal button.bg-amber-500\/15:hover {
+  background-color: #fef3c7 !important;
+  border-color: #f59e0b !important;
+}
+
+html:not(.dark) #editTimerModal button.bg-emerald-500\/15,
+html.light #editTimerModal button.bg-emerald-500\/15 {
+  background-color: #ecfdf5 !important;
+  color: #047857 !important;
+  border: 1px solid #a7f3d0 !important;
+  font-weight: 800 !important;
+}
+
+html:not(.dark) #editTimerModal button.bg-emerald-500\/15:hover,
+html.light #editTimerModal button.bg-emerald-500\/15:hover {
+  background-color: #d1fae5 !important;
+  border-color: #10b981 !important;
+}
+
+html:not(.dark) #editTimerModal input,
+html.light #editTimerModal input {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+/* ============================================================================
+   ARENA TEXT VISIBILITY & ULTRA-SMOOTH SCROLLING ENGINE (LIGHT & DARK MODES)
+   Fixes locked / clipped scrolling before & after submission and ensures 100%
+   crisp text readability across code editor, problem details, and sample cases.
+   ============================================================================ */
+
+/* 1. Global & Arena Scrolling Behavior (100vh Full Screen - Zero Outer Page Scroll) */
+html, body {
+  height: 100vh !important;
+  max-height: 100vh !important;
+  overflow: hidden !important;
+}
+
+#mainContainer {
+  overflow: hidden !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+#view-arena {
+  overflow: hidden !important;
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
+#arenaWorkspace {
+  overflow: hidden !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+#view-leaderboard {
+  overflow-y: auto !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  scrollbar-width: thin;
+}
+
+#view-pass {
+  overflow: hidden !important;
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
+#view-admin {
+  overflow-y: auto !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  scrollbar-width: thin;
+}
+
+/* 2. Code Editor Text Visibility & Smooth Scrollbar */
+#codeEditor {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace !important;
+  font-size: 13px !important;
+  line-height: 1.65 !important;
+  tab-size: 4 !important;
+  overflow-y: auto !important;
+  overflow-x: auto !important;
+  white-space: pre !important;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+  resize: none !important;
+}
+
+#codeEditor::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+#codeEditor::-webkit-scrollbar-track {
+  background: transparent;
+}
+#codeEditor::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+}
+#codeEditor::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* Code Editor in Dark Mode */
+html.dark #codeEditor {
+  background-color: #0b0f19 !important;
+  color: #f8fafc !important;
+}
+
+html.dark #codeEditor[readonly],
+html.dark textarea#codeEditor[readonly] {
+  background-color: #050b14 !important;
+  color: #f8fafc !important;
+  opacity: 1 !important;
+  cursor: text !important;
+}
+
+/* Code Editor in Light Mode */
+html:not(.dark) #codeEditor,
+html.light #codeEditor {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+html:not(.dark) #codeEditor[readonly],
+html.light #codeEditor[readonly],
+html:not(.dark) textarea#codeEditor[readonly],
+html.light textarea#codeEditor[readonly] {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  opacity: 1 !important;
+  cursor: text !important;
+}
+
+/* 3. Problem Statement Crisp Text Visibility */
+/* Dark Mode Problem Details */
+html.dark #problemTitle {
+  color: #ffffff !important;
+}
+html.dark #problemDescription {
+  color: #e2e8f0 !important;
+  font-size: 12.5px !important;
+  line-height: 1.65 !important;
+}
+html.dark #problemInputFormat,
+html.dark #problemOutputFormat {
+  color: #cbd5e1 !important;
+  font-size: 12px !important;
+  line-height: 1.55 !important;
+}
+html.dark #problemConstraintsList li {
+  background-color: rgba(15, 23, 42, 0.7) !important;
+  color: #e2e8f0 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+html.dark #problemSamplesContainer pre {
+  background-color: #050b14 !important;
+  color: #e2e8f0 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Light Mode Problem Details (High Contrast, Deep Dark Text) */
+html:not(.dark) #problemTitle,
+html.light #problemTitle {
+  color: #090d16 !important;
+  font-weight: 800 !important;
+}
+
+html:not(.dark) #problemDescription,
+html.light #problemDescription {
+  color: #1e293b !important;
+  font-size: 12.5px !important;
+  line-height: 1.65 !important;
+  font-weight: 500 !important;
+}
+
+html:not(.dark) #problemInputFormat,
+html:not(.dark) #problemOutputFormat,
+html.light #problemInputFormat,
+html.light #problemOutputFormat {
+  color: #334155 !important;
+  font-size: 12px !important;
+  line-height: 1.55 !important;
+  font-weight: 500 !important;
+}
+
+html:not(.dark) #problemConstraintsList li,
+html.light #problemConstraintsList li {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+  font-weight: 600 !important;
+}
+
+html:not(.dark) #problemSamplesContainer .bg-slate-900\/80,
+html.light #problemSamplesContainer .bg-slate-900\/80 {
+  background-color: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+html:not(.dark) #problemSamplesContainer pre,
+html.light #problemSamplesContainer pre {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+  font-weight: 600 !important;
+}
+
+html:not(.dark) #problemSamplesContainer .text-slate-400,
+html.light #problemSamplesContainer .text-slate-400 {
+  color: #334155 !important;
+}
+
+html:not(.dark) #problemTimeLimit,
+html:not(.dark) #problemMemoryLimit,
+html.light #problemTimeLimit,
+html.light #problemMemoryLimit {
+  color: #0f172a !important;
+  font-weight: 700 !important;
+}
+
+/* 4. Terminal & Console High-Contrast Text */
+#terminalBody {
+  overflow-y: auto !important;
+  scroll-behavior: smooth !important;
+  max-height: 160px;
+}
+html:not(.dark) #terminalBody pre,
+html.light #terminalBody pre {
+  color: #0f172a !important;
+}
+
+/* ============================================================================
+   CONTEST BUDGET PANEL & QUESTION BANK ENHANCEMENTS (LIGHT & DARK THEMES)
+   Fixes dark charcoal background in Light Mode and styles language badges
+   ============================================================================ */
+
+/* 1. Light Mode - Contest Budget Panel */
+html:not(.dark) .contest-budget-panel,
+html.light .contest-budget-panel {
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.04) !important;
+}
+
+html:not(.dark) .contest-budget-label,
+html.light .contest-budget-label {
+  color: #0f172a !important;
+  font-weight: 700 !important;
+}
+
+html:not(.dark) .contest-budget-sublabel,
+html.light .contest-budget-sublabel {
+  color: #334155 !important;
+  font-weight: 600 !important;
+}
+
+html:not(.dark) .contest-budget-track,
+html.light .contest-budget-track {
+  background-color: #e2e8f0 !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Presets Buttons in Light Mode */
+html:not(.dark) .contest-preset-btn,
+html.light .contest-preset-btn {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+}
+
+html:not(.dark) .contest-preset-btn:hover,
+html.light .contest-preset-btn:hover {
+  background-color: #f1f5f9 !important;
+  border-color: #94a3b8 !important;
+  color: #0284c7 !important;
+}
+
+/* Active Question Chips in Light Mode */
+html:not(.dark) .contest-chip-easy,
+html.light .contest-chip-easy {
+  background-color: #ecfdf5 !important;
+  border: 1px solid #a7f3d0 !important;
+  color: #065f46 !important;
+}
+
+html:not(.dark) .contest-chip-medium,
+html.light .contest-chip-medium {
+  background-color: #f0f9ff !important;
+  border: 1px solid #bae6fd !important;
+  color: #0369a1 !important;
+}
+
+html:not(.dark) .contest-chip-hard,
+html.light .contest-chip-hard {
+  background-color: #fffbeb !important;
+  border: 1px solid #fde68a !important;
+  color: #92400e !important;
+}
+
+html:not(.dark) .contest-chip .chip-title,
+html.light .contest-chip .chip-title {
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+
+html:not(.dark) .contest-chip .chip-pts,
+html.light .contest-chip .chip-pts {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+html:not(.dark) .contest-chip .chip-langs,
+html.light .contest-chip .chip-langs {
+  background-color: #f1f5f9 !important;
+  color: #475569 !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+html:not(.dark) .contest-chip .chip-remove-btn,
+html.light .contest-chip .chip-remove-btn {
+  color: #64748b !important;
+}
+
+html:not(.dark) .contest-chip .chip-remove-btn:hover,
+html.light .contest-chip .chip-remove-btn:hover {
+  color: #e11d48 !important;
+}
+
+/* 2. Question Bank Table in Light Mode */
+html:not(.dark) #questionBankTableBody tr,
+html.light #questionBankTableBody tr {
+  border-color: #e2e8f0 !important;
+}
+
+html:not(.dark) #questionBankTableBody tr:hover,
+html.light #questionBankTableBody tr:hover {
+  background-color: #f8fafc !important;
+}
+
+html:not(.dark) #questionBankTableBody td .q-title,
+html.light #questionBankTableBody td .q-title {
+  color: #0f172a !important;
+}
+
+html:not(.dark) #questionBankTableBody td .q-desc,
+html.light #questionBankTableBody td .q-desc {
+  color: #475569 !important;
+}
+
+html:not(.dark) #questionBankTableBody td .q-id,
+html.light #questionBankTableBody td .q-id {
+  color: #64748b !important;
+}
+
+/* Question Action Buttons in Light Mode */
+html:not(.dark) .btn-contest-active,
+html.light .btn-contest-active {
+  background-color: #ecfdf5 !important;
+  color: #047857 !important;
+  border: 1px solid #10b981 !important;
+}
+
+html:not(.dark) .btn-contest-add,
+html.light .btn-contest-add {
+  background-color: #f0fdf4 !important;
+  color: #15803d !important;
+  border: 1px solid #86efac !important;
+}
+
+html:not(.dark) .btn-contest-exceed,
+html.light .btn-contest-exceed {
+  background-color: #fff1f2 !important;
+  color: #be123c !important;
+  border: 1px solid #fda4af !important;
+}
+
+/* 3. Universal Language Pills Styling (Dark & Light) */
+.lang-badge-c {
+  background-color: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.35);
+}
+html:not(.dark) .lang-badge-c,
+html.light .lang-badge-c {
+  background-color: #eff6ff !important;
+  color: #1d4ed8 !important;
+  border-color: #bfdbfe !important;
+}
+
+.lang-badge-cpp {
+  background-color: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+}
+html:not(.dark) .lang-badge-cpp,
+html.light .lang-badge-cpp {
+  background-color: #e0e7ff !important;
+  color: #4338ca !important;
+  border-color: #c7d2fe !important;
+}
+
+.lang-badge-java {
+  background-color: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+html:not(.dark) .lang-badge-java,
+html.light .lang-badge-java {
+  background-color: #fef3c7 !important;
+  color: #b45309 !important;
+  border-color: #fde68a !important;
+}
+
+.lang-badge-python {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+html:not(.dark) .lang-badge-python,
+html.light .lang-badge-python {
+  background-color: #ecfdf5 !important;
+  color: #047857 !important;
+  border-color: #a7f3d0 !important;
+}
+
+/* Dark Mode Fallbacks for Chips */
+html.dark .contest-budget-panel {
+  background-color: rgba(2, 6, 23, 0.75) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+html.dark .contest-chip-easy {
+  background-color: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #6ee7b7;
+}
+html.dark .contest-chip-medium {
+  background-color: rgba(6, 182, 212, 0.15);
+  border-color: rgba(6, 182, 212, 0.3);
+  color: #67e8f9;
+}
+html.dark .contest-chip-hard {
+  background-color: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.3);
+  color: #fcd34d;
+}
+
+/* ============================================================================
+   ADD QUESTION MODAL: LANGUAGE SELECTION & FILTER STYLES (LIGHT & DARK)
+   ============================================================================ */
+
+/* Language Selector Chips in Add Question Modal */
+.lang-modal-chip {
+  transition: all 0.15s ease-in-out;
+}
+.lang-modal-chip:hover {
+  transform: translateY(-1px);
+}
+
+html:not(.dark) .lang-modal-chip,
+html.light .lang-modal-chip {
+  background-color: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html:not(.dark) .lang-modal-chip:has(input:checked),
+html.light .lang-modal-chip:has(input:checked) {
+  background-color: #ecfdf5 !important;
+  border-color: #86efac !important;
+  color: #047857 !important;
+  box-shadow: 0 1px 3px rgba(16, 185, 129, 0.1) !important;
+}
+
+/* Question Bank Filter Buttons */
+html:not(.dark) .q-lang-filter-btn,
+html.light .q-lang-filter-btn {
+  background-color: #f8fafc !important;
+  color: #475569 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+html:not(.dark) .q-lang-filter-btn:hover,
+html.light .q-lang-filter-btn:hover {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+html:not(.dark) .q-lang-filter-btn.active,
+html.light .q-lang-filter-btn.active {
+  background-color: #eff6ff !important;
+  color: #1d4ed8 !important;
+  border-color: #3b82f6 !important;
+}
+
+html.dark .q-lang-filter-btn.active {
+  background-color: rgba(6, 182, 212, 0.2) !important;
+  color: #67e8f9 !important;
+  border-color: rgba(6, 182, 212, 0.5) !important;
+}
+
+/* ============================================================================
+   SPECIFY QUESTIONS MODAL (LIGHT & DARK MODE)
+   ============================================================================ */
+
+/* Light Mode Overrides for Specify Questions Modal */
+html:not(.dark) #specifyQuestionsModal .glass-panel,
+html.light #specifyQuestionsModal .glass-panel {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25) !important;
+}
+
+html:not(.dark) #specifyQuestionsModal .bg-slate-900\/80,
+html.light #specifyQuestionsModal .bg-slate-900\/80,
+html:not(.dark) #specifyQuestionsModal .bg-slate-900\/70,
+html.light #specifyQuestionsModal .bg-slate-900\/70 {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+html:not(.dark) #specifyQuestionsModal .text-white,
+html.light #specifyQuestionsModal .text-white {
+  color: #0f172a !important;
+}
+
+html:not(.dark) #specifyQuestionsModal .text-slate-400,
+html.light #specifyQuestionsModal .text-slate-400 {
+  color: #475569 !important;
+}
+
+html:not(.dark) #specifyQuestionsModal .text-slate-300,
+html.light #specifyQuestionsModal .text-slate-300 {
+  color: #334155 !important;
+}
+
+html:not(.dark) #specifyQuestionsModal button.bg-slate-800,
+html.light #specifyQuestionsModal button.bg-slate-800 {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+html:not(.dark) #specifyQuestionsModal button.bg-slate-800:hover,
+html.light #specifyQuestionsModal button.bg-slate-800:hover {
+  background-color: #e2e8f0 !important;
+}
+
+/* Team Card styling in Light Mode */
+html:not(.dark) #specifyTeamsContainer > div,
+html.light #specifyTeamsContainer > div {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05) !important;
+}
+
+html:not(.dark) #specifyTeamsContainer > div:hover,
+html.light #specifyTeamsContainer > div:hover {
+  border-color: #0284c7 !important;
+  background-color: #f0f9ff !important;
+}
+
+/* Question Rows in Light Mode */
+html:not(.dark) #assignQuestionsListContainer > div,
+html.light #assignQuestionsListContainer > div {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04) !important;
+}
+
+html:not(.dark) #assignQuestionsListContainer > div:hover,
+html.light #assignQuestionsListContainer > div:hover {
+  background-color: #f8fafc !important;
+}
+
+/* Language Badges High Contrast in Light Mode */
+html:not(.dark) .lang-badge-java,
+html.light .lang-badge-java {
+  background-color: #fef3c7 !important;
+  color: #92400e !important;
+  border-color: #fcd34d !important;
+}
+
+html:not(.dark) .lang-badge-python,
+html.light .lang-badge-python {
+  background-color: #dbeafe !important;
+  color: #1e40af !important;
+  border-color: #93c5fd !important;
+}
+
+html:not(.dark) .lang-badge-cpp,
+html.light .lang-badge-cpp {
+  background-color: #e0e7ff !important;
+  color: #3730a3 !important;
+  border-color: #a5b4fc !important;
+}
+
+html:not(.dark) .lang-badge-c,
+html.light .lang-badge-c {
+  background-color: #f1f5f9 !important;
+  color: #334155 !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* ============================================================================
+   ARENA WORKSPACE & CONTROLS LIGHT THEME REFINEMENT
+   ============================================================================ */
+
+/* In-Workspace Timer in Light Mode */
+html:not(.dark) #arenaTimerBox,
+html.light #arenaTimerBox {
+  background-color: #fffbeb !important;
+  border: 1px solid #fde68a !important;
+}
+html:not(.dark) #arenaTimerBox #arenaTimerLabel,
+html.light #arenaTimerBox #arenaTimerLabel {
+  color: #b45309 !important;
+}
+html:not(.dark) #arenaTimerBox #arenaTimerCountdown,
+html.light #arenaTimerBox #arenaTimerCountdown {
+  color: #78350f !important;
+  font-weight: 900 !important;
+}
+
+/* Language Dropdown in Light Mode */
+html:not(.dark) #editorLanguageSelect,
+html.light #editorLanguageSelect {
+  background-color: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+html:not(.dark) #languageSelectorWrapper .text-slate-400,
+html.light #languageSelectorWrapper .text-slate-400 {
+  color: #475569 !important;
+}
+
+/* Reset Button in Light Mode */
+html:not(.dark) #btnResetCode,
+html.light #btnResetCode {
+  background-color: #f8fafc !important;
+  color: #334155 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+html:not(.dark) #btnResetCode:hover,
+html.light #btnResetCode:hover {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #94a3b8 !important;
+}
+
+/* Test Code Button in Light Mode */
+html:not(.dark) #btnTestCode,
+html.light #btnTestCode {
+  background-color: #e0f2fe !important;
+  color: #0369a1 !important;
+  border: 1px solid #7dd3fc !important;
+  box-shadow: 0 1px 3px rgba(2, 132, 199, 0.15) !important;
+}
+html:not(.dark) #btnTestCode:hover,
+html.light #btnTestCode:hover {
+  background-color: #bae6fd !important;
+  color: #0c4a6e !important;
+}
+
+/* Leave Button in Light Mode */
+html:not(.dark) #btnLeaveArena,
+html.light #btnLeaveArena {
+  background-color: #fff1f2 !important;
+  color: #be123c !important;
+  border: 1px solid #fecdd3 !important;
+}
+html:not(.dark) #btnLeaveArena:hover,
+html.light #btnLeaveArena:hover {
+  background-color: #ffe4e6 !important;
+  color: #9f1239 !important;
+}
+
+/* Copy Code Button in Light Mode */
+html:not(.dark) #btnCopyEditorCode,
+html.light #btnCopyEditorCode {
+  background-color: #e0f2fe !important;
+  color: #0369a1 !important;
+  border: 1px solid #7dd3fc !important;
+}
+html:not(.dark) #btnCopyEditorCode:hover,
+html.light #btnCopyEditorCode:hover {
+  background-color: #bae6fd !important;
+}
+
+/* Problem Details Panel in Light Mode */
+html:not(.dark) #problemTitle,
+html.light #problemTitle {
+  color: #0f172a !important;
+  font-weight: 900 !important;
+}
+html:not(.dark) #problemDescription,
+html.light #problemDescription {
+  color: #1e293b !important;
+  font-size: 13px !important;
+  line-height: 1.65 !important;
+}
+html:not(.dark) #problemInputFormat,
+html:not(.dark) #problemOutputFormat,
+html.light #problemInputFormat,
+html.light #problemOutputFormat {
+  color: #334155 !important;
+  font-weight: 500 !important;
+}
+html:not(.dark) #problemConstraintsList li,
+html.light #problemConstraintsList li {
+  background-color: #f8fafc !important;
+  color: #1e293b !important;
+  border: 1px solid #e2e8f0 !important;
+}
+html:not(.dark) #problemSamplesContainer > div,
+html.light #problemSamplesContainer > div {
+  background-color: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
+}
+html:not(.dark) #problemSamplesContainer pre,
+html.light #problemSamplesContainer pre {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+}
+html:not(.dark) #problemLanguagesBadge,
+html.light #problemLanguagesBadge {
+  background-color: #f3e8ff !important;
+  color: #6b21a8 !important;
+  border: 1px solid #d8b4fe !important;
+}
+
+/* Code Editor Frame & Body in Light Mode */
+html:not(.dark) .code-editor-header,
+html.light .code-editor-header {
+  background-color: #f8fafc !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  color: #334155 !important;
+}
+html:not(.dark) .code-editor-title,
+html.light .code-editor-title {
+  color: #0f172a !important;
+  font-weight: 700 !important;
+}
+html:not(.dark) #codeEditor,
+html.light #codeEditor {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  caret-color: #0f172a !important;
+}
+html:not(.dark) #codeEditor::placeholder,
+html.light #codeEditor::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Terminal Console: Sleek Dark High-Contrast Developer Console in BOTH Light and Dark Themes */
+.terminal-window,
+html:not(.dark) .terminal-window,
+html.light .terminal-window {
+  background: #090d16 !important;
+  border: 1px solid rgba(56, 189, 248, 0.3) !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.05) !important;
+  color: #f1f5f9 !important;
+}
+
+#terminalBody,
+html:not(.dark) #terminalBody,
+html.light #terminalBody {
+  background: #090d16 !important;
+  color: #f1f5f9 !important;
+}
+
+/* Monospace output text inside terminal */
+.terminal-window pre,
+.terminal-window code,
+#terminalBody pre,
+#terminalBody code,
+#terminalBody div,
+#terminalBody p,
+#terminalBody span {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace !important;
+}
+
+/* Ensure bright, clear contrast for all terminal tokens in light and dark mode */
+html:not(.dark) .terminal-window .text-slate-400,
+html.light .terminal-window .text-slate-400,
+html:not(.dark) .terminal-window .text-slate-500,
+html.light .terminal-window .text-slate-500 {
+  color: #94a3b8 !important;
+}
+
+html:not(.dark) .terminal-window .text-slate-300,
+html.light .terminal-window .text-slate-300,
+html:not(.dark) .terminal-window .text-slate-200,
+html.light .terminal-window .text-slate-200 {
+  color: #f8fafc !important;
+}
+
+html:not(.dark) .terminal-window .text-emerald-400,
+html.light .terminal-window .text-emerald-400 {
+  color: #4ade80 !important;
+}
+
+html:not(.dark) .terminal-window .text-cyan-400,
+html.light .terminal-window .text-cyan-400 {
+  color: #38bdf8 !important;
+}
+
+html:not(.dark) .terminal-window .bg-emerald-500\/20,
+html.light .terminal-window .bg-emerald-500\/20 {
+  background-color: rgba(16, 185, 129, 0.25) !important;
+  color: #4ade80 !important;
+  border-color: rgba(74, 222, 128, 0.4) !important;
+}
+
+/* Distribution Mode Toggle Pill Group */
+.mode-pill-group {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+html.light .mode-pill-group {
+  background: #e2e8f0 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+.mode-toggle-pill {
+  color: #94a3b8;
+  cursor: pointer;
+}
+html.light .mode-toggle-pill {
+  color: #475569 !important;
+}
+
+.mode-toggle-pill:hover {
+  color: #f1f5f9;
+}
+html.light .mode-toggle-pill:hover {
+  color: #0f172a !important;
+}
+
+.mode-toggle-pill.active {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(6, 182, 212, 0.25));
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+html.light .mode-toggle-pill.active {
+  background: #ffffff !important;
+  color: #0284c7 !important;
+  border: 1px solid #0284c7 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  font-weight: 700;
+}
+
+/* Choose Same Mode Questions Modal in Light Mode */
+html:not(.dark) #chooseSameModeQuestionsModal .glass-panel,
+html.light #chooseSameModeQuestionsModal .glass-panel {
+  background: #ffffff !important;
+  border: 1px solid rgba(15, 23, 42, 0.16) !important;
+  box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.25) !important;
+}
+html:not(.dark) #chooseSameModeQuestionsModal .text-white,
+html.light #chooseSameModeQuestionsModal .text-white {
+  color: #0f172a !important;
+}
+html:not(.dark) #chooseSameModeQuestionsModal .bg-slate-900\/80,
+html.light #chooseSameModeQuestionsModal .bg-slate-900\/80,
+html:not(.dark) #chooseSameModeQuestionsModal .bg-slate-900\/70,
+html.light #chooseSameModeQuestionsModal .bg-slate-900\/70 {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+html:not(.dark) #chooseSameModeQuestionsModal .bg-slate-900\/60,
+html.light #chooseSameModeQuestionsModal .bg-slate-900\/60 {
+  background: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+html:not(.dark) #chooseSameModeQuestionsModal .text-slate-400,
+html.light #chooseSameModeQuestionsModal .text-slate-400 {
+  color: #475569 !important;
+}
+html:not(.dark) #chooseSameModeQuestionsModal .text-slate-200,
+html.light #chooseSameModeQuestionsModal .text-slate-200 {
+  color: #1e293b !important;
+}
+html:not(.dark) #chooseSameModeQuestionsModal button.bg-slate-800,
+html.light #chooseSameModeQuestionsModal button.bg-slate-800 {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+/* Team Submissions Cards in Light Mode */
+html:not(.dark) .team-submission-card,
+html.light .team-submission-card {
+  background-color: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+html:not(.dark) .team-submission-card > div:first-child,
+html.light .team-submission-card > div:first-child {
+  background-color: #f1f5f9 !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+html:not(.dark) .team-submission-card span.font-bold.text-white,
+html.light .team-submission-card span.font-bold.text-white {
+  color: #0f172a !important;
+}
+
+html:not(.dark) .team-submission-card table thead,
+html.light .team-submission-card table thead {
+  background-color: #f8fafc !important;
+  color: #475569 !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+html:not(.dark) .team-submission-card table tbody tr,
+html.light .team-submission-card table tbody tr {
+  border-bottom: 1px solid #f1f5f9 !important;
+}
+
+html:not(.dark) .team-submission-card table tbody tr:hover,
+html.light .team-submission-card table tbody tr:hover {
+  background-color: #f8fafc !important;
+}
+
+html:not(.dark) .team-submission-card table tbody tr td .text-slate-200,
+html.light .team-submission-card table tbody tr td .text-slate-200 {
+  color: #0f172a !important;
+}
+
+/* ============================================================================
+   TEST CASES (Spacious, Unboxed, High Contrast in Both Themes)
+   ============================================================================ */
+.test-case-block {
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.test-case-block:hover {
+  border-color: rgba(56, 189, 248, 0.25);
+}
+
+html:not(.dark) .test-case-block,
+html.light .test-case-block {
+  background: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+html:not(.dark) .test-case-block:hover,
+html.light .test-case-block:hover {
+  background: #ffffff !important;
+  border-color: #94a3b8 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08) !important;
+}
+
+html:not(.dark) .test-case-block .text-slate-200,
+html.light .test-case-block .text-slate-200 {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+}
+
+html:not(.dark) .test-case-block .text-slate-400,
+html.light .test-case-block .text-slate-400 {
+  color: #475569 !important;
+  font-weight: 700 !important;
+}
+
+html:not(.dark) .test-case-block .test-case-input,
+html.light .test-case-block .test-case-input {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+}
+
+html:not(.dark) .test-case-block .test-case-output,
+html.light .test-case-block .test-case-output {
+  color: #059669 !important;
+  font-weight: 800 !important;
+}
+
+html:not(.dark) .test-case-block button,
+html.light .test-case-block button {
+  background: #ffffff !important;
+  color: #0284c7 !important;
+  border: 1px solid #bae6fd !important;
+}
+
+html:not(.dark) .test-case-block button:hover,
+html.light .test-case-block button:hover {
+  background: #f0f9ff !important;
+  color: #0369a1 !important;
+  border-color: #38bdf8 !important;
+}
+
+
+
+
+

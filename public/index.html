@@ -1,0 +1,1715 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VISUE SPARK 2026 - Inter-University Programming Arena</title>
+  
+  <!-- Inter & JetBrains Mono Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            obsidian: '#05070c',
+            surface: {
+              900: '#0a0d16',
+              800: '#101524',
+              700: '#171e33',
+            },
+            cyber: {
+              emerald: '#10b981',
+              cyan: '#06b6d4',
+              amber: '#f59e0b',
+              neon: '#22c55e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Custom Modern Cyber & Obsidian Styles -->
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="cyber-grid-bg h-screen max-h-screen overflow-hidden flex flex-col font-sans selection:bg-emerald-500/30 selection:text-emerald-200">
+
+  <!-- =========================================================================
+       1. Top Navigation Bar (High-Tech Glass Header)
+       ========================================================================= -->
+  <header class="sticky top-0 z-50 glass-panel border-b border-white/10 px-3 lg:px-6 py-1.5 transition-all">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-2.5">
+      
+      <!-- Brand & Competition Title -->
+      <div class="flex items-center gap-2.5 cursor-pointer" onclick="switchView('arena')">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-emerald-500 via-teal-400 to-cyan-500 p-[1px] shadow-md shadow-emerald-500/20">
+          <div class="w-full h-full bg-slate-950 rounded-[7px] flex items-center justify-center">
+            <span class="font-mono font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 text-sm">⚡</span>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <h1 class="font-extrabold tracking-tight text-white text-sm sm:text-base flex items-center gap-1.5">
+              <span>VISUE SPARK</span>
+              <span class="px-1 py-0.2 rounded text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">2026</span>
+            </h1>
+          </div>
+          <div class="text-[9px] font-mono text-cyan-400 tracking-wider uppercase font-semibold">
+            Inter-University Programming Arena • 90-Min Competition
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="hidden md:flex items-center gap-1 bg-slate-950/60 p-0.5 rounded-lg border border-white/5">
+        <button id="nav-btn-arena" onclick="switchView('arena')" class="px-3 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all text-emerald-400 border border-emerald-500 bg-white/5">
+          <span>🏁</span> Arena
+        </button>
+        <button id="nav-btn-leaderboard" onclick="switchView('leaderboard')" class="px-3 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all text-slate-400 border border-transparent hover:text-white">
+          <span>🏆</span> Podium
+        </button>
+        <button id="nav-btn-pass" onclick="switchView('pass')" class="px-3 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all text-slate-400 border border-transparent hover:text-white">
+          <span>🎫</span> Team Pass
+        </button>
+        <button id="nav-btn-admin" onclick="switchView('admin')" class="px-3 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all text-slate-400 border border-transparent hover:text-white">
+          <span>👨‍🏫</span> Sir's Desk
+          <span id="navPendingBadge" class="hidden px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-amber-500 text-slate-950">!</span>
+        </button>
+      </nav>
+
+      <!-- Right Controls: 90-Min Timer, Theme Toggle, Live Status & Team Badge -->
+      <div class="flex items-center gap-2">
+        
+        <!-- 90-Minute Contest Countdown Timer (Visible & Synchronized) -->
+        <div id="navbarTimerContainer" class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-900/90 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold shadow-inner">
+          <span id="timerIcon">⏳</span>
+          <span id="timerStateBadge" class="w-2 h-2 rounded-full bg-slate-500"></span>
+          <span id="timerCountdown" class="text-xs sm:text-sm font-black text-amber-300">90:00</span>
+          <span id="timerStatusLabel" class="text-[10px] text-slate-400 font-normal hidden sm:inline">(Ready)</span>
+        </div>
+
+        <!-- Theme Toggle Button (Dark / Light) -->
+        <button 
+          id="themeToggleBtn"
+          onclick="toggleTheme()" 
+          class="theme-toggle-btn shadow-sm py-1 px-2"
+          title="Toggle Dark / Light Mode">
+          <span id="themeToggleIcon" class="theme-icon-spin text-xs">🌙</span>
+          <span id="themeToggleLabel" class="hidden sm:inline text-[10px] font-mono font-semibold">Dark</span>
+        </button>
+
+        <!-- Real-Time Socket Connection Pill -->
+        <div class="hidden lg:flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-900/90 border border-white/10 text-[10px] font-mono shadow-inner">
+          <span id="livePulseDot" class="live-pulse-dot"></span>
+          <span id="liveStatusText" class="font-bold text-slate-300">LIVE</span>
+        </div>
+
+        <!-- Team Quick Profile Badge -->
+        <div id="navStudentBadge">
+          <button onclick="switchView('pass')" class="btn-cyber flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20 transition">
+            <span>🎟️ Team Pass</span>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Mobile Nav Bar -->
+    <div class="flex md:hidden items-center justify-around pt-1.5 mt-1 border-t border-white/5 text-xs font-semibold">
+      <button onclick="switchView('arena')" class="text-emerald-400 font-bold">Arena</button>
+      <button onclick="switchView('leaderboard')" class="text-slate-400">Podium</button>
+      <button onclick="switchView('pass')" class="text-slate-400">Pass</button>
+      <button onclick="switchView('admin')" class="text-slate-400">Sir Desk</button>
+    </div>
+  </header>
+
+  <!-- =========================================================================
+       2. Main Content Canvas (Compact Viewport Fit)
+       ========================================================================= -->
+  <main id="mainContainer" class="flex-1 max-w-7xl w-full mx-auto px-3 py-1.5 sm:px-4 sm:py-2 flex flex-col min-h-0 overflow-hidden">
+
+    <!-- =======================================================================
+         VIEW 1: SPEED ARENA (Welcome Screen vs Live Code Workspace)
+         ======================================================================= -->
+    <section id="view-arena" class="flex-1 flex flex-col gap-2 justify-start min-h-0 overflow-hidden h-full">
+      
+      <!-- STATE A: ARENA WELCOME HERO (Laptop Fit - No Scroll Required) -->
+      <div id="arenaWelcomeHero" class="glass-panel rounded-2xl p-4 sm:p-5 lg:p-6 my-auto text-center space-y-3 sm:space-y-3.5 max-w-3xl mx-auto border border-emerald-500/20 shadow-xl">
+        <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+          <span>⚡</span>
+          <span>VISUE SPARK 2026 • INTER-UNIVERSITY ARENA</span>
+        </div>
+
+        <div class="space-y-1">
+          <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
+            Welcome to the Speed Arena
+          </h2>
+          <p class="text-slate-300 text-xs sm:text-sm max-w-lg mx-auto leading-normal">
+            Welcome participants! Prepare your IDE, review the rules, and get your digital team pass verified by Sir to enter the live coding workspace.
+          </p>
+        </div>
+
+        <div id="welcomeTeamStatus">
+          <!-- Dynamic status: open registration vs pending sir approval -->
+        </div>
+
+        <!-- Contest Overview Badges (Compact 4-Card Row) -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-left pt-0.5">
+          <div class="bg-slate-900/80 p-2.5 rounded-xl border border-white/5">
+            <div class="flex items-center gap-1.5">
+              <span class="text-lg">🎯</span>
+              <span class="font-bold text-xs text-slate-100">3 Challenges</span>
+            </div>
+            <div class="text-[11px] font-mono text-emerald-400 mt-0.5">Easy 10 • Med 20 • Hard 30</div>
+            <div class="text-[10px] text-slate-400">60 Points total</div>
+          </div>
+          <div class="bg-slate-900/80 p-2.5 rounded-xl border border-white/5">
+            <div class="flex items-center gap-1.5">
+              <span class="text-lg">💻</span>
+              <span class="font-bold text-xs text-slate-100">4 Languages</span>
+            </div>
+            <div class="text-[11px] font-mono text-cyan-400 mt-0.5">C, C++, Java, Python</div>
+            <div class="text-[10px] text-slate-400">VS Code / IDE ready</div>
+          </div>
+          <div class="bg-slate-900/80 p-2.5 rounded-xl border border-white/5">
+            <div class="flex items-center gap-1.5">
+              <span class="text-lg">👥</span>
+              <span class="font-bold text-xs text-slate-100">Solo or Duo</span>
+            </div>
+            <div class="text-[11px] font-mono text-purple-400 mt-0.5">1 or 2 Members</div>
+            <div class="text-[10px] text-slate-400">All universities</div>
+          </div>
+          <div class="bg-slate-900/80 p-2.5 rounded-xl border border-white/5">
+            <div class="flex items-center gap-1.5">
+              <span class="text-lg">⏳</span>
+              <span class="font-bold text-xs text-slate-100">90 Minutes</span>
+            </div>
+            <div class="text-[11px] font-mono text-amber-400 mt-0.5">Live Sync Timer</div>
+            <div class="text-[10px] text-slate-400">Controlled by Sir</div>
+          </div>
+        </div>
+
+        <!-- Call to Actions -->
+        <div class="pt-2 flex flex-wrap items-center justify-center gap-3">
+          <button 
+            onclick="switchView('pass')" 
+            class="btn-cyber px-6 py-2.5 rounded-xl text-xs font-black uppercase text-slate-950 bg-gradient-to-r from-emerald-400 to-lime-400 hover:from-emerald-300 hover:to-lime-300 glow-lime transition shadow-lg shadow-emerald-500/25 flex items-center gap-1.5">
+            <span>🎟️ Register Team / Get Pass</span>
+            <span>→</span>
+          </button>
+
+          <button 
+            onclick="switchView('admin')" 
+            class="px-5 py-2.5 rounded-xl text-xs font-mono font-bold text-slate-300 bg-slate-900 hover:bg-slate-800 hover:text-white border border-white/10 transition flex items-center gap-1.5">
+            <span>👨‍🏫 Sir / Judge Portal</span>
+          </button>
+        </div>
+
+        <!-- Lead Developer & Software Architect Badge -->
+        <div class="pt-3 border-t border-white/10 flex items-center justify-center">
+          <a 
+            href="https://rehankhansahu.github.io/muhammad-rehan-portfolio/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            title="Visit Muhammad Rehan's Portfolio"
+            class="developer-badge group inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-slate-900/90 hover:bg-slate-800/90 border border-emerald-500/30 hover:border-emerald-400 transition-all duration-300 shadow-md">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 group-hover:scale-125 transition-transform"></span>
+            <span class="text-xs font-mono text-slate-300 group-hover:text-white transition">
+              Developed by <strong class="text-emerald-400 group-hover:text-emerald-300 font-extrabold underline decoration-emerald-500/40 underline-offset-4">Muhammad Rehan</strong>
+            </span>
+            <span class="px-1.5 py-0.2 rounded text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+              BS Software Engineering
+            </span>
+            <span class="text-xs text-slate-400 group-hover:text-emerald-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform font-bold">↗</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- STATE B: ARENA LOCKED HERO (Team approved, but contest clock not started or budget incomplete) -->
+      <div id="arenaLockedHero" class="hidden glass-panel rounded-2xl p-4 sm:p-5 lg:p-6 my-auto text-center space-y-3 max-w-2xl mx-auto border border-amber-500/30 shadow-xl">
+        <div id="arenaLockedIcon" class="w-12 h-12 rounded-xl bg-amber-500/20 border-2 border-amber-500/40 p-1 mx-auto flex items-center justify-center text-2xl animate-pulse">
+          ⏳
+        </div>
+        <div class="space-y-1">
+          <span id="arenaLockedBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 uppercase tracking-wider">
+            CONTEST ARENA LOCKED
+          </span>
+          <h2 id="arenaLockedTitle" class="text-xl sm:text-2xl font-black text-white tracking-tight">
+            Awaiting Contest Start from Sir
+          </h2>
+          <p id="arenaLockedDesc" class="text-slate-300 text-xs max-w-md mx-auto leading-relaxed">
+            Your team pass is <strong class="text-emerald-400 font-bold">VERIFIED & ACTIVE</strong>! Challenges totaling 60 points are loaded. The live coding workspace will unlock automatically the moment Sir starts the contest timer!
+          </p>
+        </div>
+
+        <!-- 3-Slot Status Card -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 max-w-lg mx-auto text-left font-mono text-xs">
+          <div id="arenaLockedSlotEasy" class="p-3 rounded-xl border bg-slate-900/80 border-white/10 space-y-1 transition-all">
+            <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Q1 • Easy Challenge</div>
+            <div id="arenaSlotStatusEasy" class="font-bold text-slate-500 text-xs truncate">⏳ 10 Points • Pending Sir...</div>
+          </div>
+          <div id="arenaLockedSlotMed" class="p-3 rounded-xl border bg-slate-900/80 border-white/10 space-y-1 transition-all">
+            <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Q2 • Medium Challenge</div>
+            <div id="arenaSlotStatusMed" class="font-bold text-slate-500 text-xs truncate">⏳ 20 Points • Pending Sir...</div>
+          </div>
+          <div id="arenaLockedSlotHard" class="p-3 rounded-xl border bg-slate-900/80 border-white/10 space-y-1 transition-all">
+            <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Q3 • Hard Challenge</div>
+            <div id="arenaSlotStatusHard" class="font-bold text-slate-500 text-xs truncate">⏳ 30 Points • Pending Sir...</div>
+          </div>
+        </div>
+
+        <div id="arenaLockedFooterNote" class="p-2 rounded-lg bg-slate-950/60 border border-white/5 max-w-sm mx-auto text-[10px] font-mono text-cyan-400 flex items-center justify-center gap-1.5">
+          <span class="live-pulse-dot"></span>
+          <span id="arenaLockedFooterText">🔒 Workspace unlocks automatically once Sir starts the contest timer!</span>
+        </div>
+      </div>
+
+      <!-- STATE C: ARENA WORKSPACE (Active once team is approved AND 60 pts questions are assigned) -->
+      <div id="arenaWorkspace" class="hidden flex-1 flex flex-col gap-2 min-h-0 overflow-hidden h-full">
+        
+        <!-- All Challenges Completed Banner -->
+        <div id="allCompletedBanner" class="hidden p-5 sm:p-6 glass-panel rounded-2xl text-center space-y-2.5 border-emerald-500/50 bg-gradient-to-r from-emerald-950/40 to-cyan-950/40">
+          <div class="text-3xl sm:text-4xl select-none">🎉</div>
+          <h3 id="allCompletedTitle" class="text-lg sm:text-xl font-black text-white">All Contest Challenges Submitted!</h3>
+          <p id="allCompletedSubtitle" class="text-xs text-slate-300 max-w-lg mx-auto">
+            Great job! You have submitted code for all active contest challenges. Please wait for Sir / Chief Judge to evaluate the submissions and publish official standings.
+          </p>
+          <div class="flex items-center justify-center gap-2 flex-wrap">
+            <div id="arenaCompletedTimeBadge" class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm">
+              <span>⏱️</span>
+              <span>Time Taken: <strong id="arenaCompletedTimeDisplay" class="font-black text-amber-300">00:00</strong></span>
+            </div>
+            <div id="resultsWaitBadge" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse">
+              <span>⏳</span>
+              <span>Status: Awaiting Official Evaluation & Marks from Sir</span>
+            </div>
+          </div>
+          <div id="arenaViewPodiumBtnContainer" class="hidden pt-2">
+            <button 
+              onclick="switchView('leaderboard')" 
+              class="btn-cyber px-6 py-2.5 rounded-xl text-xs font-black uppercase text-slate-950 bg-gradient-to-r from-amber-400 to-yellow-300 hover:from-amber-300 hover:to-yellow-200 glow-amber transition shadow-xl inline-flex items-center gap-2">
+              <span>🏆</span>
+              <span>View Official Podium & Final Standings</span>
+              <span>→</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Arena Action Control Bar (Compact Header) -->
+        <div class="glass-panel rounded-xl p-2 sm:p-2.5 flex flex-wrap items-center justify-between gap-2">
+          
+          <!-- Problem Tabs: Easy (10pts), Medium (20pts), Hard (30pts) -->
+          <div id="problemTabsContainer" class="flex items-center gap-1.5 overflow-x-auto pb-0.5 max-w-full">
+            <!-- Dynamic Problem Tabs injected by arena.js -->
+          </div>
+
+          <!-- Arena In-Workspace Timer Display -->
+          <div id="arenaTimerBox" class="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-900 border border-amber-500/30 text-xs font-mono">
+            <span id="arenaTimerLabel" class="text-amber-400 font-bold">⏳ Time:</span>
+            <span id="arenaTimerCountdown" class="text-amber-300 font-black">90:00</span>
+          </div>
+
+          <!-- Language Selector & Action Buttons -->
+          <div id="arenaActionButtonsGroup" class="flex items-center gap-1.5 ml-auto">
+            <!-- Programming Language Selector (C, C++, Java, Python) -->
+            <div id="languageSelectorWrapper" class="relative">
+              <select 
+                id="editorLanguageSelect" 
+                onchange="handleLanguageChange(this.value)"
+                class="appearance-none bg-slate-900 border border-white/10 text-slate-200 text-xs font-mono font-bold rounded-lg px-2.5 py-1.5 pr-7 focus:outline-none focus:border-emerald-500 transition cursor-pointer">
+                <option value="cpp">C++ (GCC 11)</option>
+                <option value="c">C (GCC)</option>
+                <option value="java">Java (OpenJDK 17)</option>
+                <option value="python">Python (3.x)</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 text-slate-400 text-xs">
+                ▼
+              </div>
+            </div>
+
+            <!-- Reset Code Button -->
+            <button 
+              id="btnResetCode"
+              onclick="resetCodeToTemplate()" 
+              class="px-2.5 py-1.5 rounded-lg text-xs font-mono text-slate-400 hover:text-white bg-slate-900 hover:bg-slate-800 border border-white/10 transition flex items-center gap-1"
+              title="Reset to template">
+              <span>↺</span>
+              <span class="hidden sm:inline">Reset</span>
+            </button>
+
+            <!-- Submit Code Button -->
+            <button 
+              id="btnSubmitCode"
+              onclick="submitCode()" 
+              class="btn-cyber px-4 py-1.5 rounded-lg text-xs font-black text-slate-950 bg-gradient-to-r from-emerald-400 to-lime-400 hover:from-emerald-300 hover:to-lime-300 glow-lime transition flex items-center gap-1 shadow-md shadow-emerald-500/20">
+              <span>🚀</span>
+              <span>Submit Solution</span>
+              <span class="hidden sm:inline text-[9px] text-slate-900 font-mono bg-emerald-300/80 px-1 py-0.2 rounded font-bold">Ctrl+↵</span>
+            </button>
+
+            <!-- Leave Contest Button (Early Exit) -->
+            <button 
+              id="btnLeaveArena"
+              onclick="toggleLeaveContestModal(true)" 
+              class="px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold text-rose-400 hover:text-rose-200 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/40 transition flex items-center gap-1 shadow-sm"
+              title="Leave Contest (Early Exit)">
+              <span>🚪</span>
+              <span class="hidden sm:inline">Leave</span>
+            </button>
+          </div>
+
+          <!-- All 3 Completed / Read-Only Status Indicator (Replaces submission buttons when all 3 submitted) -->
+          <div id="arenaAllCompletedBadge" class="hidden items-center gap-2 ml-auto">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-mono font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/40 shadow-sm">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>🔒 All Challenges Submitted • Read-Only Review Mode</span>
+            </div>
+          </div>
+
+          <!-- Left Early Status Indicator (Shown if team leaves early) -->
+          <div id="arenaLeftEarlyBadge" class="hidden items-center gap-2 ml-auto">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-mono font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40 shadow-sm">
+              <span>🚪</span>
+              <span>Left Early (Incomplete) • Work Submitted to Judge</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Left Early / Time Up Banner -->
+        <div id="arenaLeftEarlyBanner" class="hidden p-4 sm:p-5 glass-panel rounded-2xl text-center space-y-2 border-rose-500/50 bg-gradient-to-r from-rose-950/40 to-slate-950/40">
+          <div id="arenaLeftEarlyIcon" class="text-3xl select-none">🚪</div>
+          <h3 id="arenaLeftEarlyTitle" class="text-lg sm:text-xl font-black text-rose-300">Contest Left Early (Incomplete)</h3>
+          <p id="arenaLeftEarlySubtitle" class="text-xs text-slate-300 max-w-lg mx-auto">
+            You have left the contest early. All code written so far has been submitted to the Chief Judge for evaluation in read-only review mode.
+          </p>
+          <div id="arenaLeftEarlyStatusBadge" class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+            <span>⏳</span>
+            <span id="arenaLeftEarlyStatusText">Sir will evaluate your partial/submitted solutions</span>
+          </div>
+        </div>
+
+        <!-- Split Screen: Left (Problem Details) & Right (Code Workspace) - Fits 100vh on Laptop -->
+        <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-2.5 min-h-0 overflow-hidden h-full">
+          
+          <!-- Left Column: Problem Statement & Specs (5 Cols) -->
+          <div class="lg:col-span-5 glass-panel rounded-xl p-3 sm:p-3.5 flex flex-col gap-2 overflow-y-auto min-h-0 h-full text-xs">
+            
+            <!-- Problem Header -->
+            <div>
+              <div class="flex items-center gap-1.5 mb-1 flex-wrap">
+                <span id="problemDifficultyBadge" class="px-2 py-0.2 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+                  Easy
+                </span>
+                <span id="problemPointsBadge" class="px-2 py-0.2 rounded text-[10px] font-mono font-bold bg-amber-500/20 text-amber-400 border border-amber-500/40">
+                  10 Points
+                </span>
+                <span id="problemLanguagesBadge" class="px-2 py-0.2 rounded text-[10px] font-mono font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40">
+                  🌐 C • C++ • Java • Python
+                </span>
+                <span id="problemSolvedStatusBadge" class="hidden px-2 py-0.2 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+                  ✅ SOLVED
+                </span>
+                <div id="problemTagsContainer" class="flex items-center gap-1 ml-auto">
+                  <!-- Tags -->
+                </div>
+              </div>
+              <h2 id="problemTitle" class="text-lg font-extrabold text-white tracking-tight">
+                Loading Challenge...
+              </h2>
+              <div class="flex items-center gap-3 text-[11px] font-mono text-slate-400 mt-1 pb-2 border-b border-white/5">
+                <span>Time: <b id="problemTimeLimit" class="text-slate-200">1.0s</b></span>
+                <span>Memory: <b id="problemMemoryLimit" class="text-slate-200">256MB</b></span>
+              </div>
+            </div>
+
+            <!-- Description -->
+            <div class="space-y-1.5 text-xs text-slate-300 leading-relaxed">
+              <h3 class="text-[11px] font-mono uppercase tracking-wider text-slate-400 font-bold">Problem Statement</h3>
+              <p id="problemDescription" class="whitespace-pre-line"></p>
+            </div>
+
+            <!-- Test Cases -->
+            <div class="space-y-2 pt-2 border-t border-white/5">
+              <span class="text-xs font-mono uppercase tracking-wider text-slate-400 font-bold flex items-center gap-1.5">
+                <span>📋</span>
+                <span>Test Cases</span>
+              </span>
+              <div id="problemSamplesContainer" class="space-y-2.5"></div>
+            </div>
+
+          </div>
+
+          <!-- Right Column: Source Code Editor (7 Cols) -->
+          <div class="lg:col-span-7 flex flex-col gap-2 min-h-0 h-full overflow-hidden">
+            
+            <!-- Code Editor Frame -->
+            <div class="glass-panel code-editor-frame rounded-xl overflow-hidden flex-1 flex flex-col border border-white/10 min-h-0 h-full">
+              
+              <!-- Editor Header -->
+              <div class="code-editor-header bg-slate-950 px-3 py-1.5 border-b border-white/5 flex items-center justify-between text-xs font-mono text-slate-400">
+                <div class="flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-rose-500/80 inline-block"></span>
+                  <span class="w-2.5 h-2.5 rounded-full bg-amber-500/80 inline-block"></span>
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/80 inline-block"></span>
+                  <span id="codeEditorHeaderTitle" class="ml-1.5 font-bold text-slate-300 text-[11px] code-editor-title">Source Editor</span>
+                  <span id="codeEditorReadOnlyBadge" class="hidden text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                    🔒 Submitted Solution (Read-Only)
+                  </span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button id="btnCopyEditorCode" onclick="copyEditorCode()" class="text-[11px] text-cyan-400 hover:text-cyan-300 bg-cyan-950/50 hover:bg-cyan-900/60 border border-cyan-800/40 px-2.5 py-0.5 rounded flex items-center gap-1 transition shadow-sm" title="Copy code to clipboard">
+                    <span>📋</span>
+                    <span>Copy Code</span>
+                  </button>
+                  <span class="text-[10px] text-slate-500 hidden sm:inline" id="editorSubtitle">VS Code & External IDEs Supported</span>
+                  <span id="currentLanguageBadge" class="text-cyan-400 font-bold text-[11px]">CPP</span>
+                </div>
+              </div>
+
+              <!-- Main Code Textarea -->
+              <div class="flex-1 relative code-editor-body min-h-0">
+                <textarea 
+                  id="codeEditor" 
+                  spellcheck="false"
+                  placeholder="// Write your code here..."
+                  class="w-full h-full p-2.5 font-mono text-xs sm:text-sm leading-relaxed focus:outline-none resize-none min-h-0"></textarea>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- =======================================================================
+         VIEW 2: PODIUM & LEADERBOARD (Masked until Sir Publishes)
+         ======================================================================= -->
+    <section id="view-leaderboard" class="hidden flex-1 flex flex-col gap-1.5 min-h-0 overflow-y-auto h-full">
+      
+      <!-- Leaderboard Header -->
+      <div id="podiumHeaderSection" class="text-center max-w-2xl mx-auto pt-1 pb-1 mb-1">
+        <span class="px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30 uppercase tracking-widest inline-block mb-1">
+          INTER-UNIVERSITY CONTEST • OFFICIAL STANDINGS
+        </span>
+        <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight mt-0.5">
+          Arena Hall of Fame
+        </h2>
+        <p class="text-xs text-slate-400 max-w-lg mx-auto mt-0.5 mb-1 leading-relaxed">
+          Honoring Champion Winner (1st), Runner Up (2nd), and 2nd Runner Up (3rd) across all competing universities.
+        </p>
+      </div>
+
+      <!-- Archive Banner (Previous Test Standings Only) -->
+      <div id="podiumArchiveBanner" class="hidden max-w-md mx-auto w-full py-1.5 px-4 my-2 rounded-xl flex items-center justify-center gap-2 text-xs sm:text-sm font-mono font-bold tracking-wider uppercase shadow-md transition-all text-center">
+        <span class="text-base select-none">🏆</span>
+        <span>Previous Test Standings</span>
+      </div>
+
+      <!-- MASKED STATE NOTICE (Shown until Sir publishes official marks) -->
+      <div id="podiumPendingNotice" class="glass-panel rounded-2xl p-5 sm:p-6 text-center max-w-xl mx-auto space-y-3 my-auto border border-amber-500/30 shadow-xl">
+        <div class="text-3xl animate-bounce select-none">⏳</div>
+        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
+          OFFICIAL STANDINGS PENDING EVALUATION
+        </span>
+        <h3 class="text-xl font-black text-white">Results are Being Evaluated</h3>
+        <p class="text-xs text-slate-300 leading-relaxed max-w-md mx-auto">
+          Sir / Chief Judge is currently evaluating submitted code, verifying test cases, and awarding final marks. Standings and the Podium will be revealed in real time once official results are published!
+        </p>
+        <div class="pt-1">
+          <button onclick="switchView('arena')" class="px-4 py-2 rounded-xl text-xs font-mono font-bold text-slate-200 bg-slate-800 hover:bg-slate-700 border border-white/10 transition">
+            ← Return to Speed Arena
+          </button>
+        </div>
+      </div>
+
+      <!-- REVEALED STATE: Top 3 Visual 3D-Styled Podium -->
+      <div id="podiumContainer" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4 items-end pt-2 sm:pt-3 mb-2">
+        <!-- Rendered dynamically: Rank 2 (Runner Up), Rank 1 (Winner), Rank 3 (2nd Runner Up) -->
+      </div>
+
+      <!-- REVEALED STATE: Search & Full Ranked Table Card -->
+      <div id="leaderboardTableCard" class="hidden glass-panel rounded-xl p-3.5 space-y-2.5 max-h-[calc(100vh-220px)] overflow-y-auto">
+        
+        <!-- Table Search Bar -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-2">
+          <div class="relative w-full sm:w-80">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-xs">🔍</span>
+            <input 
+              type="text" 
+              id="leaderboardSearchInput"
+              oninput="handleLeaderboardSearch(event)"
+              placeholder="Search by Team, Roll No, or University..."
+              class="w-full bg-slate-900 border border-white/10 text-slate-200 text-xs font-mono rounded-lg pl-8 pr-3 py-1.5 focus:outline-none focus:border-emerald-500 transition">
+          </div>
+          <div class="text-[11px] font-mono text-slate-400 flex items-center gap-2">
+            <span>⚡ Formula: Easy (10) + Med (20) + Hard (30) = 60 Pts + Bonus</span>
+          </div>
+        </div>
+
+        <!-- Leaderboard Table -->
+        <div class="overflow-x-auto rounded-lg border border-white/5">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-950/80 text-slate-400 font-mono uppercase text-[10px] tracking-wider border-b border-white/10">
+              <tr>
+                <th class="px-3 py-2">Rank / Honor</th>
+                <th class="px-3 py-2">Team & Members</th>
+                <th class="px-3 py-2">University</th>
+                <th class="px-3 py-2">Teacher Marks Breakdown</th>
+                <th class="px-3 py-2">Language</th>
+                <th class="px-3 py-2 text-right">Awarded Score (/ Total)</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboardTableBody">
+              <!-- Injected by app.js -->
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- =======================================================================
+         VIEW 3: TEAM REGISTRATION & CONTEST PASS (Solo / Duo & Multi-University)
+         ======================================================================= -->
+    <section id="view-pass" class="hidden flex-1 flex flex-col lg:flex-row gap-4 items-center justify-center py-2 max-w-5xl mx-auto my-auto min-h-0 overflow-hidden h-full">
+      
+      <!-- Left Column: Registration Form -->
+      <div id="teamRegistrationCard" class="glass-panel rounded-2xl p-3 sm:p-4 w-full lg:max-w-md space-y-1.5 max-h-[calc(100vh-120px)] overflow-y-auto">
+        <div>
+          <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
+            TEAM ONBOARDING (SOLO / DUO)
+          </span>
+          <h2 class="text-lg font-black text-white mt-0.5">Claim Arena Contest Pass</h2>
+          <p class="text-[11px] text-slate-400">
+            Open to participants from all universities. Enter solo or as duo (max 2 members).
+          </p>
+        </div>
+
+        <!-- Contest Registration Lock Banner (Shown when contest is running, paused, or ended) -->
+        <div id="regContestLockedBanner" class="hidden p-2.5 rounded-xl border space-y-1 text-center transition-all">
+          <div class="flex items-center justify-center gap-2 text-xs font-mono font-bold uppercase tracking-wider">
+            <span class="text-base select-none">🔒</span>
+            <span id="regLockedTitle">REGISTRATION LOCKED</span>
+          </div>
+          <p id="regLockedMessage" class="text-xs font-mono leading-relaxed">
+            The contest is currently in progress or has ended. Sir / Chief Judge must reset the previous contest before new registrations can be accepted.
+          </p>
+          <div class="text-[11px] font-mono opacity-80 pt-0.5">
+            🔑 Already registered? Enter your 6-digit Secret Key in the "Resume Session" box below to log in.
+          </div>
+        </div>
+
+        <!-- Participation Mode Selector (Solo vs Duo) -->
+        <div id="regModeSelectorContainer">
+          <label class="block text-[11px] font-mono text-slate-300 uppercase mb-1 font-semibold">Participation Mode</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button 
+              type="button" 
+              id="modeSoloBtn" 
+              onclick="setParticipationMode('solo')"
+              class="py-1.5 px-3 rounded-lg border text-xs font-bold font-mono transition flex items-center justify-center gap-1.5 bg-emerald-500/20 text-emerald-300 border-emerald-500">
+              <span>👤</span>
+              <span>Solo (1 Member)</span>
+            </button>
+            <button 
+              type="button" 
+              id="modeDuoBtn" 
+              onclick="setParticipationMode('duo')"
+              class="py-1.5 px-3 rounded-lg border text-xs font-bold font-mono transition flex items-center justify-center gap-1.5 bg-slate-900 text-slate-400 border-white/10 hover:border-white/20">
+              <span>👥</span>
+              <span>Duo (2 Members)</span>
+            </button>
+          </div>
+        </div>
+
+        <form id="registrationForm" onsubmit="handleTeamRegister(event)" class="space-y-2">
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div>
+              <label class="block text-[10px] font-mono text-slate-400 uppercase mb-0.5">University Name</label>
+              <input 
+                type="text" 
+                id="regUniversity" 
+                required
+                placeholder="e.g. COMSATS, NUST..."
+                class="w-full bg-slate-900 border border-white/10 text-slate-200 text-xs font-mono rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-cyan-500 transition">
+            </div>
+
+            <div>
+              <label class="block text-[10px] font-mono text-slate-400 uppercase mb-0.5">Team Name / Alias</label>
+              <input 
+                type="text" 
+                id="regTeamName" 
+                required
+                placeholder="e.g. CyberKnights"
+                class="w-full bg-slate-900 border border-white/10 text-slate-200 text-xs font-mono rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-cyan-500 transition">
+            </div>
+          </div>
+
+          <!-- Leader / Member 1 Details -->
+          <div class="p-2.5 bg-slate-900/60 rounded-xl border border-white/5 space-y-1.5">
+            <div class="text-[10px] font-mono text-emerald-400 font-bold uppercase">Leader / Member 1</div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <input 
+                  type="text" 
+                  id="regLeaderName" 
+                  required
+                  placeholder="Full Name"
+                  class="w-full bg-slate-950 border border-white/10 text-slate-200 text-xs font-mono rounded-lg px-2.5 py-1 focus:outline-none focus:border-emerald-500 transition">
+              </div>
+              <div>
+                <input 
+                  type="text" 
+                  id="regLeaderRoll" 
+                  required
+                  placeholder="Roll No / Reg ID"
+                  class="w-full bg-slate-950 border border-white/10 text-slate-200 text-xs font-mono rounded-lg px-2.5 py-1 focus:outline-none focus:border-emerald-500 transition">
+              </div>
+            </div>
+          </div>
+
+          <!-- Member 2 Details (Conditional for Duo Mode) -->
+          <div id="member2Section" class="hidden p-2.5 bg-purple-950/20 rounded-xl border border-purple-500/20 space-y-1.5">
+            <div class="text-[10px] font-mono text-purple-400 font-bold uppercase">Member 2 (Duo Partner)</div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <input 
+                  type="text" 
+                  id="regMember2Name" 
+                  placeholder="Partner Name"
+                  class="w-full bg-slate-950 border border-white/10 text-slate-200 text-xs font-mono rounded-lg px-2.5 py-1 focus:outline-none focus:border-purple-500 transition">
+              </div>
+              <div>
+                <input 
+                  type="text" 
+                  id="regMember2Roll" 
+                  placeholder="Partner Roll No"
+                  class="w-full bg-slate-950 border border-white/10 text-slate-200 text-xs font-mono rounded-lg px-2.5 py-1 focus:outline-none focus:border-purple-500 transition">
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-mono text-slate-400 uppercase mb-0.5">Primary Language</label>
+            <select 
+              id="regLanguage"
+              class="w-full bg-slate-900 border border-white/10 text-slate-200 text-xs font-mono rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-cyan-500 transition">
+              <option value="cpp">C++ (Recommended)</option>
+              <option value="c">C (ANSI / GCC)</option>
+              <option value="java">Java (OpenJDK)</option>
+              <option value="python">Python (3.x)</option>
+            </select>
+          </div>
+
+          <!-- Team / Leader Profile Picture -->
+          <div>
+            <div class="flex items-center justify-between mb-0.5">
+              <label class="block text-[10px] font-mono text-cyan-400 uppercase font-bold flex items-center gap-1">
+                <span>📸</span>
+                <span>Team / Leader Profile Picture</span>
+              </label>
+              <span class="text-[9px] font-mono text-slate-400">Podium & Arena Badge</span>
+            </div>
+            <div class="flex items-center gap-2.5 bg-slate-900 border border-white/10 rounded-lg p-2">
+              <div id="regPhotoPreviewContainer" class="w-10 h-10 rounded-lg bg-slate-950 border border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0 relative">
+                <img id="regPhotoPreviewImg" class="w-full h-full object-cover hidden" alt="Profile Preview">
+                <span id="regPhotoPlaceholder" class="text-base select-none">👤</span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <input 
+                  type="file" 
+                  id="regProfilePicInput" 
+                  accept="image/*"
+                  onchange="handleProfilePicSelected(event)"
+                  class="hidden">
+                <div class="flex items-center gap-2">
+                  <button 
+                    type="button" 
+                    onclick="document.getElementById('regProfilePicInput').click()" 
+                    class="px-2.5 py-1 rounded text-xs font-mono font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/10 transition flex items-center gap-1">
+                    <span>📁 Choose Image</span>
+                  </button>
+                  <button 
+                    type="button" 
+                    id="btnRemovePhoto"
+                    onclick="clearSelectedProfilePic()" 
+                    class="hidden text-[10px] font-mono text-rose-400 hover:text-rose-300 transition">
+                    ✕ Remove
+                  </button>
+                </div>
+                <div class="text-[9px] font-mono text-slate-400 mt-0.5 truncate">
+                  Max 5MB • JPG, PNG, WebP (Shows on Podium & Sir Desk)
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 6-Digit Secret Key / PIN -->
+          <div>
+            <div class="flex items-center justify-between mb-0.5">
+              <label class="block text-[10px] font-mono text-amber-400 uppercase font-bold flex items-center gap-1">
+                <span>🔑</span>
+                <span>Team Secret Key / PIN (6 Digits)</span>
+              </label>
+              <span class="text-[9px] font-mono text-slate-400">Remember this to re-login!</span>
+            </div>
+            <input 
+              type="text" 
+              id="regSecretKey" 
+              required
+              maxlength="6"
+              pattern="\d{6}"
+              placeholder="e.g. 123456" 
+              class="w-full bg-slate-900 border border-amber-500/40 text-amber-300 text-xs font-mono font-bold tracking-widest rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-amber-400 transition placeholder:text-slate-600 placeholder:tracking-normal placeholder:font-normal">
+            <span class="text-[9px] text-slate-400 font-mono mt-0.5 block">
+              💡 Use this 6-digit key to resume your session on any device if disconnected.
+            </span>
+          </div>
+
+          <div id="regErrorMsg" class="text-xs font-mono text-rose-400"></div>
+
+          <button 
+            type="submit" 
+            id="regSubmitBtn"
+            class="btn-cyber w-full py-2.5 rounded-xl text-xs font-black uppercase text-slate-950 bg-gradient-to-r from-emerald-400 to-lime-400 hover:from-emerald-300 hover:to-lime-300 glow-lime transition">
+            🚀 Submit Request for Sir's Approval
+          </button>
+        </form>
+
+        <div class="text-[10px] text-slate-500 font-mono pt-1 border-t border-white/5 text-center">
+          🔒 Requests must be accepted by Sir / Judge before you can enter Speed Arena.
+        </div>
+
+        <!-- Session Recovery Box: Login with 6-Digit Secret Key -->
+        <div class="mt-2 pt-2 border-t border-white/10 space-y-1.5">
+          <div class="flex items-center justify-between text-[11px] font-mono">
+            <span class="text-slate-300 font-bold uppercase flex items-center gap-1.5">
+              <span>🔑</span>
+              <span>Already Registered? Enter 6-Digit Secret Key</span>
+            </span>
+            <span class="text-[10px] text-amber-400 font-semibold">Resume Session</span>
+          </div>
+          <form onsubmit="handlePassKeyRestore(event)" class="flex items-center gap-1.5">
+            <input 
+              type="text" 
+              id="restorePassKeyInput" 
+              required
+              maxlength="6"
+              pattern="\d{6}"
+              placeholder="6-Digit Secret Key (e.g. 123456)" 
+              class="flex-1 bg-slate-900 border border-amber-500/40 text-amber-300 text-xs font-mono font-bold tracking-widest rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-amber-400 placeholder:text-slate-600 placeholder:tracking-normal placeholder:font-normal">
+            <button 
+              type="submit" 
+              class="btn-cyber px-4 py-1.5 rounded-lg text-xs font-bold text-slate-950 bg-gradient-to-r from-amber-400 to-yellow-300 hover:from-amber-300 hover:to-yellow-200 transition whitespace-nowrap shadow">
+              Unlock ⚡
+            </button>
+          </form>
+          <div id="restorePassError" class="text-[11px] font-mono text-rose-400"></div>
+        </div>
+      </div>
+
+      <!-- Right Column: Holographic Digital Pass Preview -->
+      <div class="w-full lg:max-w-md flex flex-col items-center">
+        <div id="passCardContainer" class="w-full">
+          <!-- Rendered dynamically by app.js -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- =======================================================================
+         VIEW 4: SIR / JUDGE DESK (Admin Approval, Controlled Timer, Bank, CSV)
+         ======================================================================= -->
+    <section id="view-admin" class="hidden flex-1 flex flex-col gap-4 min-h-0 pb-6 overflow-y-auto h-full">
+      
+      <!-- State 1: Secure Judge Login (Username & Password - No hints on page) -->
+      <div id="sirLoginGate" class="max-w-sm mx-auto my-auto glass-panel rounded-2xl p-5 text-center space-y-3">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-amber-500 to-rose-500 p-[1.5px] mx-auto shadow-md shadow-amber-500/20">
+          <div class="w-full h-full bg-slate-950 rounded-[9px] flex items-center justify-center text-xl">
+            🔒
+          </div>
+        </div>
+
+        <div>
+          <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30">
+            RESTRICTED ACCESS
+          </span>
+          <h2 class="text-xl font-black text-white mt-1">Sir / Judge Portal</h2>
+          <p class="text-[11px] text-slate-400">
+            Sign in with authorized judge credentials to control contest timer, question bank, and results.
+          </p>
+        </div>
+
+        <form onsubmit="event.preventDefault(); handleSirLogin(event); return false;" class="space-y-2.5 pt-1">
+          <div class="text-left">
+            <label class="block text-[10px] font-mono text-slate-400 uppercase mb-0.5">Judge Username</label>
+            <input 
+              type="text" 
+              id="sirUsernameInput" 
+              required
+              placeholder="Enter Judge Username" 
+              class="w-full bg-slate-900 border border-white/10 text-slate-200 text-xs font-mono rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-amber-500 transition">
+          </div>
+
+          <div class="text-left">
+            <label class="block text-[10px] font-mono text-slate-400 uppercase mb-0.5">Judge Password</label>
+            <input 
+              type="password" 
+              id="sirPasswordInput" 
+              required
+              placeholder="Enter Judge Password" 
+              class="w-full bg-slate-900 border border-white/10 text-slate-200 text-xs font-mono rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-amber-500 transition">
+          </div>
+          
+          <div id="sirLoginError" class="text-xs font-mono text-rose-400"></div>
+
+          <button 
+            type="submit" 
+            class="btn-cyber w-full py-2 rounded-lg text-xs font-black uppercase text-slate-950 bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-200 transition">
+            Unlock Judge Portal
+          </button>
+        </form>
+      </div>
+
+      <!-- State 2: Authenticated Judge Dashboard -->
+      <div id="sirDashboard" class="hidden flex-1 flex flex-col gap-5">
+        
+        <!-- Dedicated Sir Portal Header with High-Visibility Logout Button -->
+        <div class="glass-panel rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-purple-500/30 shadow-xl">
+          <div class="flex items-center gap-3.5">
+            <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-amber-500 p-[2px] shadow-md shadow-purple-500/20 shrink-0">
+              <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center text-xl sm:text-2xl judge-avatar-inner">
+                👨‍🏫
+              </div>
+            </div>
+            <div>
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30 uppercase tracking-wider">
+                  Chief Judge Portal
+                </span>
+                <span class="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5 shadow-sm">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span>Active Session</span>
+                </span>
+              </div>
+              <h2 id="sirJudgeNameDisplayHeader" class="text-lg sm:text-xl font-black text-white mt-0.5 tracking-tight">
+                Dr. Rashid Jahangir
+              </h2>
+              <p class="text-[11px] text-slate-400 font-mono">
+                Department of Computer Science • CUI Vehari Campus
+              </p>
+            </div>
+          </div>
+
+          <!-- Top Right Action Controls: Export Report (.txt) & High-Visibility Logout Button -->
+          <div class="flex items-center gap-2.5 w-full sm:w-auto justify-end">
+            <button 
+              onclick="exportResultsTxt()" 
+              class="btn-cyber px-3.5 py-2 rounded-xl text-xs font-bold text-emerald-300 bg-emerald-950/60 border border-emerald-500/40 hover:bg-emerald-900/50 glow-lime transition flex items-center gap-1.5 shadow-sm"
+              title="Download final contest audit report (.txt) with developer credits">
+              <span>📄</span>
+              <span>Export Report (.txt)</span>
+            </button>
+            
+            <button 
+              onclick="handleSirLogout()" 
+              id="btnSirMainLogout"
+              class="btn-sir-logout px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-lg"
+              title="Logout from Judge Portal and release session lock">
+              <span class="text-sm leading-none">🚪</span>
+              <span class="font-black uppercase tracking-wider">Logout</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Metrics Bar -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+          <div class="glass-panel rounded-xl p-3.5 sm:p-4 border-l-4 border-amber-500">
+            <div class="text-[10px] font-mono text-slate-400 uppercase font-bold tracking-wider">Pending Requests</div>
+            <div id="sirPendingCount" class="text-2xl font-black font-mono text-amber-400 mt-1">0</div>
+          </div>
+          <div class="glass-panel rounded-xl p-3.5 sm:p-4 border-l-4 border-emerald-500">
+            <div class="text-[10px] font-mono text-slate-400 uppercase font-bold tracking-wider">Approved Teams</div>
+            <div id="sirApprovedCount" class="text-2xl font-black font-mono text-emerald-400 mt-1">0</div>
+          </div>
+          <div class="glass-panel rounded-xl p-3.5 sm:p-4 border-l-4 border-cyan-500">
+            <div class="text-[10px] font-mono text-slate-400 uppercase font-bold tracking-wider">Total Submissions</div>
+            <div id="sirTotalSubmissions" class="text-2xl font-black font-mono text-cyan-400 mt-1">0</div>
+          </div>
+          <div class="glass-panel rounded-xl p-3.5 sm:p-4 border-l-4 border-purple-500">
+            <div class="text-[10px] font-mono text-slate-400 uppercase font-bold tracking-wider">Contest Duration</div>
+            <div class="text-2xl font-black font-mono text-purple-300 mt-1 flex items-baseline gap-1">
+              <span id="sirTimerMinsDisplayMetric" class="timer-duration-mins">90</span>
+              <span class="text-xs font-normal text-slate-400">mins</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Master Control Bar: Contest Timer & Official Results Publishing -->
+        <div class="glass-panel rounded-xl p-4 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 border border-amber-500/20">
+          
+          <!-- Timer Controls -->
+          <div class="flex items-center gap-3.5 flex-wrap">
+            <div>
+              <div id="sirTimerDurationHeader" class="text-[10px] font-mono uppercase text-slate-400 font-bold tracking-wider">
+                Contest Timer (<span id="sirTimerMinsDisplay" class="timer-duration-mins text-amber-400 font-bold">90</span>m)
+              </div>
+              <div class="flex items-center gap-2 mt-0.5">
+                <span id="sirTimerCountdownDisplay" class="text-xl sm:text-2xl font-mono font-black text-amber-400">90:00</span>
+                <span id="sirTimerStatusBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-slate-800 text-slate-400 border border-slate-700">
+                  ○ NOT STARTED
+                </span>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <button 
+                onclick="startContestTimer()" 
+                class="btn-cyber px-3 py-1.5 rounded-lg text-xs font-bold text-emerald-300 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 transition">
+                ▶ Start
+              </button>
+              <button 
+                onclick="pauseContestTimer()" 
+                class="px-2.5 py-1.5 rounded-lg text-xs font-mono text-amber-300 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 transition">
+                ❚❚ Pause
+              </button>
+              <button 
+                onclick="resetContestTimer()" 
+                class="px-2.5 py-1.5 rounded-lg text-xs font-mono text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 border border-white/10 transition"
+                title="Reset contest teams and countdown (Retains podium winners archive)">
+                🔄 Reset
+              </button>
+              <button 
+                onclick="fullResetContestWipeAll()" 
+                class="btn-cyber px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold text-rose-300 hover:text-rose-100 bg-rose-950/60 hover:bg-rose-900/70 border border-rose-500/50 transition flex items-center gap-1 shadow-sm"
+                title="Completely wipe all teams, questions, submissions, AND previous podium results!">
+                <span>🗑️</span>
+                <span>Full Reset (Wipe All & Podium)</span>
+              </button>
+              <button 
+                onclick="toggleEditTimerModal(true)" 
+                class="btn-cyber px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold text-amber-300 hover:text-amber-200 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 transition flex items-center gap-1 shadow-sm"
+                title="Change Contest Duration (e.g. 2m for quick testing)">
+                <span>⏱️</span>
+                <span>Set Duration</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Official Results Publishing Controls -->
+          <div class="flex items-center gap-3.5 flex-wrap justify-between lg:justify-end border-t lg:border-t-0 border-white/5 pt-3 lg:pt-0">
+            <div>
+              <div class="text-[10px] font-mono uppercase text-slate-400 font-bold tracking-wider">Results Standings</div>
+              <span id="resultsPublishBanner" class="inline-block mt-0.5 px-3 py-0.5 rounded-full text-[11px] font-mono font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                ⏳ STANDINGS: HIDDEN
+              </span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button 
+                id="btnPublishResults"
+                onclick="publishOfficialResults()" 
+                class="hidden btn-cyber px-3.5 py-1.5 rounded-lg text-xs font-black uppercase text-slate-950 bg-gradient-to-r from-amber-400 to-yellow-300 hover:from-amber-300 hover:to-yellow-200 glow-amber transition flex items-center gap-1.5 shadow-md shadow-amber-500/20">
+                <span>📢</span>
+                <span>Publish Results</span>
+              </button>
+              <button 
+                id="btnUnpublishResults"
+                onclick="unpublishOfficialResults()" 
+                class="hidden px-3 py-1.5 rounded-lg text-xs font-mono font-bold text-rose-400 hover:text-rose-200 bg-rose-950/40 border border-rose-500/40 transition">
+                🔒 Mask Standings
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Section 1: Dynamic 60-Point Contest Challenges & Question Bank -->
+        <div class="glass-panel rounded-xl p-5 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/5 pb-3">
+            <div>
+              <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2">
+                <span>📚</span>
+                <span>Contest Challenges & Question Bank (60 Points Total)</span>
+              </h3>
+              <p class="text-[11px] text-slate-400 mt-0.5">
+                Configure 60-point challenges for the contest (Global or Team-Specific).
+              </p>
+            </div>
+            
+            <div class="flex items-center gap-2">
+              <button 
+                type="button"
+                onclick="toggleNewQuestionModal(true)" 
+                class="btn-cyber px-3.5 py-1.5 rounded-lg text-xs font-bold text-cyan-300 bg-cyan-950/60 border border-cyan-500/40 hover:bg-cyan-900/50 transition flex items-center gap-1.5 shadow-sm">
+                <span>➕</span>
+                <span>Add Question to Bank</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Dynamic 60-Point Contest Budget Panel -->
+          <div id="contestBudgetPanel" class="contest-budget-panel p-4 rounded-xl border border-white/10 space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span class="text-base">🎯</span>
+                <span class="contest-budget-label text-xs font-mono font-bold text-slate-200">Active Contest Budget:</span>
+                <span id="contestBudgetPointsDisplay" class="text-xs font-mono font-black text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">60 / 60 Points</span>
+              </div>
+              <div id="contestBudgetStatusBadge">
+                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+                  ✅ 60/60 Points • Ready for Contest
+                </span>
+              </div>
+            </div>
+
+            <!-- Visual Progress Meter -->
+            <div class="contest-budget-track w-full bg-slate-900 rounded-full h-2.5 overflow-hidden border border-white/10">
+              <div id="contestBudgetProgressBar" class="bg-gradient-to-r from-emerald-500 to-lime-400 h-2.5 rounded-full transition-all duration-300" style="width: 100%;"></div>
+            </div>
+          </div>
+
+          <!-- Hidden input for programmatic sync & compatibility -->
+          <input type="radio" name="qModeRadio" id="modeDiffRadio" value="different" class="hidden" checked>
+
+          <!-- Question Bank Table Header & Quick Language Filters -->
+          <div class="flex flex-wrap items-center justify-between gap-2 pt-2 pb-1 border-t border-white/5">
+            <div class="flex items-center gap-1.5 font-mono text-[11px]">
+              <span class="text-slate-400 font-bold uppercase mr-1">Filter by Language:</span>
+              <button type="button" onclick="filterQuestionBankByLang('all')" id="qFilter_all" class="q-lang-filter-btn px-2.5 py-0.5 rounded-md font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">All</button>
+              <button type="button" onclick="filterQuestionBankByLang('c')" id="qFilter_c" class="q-lang-filter-btn px-2.5 py-0.5 rounded-md font-bold bg-slate-900 text-slate-400 hover:text-white border border-white/10">C</button>
+              <button type="button" onclick="filterQuestionBankByLang('cpp')" id="qFilter_cpp" class="q-lang-filter-btn px-2.5 py-0.5 rounded-md font-bold bg-slate-900 text-slate-400 hover:text-white border border-white/10">C++</button>
+              <button type="button" onclick="filterQuestionBankByLang('java')" id="qFilter_java" class="q-lang-filter-btn px-2.5 py-0.5 rounded-md font-bold bg-slate-900 text-slate-400 hover:text-white border border-white/10">Java</button>
+              <button type="button" onclick="filterQuestionBankByLang('python')" id="qFilter_python" class="q-lang-filter-btn px-2.5 py-0.5 rounded-md font-bold bg-slate-900 text-slate-400 hover:text-white border border-white/10">Python</button>
+            </div>
+            <div id="qBankCountBadge" class="text-[10px] font-mono text-slate-400">
+              Showing: <span id="qBankFilterCount" class="font-bold text-white">3</span> questions
+            </div>
+          </div>
+
+          <!-- Question Bank Table -->
+          <div class="overflow-x-auto rounded-lg border border-white/5 pt-2">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-950/80 text-slate-400 font-mono uppercase text-[10px] tracking-wider border-b border-white/10">
+                <tr>
+                  <th class="px-3 py-2.5">ID</th>
+                  <th class="px-3 py-2.5">Title & Description</th>
+                  <th class="px-3 py-2.5">Languages</th>
+                  <th class="px-3 py-2.5">Difficulty</th>
+                  <th class="px-3 py-2.5">Points</th>
+                  <th class="px-3 py-2.5 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody id="questionBankTableBody">
+                <!-- Injected by admin.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Section 2: Pending Team Registrations (Approval Required) -->
+        <div class="glass-panel rounded-xl p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+              <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono">
+                Pending Team Approvals
+              </h3>
+              <span id="pendingRequestsBadge" class="hidden px-2 py-0.5 rounded-full text-[10px] font-bold font-mono bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                0 Pending
+              </span>
+            </div>
+            <button onclick="loadPendingRequests()" class="text-xs font-mono text-cyan-400 hover:underline">
+              ↻ Refresh
+            </button>
+          </div>
+
+          <div class="overflow-x-auto rounded-lg border border-white/5">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-950/80 text-slate-400 font-mono uppercase text-[10px] tracking-wider border-b border-white/10">
+                <tr>
+                  <th class="px-4 py-2.5">Team & University</th>
+                  <th class="px-4 py-2.5">Mode</th>
+                  <th class="px-4 py-2.5">Members & Roll Nos</th>
+                  <th class="px-4 py-2.5">Language</th>
+                  <th class="px-4 py-2.5">Status</th>
+                  <th class="px-4 py-2.5 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody id="pendingTeamsTableBody">
+                <!-- Injected by admin.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Section 3: Approved Teams (Kickout Control) -->
+        <div class="glass-panel rounded-xl p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+              <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono">
+                Approved Teams (Live Arena)
+              </h3>
+            </div>
+            <button onclick="loadApprovedTeams()" class="text-xs font-mono text-cyan-400 hover:underline">
+              ↻ Refresh
+            </button>
+          </div>
+
+          <div class="overflow-x-auto rounded-lg border border-white/5">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-950/80 text-slate-400 font-mono uppercase text-[10px] tracking-wider border-b border-white/10">
+                <tr>
+                  <th class="px-4 py-2.5">Team & University</th>
+                  <th class="px-4 py-2.5">Mode</th>
+                  <th class="px-4 py-2.5">Members & Roll Nos</th>
+                  <th class="px-4 py-2.5">Solved</th>
+                  <th class="px-4 py-2.5">Score</th>
+                  <th class="px-4 py-2.5 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody id="approvedTeamsTableBody">
+                <!-- Injected by admin.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Section 4: Live Submissions Feed Grouped by Team -->
+        <div class="glass-panel rounded-xl p-5 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3 pb-2 border-b border-white/10">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono">
+                Live Code Submissions (Grouped by Team)
+              </h3>
+            </div>
+            <div class="flex items-center gap-3">
+              <span id="judgeTotalSubmissionsCountBadge" class="px-2.5 py-0.5 rounded text-[11px] font-mono font-bold bg-slate-800 text-slate-300 border border-white/10">
+                0 Submissions
+              </span>
+              <span class="text-[11px] font-mono text-emerald-400 flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Live Feed</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Grouped by Team Container -->
+          <div id="sirSubmissionsByTeamContainer" class="space-y-4">
+            <!-- Injected by admin.js -->
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- =========================================================================
+       3. Code Inspection Modal with 3 View / Download Options
+       ========================================================================= -->
+  <div id="codeInspectModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5">
+    <div class="code-inspect-dialog rounded-2xl max-w-5xl xl:max-w-6xl w-full max-h-[92vh] h-[88vh] flex flex-col shadow-2xl transition-all overflow-hidden border">
+      
+      <!-- Modal Header -->
+      <div class="code-inspect-header p-4 sm:p-5 border-b flex items-center justify-between">
+        <div>
+          <h3 id="inspectStudentName" class="text-base sm:text-lg font-black text-white">Student Submission</h3>
+          <div class="flex items-center gap-2 text-xs font-mono text-slate-400 mt-0.5">
+            <span id="inspectProblem">Problem</span>
+            <span>•</span>
+            <span id="inspectLanguage" class="text-cyan-400 font-bold uppercase">LANG</span>
+            <span>•</span>
+            <span id="inspectStatus" class="text-emerald-400 font-bold">AC</span>
+          </div>
+        </div>
+        <button onclick="closeInspectModal()" class="code-inspect-close-btn w-9 h-9 rounded-xl flex items-center justify-center text-lg font-bold transition shadow-sm" title="Close (Esc)">
+          &times;
+        </button>
+      </div>
+
+      <!-- Code Viewer Body (Spacious & Clean) -->
+      <div class="code-inspect-body flex-1 overflow-y-auto p-4 sm:p-6">
+        <pre class="m-0"><code id="inspectCodeBody" class="font-mono text-xs sm:text-sm leading-relaxed block select-text"></code></pre>
+      </div>
+
+      <!-- Modal Footer with Download / View Options + Grade Adjustment -->
+      <div class="code-inspect-footer p-4 border-t flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <!-- Option 2: Download .txt -->
+          <button 
+            id="inspectDownloadTxtBtn"
+            class="code-inspect-btn-txt px-3.5 py-1.5 text-xs rounded-xl font-mono transition border inline-flex items-center gap-1.5 shadow-sm font-bold">
+            <span>📄 Download .txt</span>
+          </button>
+          
+          <!-- Option 3: Download Native Source (.py, .java, .cpp, .c) -->
+          <button 
+            id="inspectDownloadSrcBtn"
+            class="code-inspect-btn-src px-3.5 py-1.5 text-xs rounded-xl font-mono font-bold transition border inline-flex items-center gap-1.5 shadow-sm">
+            <span>💾 Download Source File</span>
+          </button>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <!-- Adjust marks -->
+          <button 
+            id="inspectGradeBtn"
+            class="code-inspect-btn-grade px-3.5 py-1.5 rounded-xl text-xs font-bold transition border shadow-sm">
+            ✏️ Adjust Marks
+          </button>
+
+          <!-- +10 Bonus -->
+          <button 
+            id="inspectBonusBtn"
+            class="code-inspect-btn-bonus btn-cyber px-3.5 py-1.5 rounded-xl text-xs font-bold transition border shadow-sm">
+            ★ +10 Bonus
+          </button>
+
+          <button 
+            onclick="closeInspectModal()"
+            class="code-inspect-btn-close px-4 py-1.5 rounded-xl text-xs font-mono font-bold transition shadow-sm">
+            Close
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       4. New Question Modal (Sir creates questions in bank)
+       ========================================================================= -->
+  <div id="newQuestionModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+    <div class="glass-panel rounded-2xl max-w-md w-full max-h-[85vh] overflow-y-auto p-4 sm:p-5 border border-white/15 shadow-2xl space-y-3">
+      <div class="flex items-center justify-between border-b border-white/10 pb-2">
+        <h3 class="text-sm font-bold text-white flex items-center gap-1.5">
+          <span>➕</span>
+          <span>Add New Problem to Question Bank</span>
+        </h3>
+        <button type="button" onclick="toggleNewQuestionModal(false)" class="text-slate-400 hover:text-white text-base px-1 leading-none">&times;</button>
+      </div>
+
+      <form id="newQuestionForm" onsubmit="handleAddNewQuestion(event)" class="space-y-2.5">
+        <div>
+          <label class="block text-[11px] font-mono text-slate-400 uppercase mb-0.5">Problem Title</label>
+          <input type="text" id="newQTitle" required placeholder="e.g. Subarray Max Product" class="w-full bg-slate-900 border border-white/10 text-slate-200 text-xs font-mono rounded-lg px-2.5 py-1.5">
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-mono text-slate-400 uppercase mb-0.5">Difficulty & Points</label>
+          <select id="newQDifficulty" class="w-full bg-slate-900 border border-white/10 text-slate-200 text-xs font-mono rounded-lg px-2.5 py-1.5">
+            <option value="Easy">Easy (10 Points)</option>
+            <option value="Medium">Medium (20 Points)</option>
+            <option value="Hard">Hard (30 Points)</option>
+          </select>
+        </div>
+
+        <!-- Languages Selection (C, C++, Java, Python) -->
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-[11px] font-mono text-slate-400 uppercase font-semibold">
+              Supported Languages
+            </label>
+            <button 
+              type="button" 
+              onclick="toggleAllNewQLanguages()" 
+              id="newQToggleAllLangsBtn"
+              class="text-[10px] font-mono text-cyan-400 hover:text-cyan-300 underline cursor-pointer">
+              Deselect All
+            </button>
+          </div>
+          <div class="grid grid-cols-4 gap-1.5 font-mono text-xs" id="newQLanguagesContainer">
+            <label class="lang-modal-chip cursor-pointer flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg border border-blue-500/40 bg-blue-500/10 text-blue-300 hover:bg-blue-500/20 transition select-none">
+              <input type="checkbox" name="newQLangCheckbox" value="C" checked class="accent-blue-500 rounded cursor-pointer" onchange="updateNewQLangChipState(this)">
+              <span class="font-bold">C</span>
+            </label>
+            <label class="lang-modal-chip cursor-pointer flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg border border-indigo-500/40 bg-indigo-500/10 text-indigo-300 hover:bg-indigo-500/20 transition select-none">
+              <input type="checkbox" name="newQLangCheckbox" value="C++" checked class="accent-indigo-500 rounded cursor-pointer" onchange="updateNewQLangChipState(this)">
+              <span class="font-bold">C++</span>
+            </label>
+            <label class="lang-modal-chip cursor-pointer flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg border border-amber-500/40 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 transition select-none">
+              <input type="checkbox" name="newQLangCheckbox" value="Java" checked class="accent-amber-500 rounded cursor-pointer" onchange="updateNewQLangChipState(this)">
+              <span class="font-bold">Java</span>
+            </label>
+            <label class="lang-modal-chip cursor-pointer flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 transition select-none">
+              <input type="checkbox" name="newQLangCheckbox" value="Python" checked class="accent-emerald-500 rounded cursor-pointer" onchange="updateNewQLangChipState(this)">
+              <span class="font-bold">Python</span>
+            </label>
+          </div>
+          <p class="text-[10px] text-slate-400 font-mono mt-1">
+            💡 Select the programming languages that this question is compatible with.
+          </p>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-mono text-slate-400 uppercase mb-0.5">Description / Problem Statement</label>
+          <textarea id="newQDesc" rows="2" required placeholder="Detailed problem statement..." class="w-full bg-slate-900 border border-white/10 text-slate-200 text-xs font-mono rounded-lg px-2.5 py-1.5 resize-none"></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[10px] font-mono text-slate-400 uppercase mb-0.5">Sample Input</label>
+            <input type="text" id="newQSampleIn" placeholder="e.g. 1 2 3" class="w-full bg-slate-900 border border-white/10 text-slate-200 text-xs font-mono rounded-lg px-2 py-1">
+          </div>
+          <div>
+            <label class="block text-[10px] font-mono text-slate-400 uppercase mb-0.5">Sample Expected Output</label>
+            <input type="text" id="newQSampleOut" placeholder="e.g. 6" class="w-full bg-slate-900 border border-white/10 text-slate-200 text-xs font-mono rounded-lg px-2 py-1">
+          </div>
+        </div>
+
+        <div class="pt-1.5 flex items-center justify-end gap-2 border-t border-white/10">
+          <button type="button" onclick="toggleNewQuestionModal(false)" class="px-3.5 py-1.5 rounded-lg text-xs font-mono text-slate-300 bg-slate-800 hover:bg-slate-700">Cancel</button>
+          <button type="submit" class="btn-cyber px-4 py-1.5 rounded-lg text-xs font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 shadow">Save to Bank</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       5. Leave Contest Early Confirmation Modal (Yes / No)
+       ========================================================================= -->
+  <div id="leaveContestModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+    <div class="glass-panel rounded-2xl max-w-md w-full p-5 border border-rose-500/40 shadow-2xl space-y-4 text-center">
+      <div class="w-12 h-12 rounded-2xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-2xl mx-auto shadow-inner">
+        🚪
+      </div>
+
+      <div class="space-y-1.5">
+        <span class="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30 uppercase tracking-wider">
+          Early Contest Exit
+        </span>
+        <h3 class="text-lg font-black text-white">
+          Leave Contest Early?
+        </h3>
+        <p class="text-xs text-slate-300 leading-relaxed text-left bg-slate-900/60 p-3 rounded-xl border border-white/5">
+          Are you sure you want to exit the contest early?<br><br>
+          • All code written so far will be <strong>submitted to the Chief Judge</strong>.<br>
+          • Your status will be marked as <strong>Left Early (Incomplete)</strong>.<br>
+          • Your arena workspace will switch to read-only review mode.
+        </p>
+      </div>
+
+      <div class="flex items-center justify-end gap-2.5 pt-2 border-t border-white/10">
+        <button 
+          type="button" 
+          onclick="toggleLeaveContestModal(false)" 
+          class="flex-1 px-4 py-2 rounded-xl text-xs font-mono font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 transition">
+          ✕ Cancel (Stay in Arena)
+        </button>
+        <button 
+          type="button" 
+          id="btnConfirmLeaveContest"
+          onclick="executeLeaveContest()" 
+          class="flex-1 btn-cyber px-4 py-2 rounded-xl text-xs font-black text-white bg-rose-600 hover:bg-rose-500 shadow-lg shadow-rose-600/30 transition flex items-center justify-center gap-1.5">
+          <span>🚪</span>
+          <span>Yes, Submit & Leave</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       6. Edit Contest Duration Modal (Sir Custom Timer Control)
+       ========================================================================= -->
+  <div id="editTimerModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+    <div class="glass-panel rounded-2xl max-w-md w-full p-5 border border-amber-500/40 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-white/10 pb-2.5">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <span>⏱️</span>
+          <span>Set Contest Duration</span>
+        </h3>
+        <button type="button" onclick="toggleEditTimerModal(false)" class="text-slate-400 hover:text-white text-base px-1 leading-none">&times;</button>
+      </div>
+
+      <div class="space-y-1">
+        <p class="text-xs text-slate-300">
+          Set the contest timer duration. Choose 2 or 5 minutes for quick testing, or enter custom duration.
+        </p>
+      </div>
+
+      <!-- Quick Preset Buttons -->
+      <div class="space-y-1.5">
+        <label class="block text-[10px] font-mono text-slate-400 uppercase font-bold">Quick Presets</label>
+        <div class="grid grid-cols-3 gap-2">
+          <button 
+            type="button" 
+            onclick="setTimerDurationPreset(2)" 
+            class="px-2.5 py-2 rounded-xl text-xs font-mono font-bold bg-amber-500/15 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 transition text-center shadow-sm">
+            ⚡ 2 Mins <span class="block text-[9px] text-slate-400 font-normal">Quick Test</span>
+          </button>
+          <button 
+            type="button" 
+            onclick="setTimerDurationPreset(5)" 
+            class="px-2.5 py-2 rounded-xl text-xs font-mono font-bold bg-amber-500/15 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 transition text-center shadow-sm">
+            ⚡ 5 Mins <span class="block text-[9px] text-slate-400 font-normal">Fast Demo</span>
+          </button>
+          <button 
+            type="button" 
+            onclick="setTimerDurationPreset(15)" 
+            class="px-2.5 py-2 rounded-xl text-xs font-mono font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/10 transition text-center">
+            15 Mins <span class="block text-[9px] text-slate-400 font-normal">Short Run</span>
+          </button>
+          <button 
+            type="button" 
+            onclick="setTimerDurationPreset(30)" 
+            class="px-2.5 py-2 rounded-xl text-xs font-mono font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/10 transition text-center">
+            30 Mins <span class="block text-[9px] text-slate-400 font-normal">Half-Hour</span>
+          </button>
+          <button 
+            type="button" 
+            onclick="setTimerDurationPreset(60)" 
+            class="px-2.5 py-2 rounded-xl text-xs font-mono font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/10 transition text-center">
+            60 Mins <span class="block text-[9px] text-slate-400 font-normal">1 Hour</span>
+          </button>
+          <button 
+            type="button" 
+            onclick="setTimerDurationPreset(90)" 
+            class="px-2.5 py-2 rounded-xl text-xs font-mono font-bold bg-emerald-500/15 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 transition text-center shadow-sm">
+            90 Mins <span class="block text-[9px] text-emerald-400 font-normal">Standard</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Custom Minutes Form -->
+      <form onsubmit="handleSaveTimerDuration(event)" class="space-y-3 pt-2 border-t border-white/10">
+        <div>
+          <label class="block text-[10px] font-mono text-slate-400 uppercase font-bold mb-1">Or Enter Custom Duration (Minutes)</label>
+          <div class="flex items-center gap-2">
+            <input 
+              type="number" 
+              id="customTimerMinutesInput" 
+              required
+              min="1" 
+              max="300"
+              value="90" 
+              placeholder="e.g. 2, 5, 45, 90" 
+              class="flex-1 bg-slate-900 border border-white/15 text-slate-100 text-sm font-mono font-bold rounded-xl px-3 py-2 focus:outline-none focus:border-amber-400 transition">
+            <span class="text-xs font-mono text-slate-400">minutes</span>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-1">
+          <button 
+            type="button" 
+            onclick="toggleEditTimerModal(false)" 
+            class="px-3.5 py-2 rounded-xl text-xs font-mono text-slate-300 bg-slate-800 hover:bg-slate-700 transition">
+            Cancel
+          </button>
+          <button 
+            type="submit" 
+            class="btn-cyber px-4 py-2 rounded-xl text-xs font-black uppercase text-slate-950 bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-200 glow-amber transition shadow-md">
+            ✓ Set Duration
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       7. Specify Questions by Team Modal (Sir Dynamic Language-Gated Assignment)
+       ========================================================================= -->
+  <div id="specifyQuestionsModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5">
+    <div class="glass-panel w-full max-w-4xl max-h-[92vh] flex flex-col rounded-2xl border border-cyan-500/30 shadow-2xl overflow-hidden">
+      <!-- Modal Header -->
+      <div class="p-4 sm:p-5 border-b border-white/10 flex items-center justify-between bg-slate-900/80">
+        <div class="flex items-center gap-3">
+          <button id="btnBackToSpecifyTeams" type="button" onclick="backToSpecifyTeamsList()" class="hidden px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/10 transition flex items-center gap-1.5 shadow-sm">
+            <span>←</span>
+            <span>Back to Teams</span>
+          </button>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-base sm:text-lg">🎯</span>
+              <h3 id="specifyModalTitle" class="text-base sm:text-lg font-black text-white">Specify Questions by Team</h3>
+            </div>
+            <p id="specifyModalSubtitle" class="text-xs text-slate-400 font-mono mt-0.5">
+              Select an approved team to customize their 60-point challenges matching their registered language.
+            </p>
+          </div>
+        </div>
+        <button type="button" onclick="closeSpecifyQuestionsModal()" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center font-bold text-lg transition leading-none">
+          &times;
+        </button>
+      </div>
+
+      <!-- VIEW 1: Teams List -->
+      <div id="specifyTeamsListView" class="p-4 sm:p-6 overflow-y-auto flex-1 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-white/5 pb-2">
+          <div class="text-xs font-mono font-bold uppercase tracking-wider text-slate-300">
+            Approved Teams List
+          </div>
+          <div id="specifyTeamsCountBadge" class="text-xs font-mono text-cyan-400 font-bold bg-cyan-500/10 px-2.5 py-0.5 rounded-full border border-cyan-500/20">
+            0 Approved Teams
+          </div>
+        </div>
+
+        <div id="specifyTeamsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <!-- Injected dynamically by admin.js -->
+        </div>
+      </div>
+
+      <!-- VIEW 2: Question Assignment for Selected Team -->
+      <div id="specifyTeamAssignView" class="hidden p-4 sm:p-6 overflow-y-auto flex-1 space-y-4">
+        <!-- Team Summary Header Card -->
+        <div class="glass-panel p-4 rounded-xl border border-white/10 flex flex-wrap items-center justify-between gap-4">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2.5 flex-wrap">
+              <h4 id="assignViewTeamName" class="text-base font-black text-white">Team Name</h4>
+              <span id="assignViewTeamLangBadge" class="px-2.5 py-0.5 rounded text-[11px] font-mono font-black uppercase shadow-sm">PYTHON</span>
+            </div>
+            <p id="assignViewTeamUniv" class="text-xs text-slate-400 font-mono">
+              COMSATS • Leader: Rehan
+            </p>
+          </div>
+
+          <div class="flex items-center gap-3 flex-wrap">
+            <div class="text-right">
+              <div class="text-[10px] font-mono uppercase text-slate-400 font-bold">Assigned Budget:</div>
+              <div id="assignViewPointsDisplay" class="text-sm font-mono font-black text-amber-400">
+                0 / 60 Points
+              </div>
+            </div>
+            <button 
+              type="button" 
+              onclick="handleApplyTeamPreset('standard')" 
+              class="px-3.5 py-2 rounded-xl text-xs font-mono font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition flex items-center gap-1.5 shadow-md">
+              <span>🎯</span>
+              <span>Standard (1E + 1M + 1H)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Language Gating Banner -->
+        <div class="p-3 rounded-xl bg-cyan-950/40 border border-cyan-500/30 text-xs font-mono text-cyan-200 flex items-center gap-2.5">
+          <span class="text-base">💡</span>
+          <div>
+            Only challenges matching <strong id="assignNoticeLangText" class="text-cyan-300 font-bold underline">Python</strong> are available for this team.
+          </div>
+        </div>
+
+        <!-- Available Questions List -->
+        <div class="space-y-2 pt-1">
+          <div class="flex items-center justify-between text-xs font-mono text-slate-400 font-bold uppercase">
+            <span>Questions for this Team (<span id="assignAvailableCount" class="text-slate-200">0</span>)</span>
+            <span class="text-[11px] text-slate-500 font-normal">Click toggle to assign/remove</span>
+          </div>
+
+          <div id="assignQuestionsListContainer" class="space-y-2.5">
+            <!-- Questions injected by admin.js -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-3.5 sm:p-4 border-t border-white/10 bg-slate-900/70 flex items-center justify-between">
+        <span class="text-xs font-mono text-slate-400">Total must equal 60 points for contest ready status.</span>
+        <button type="button" onclick="closeSpecifyQuestionsModal()" class="px-4 py-2 rounded-xl text-xs font-mono font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 transition">
+          Done / Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       8. Choose Questions for Same for All Teams Modal
+       ========================================================================= -->
+  <div id="chooseSameModeQuestionsModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5">
+    <div class="glass-panel w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl border border-cyan-500/30 shadow-2xl overflow-hidden">
+      <!-- Modal Header -->
+      <div class="p-4 sm:p-5 border-b border-white/10 flex items-center justify-between bg-slate-900/80">
+        <div>
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <span>🎯</span>
+            <span>Same for All Teams — Select Contest Challenges</span>
+          </h3>
+          <p id="chooseSameModalSubtitle" class="text-xs text-slate-400 font-mono mt-0.5">
+            Total must equal 60 Points (1 Easy + 1 Medium + 1 Hard). Select which questions to assign:
+          </p>
+        </div>
+        <button type="button" onclick="closeSameModeQuestionSelectModal()" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center font-bold text-lg transition leading-none">
+          &times;
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div id="chooseSameModalBody" class="p-4 sm:p-5 overflow-y-auto space-y-4 flex-1">
+        <!-- Injected dynamically by admin.js -->
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-3.5 sm:p-4 border-t border-white/10 bg-slate-900/70 flex items-center justify-between">
+        <button type="button" onclick="closeSameModeQuestionSelectModal()" class="px-4 py-2 rounded-xl text-xs font-mono font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 transition">
+          Cancel
+        </button>
+        <button type="button" onclick="confirmSameModeQuestionSelection()" class="px-5 py-2 rounded-xl text-xs font-mono font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition flex items-center gap-2 shadow-lg">
+          <span>🎯</span>
+          <span>Assign to All Teams (60 pts)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
+
+  <!-- Footer (Compact Viewport Fit) -->
+  <footer class="glass-panel border-t border-white/5 py-1.5 px-4 text-[11px] font-mono text-slate-400">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-1 text-center sm:text-left">
+      <div>
+        <span class="text-slate-200 font-bold">VISUE SPARK 2026</span>
+        <span class="text-slate-500">•</span>
+        <span class="text-[10px] text-slate-400">COMSATS University Islamabad, Vehari Campus</span>
+      </div>
+
+      <!-- Developer Portfolio Credit -->
+      <div>
+        <a 
+          href="https://rehankhansahu.github.io/muhammad-rehan-portfolio/" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          title="Visit Muhammad Rehan's Portfolio"
+          class="developer-badge group inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-slate-900/90 hover:bg-slate-800 border border-white/10 hover:border-cyan-500/40 transition-all shadow-sm">
+          <span class="text-[10px] text-slate-300 group-hover:text-white transition">
+            Developed by <strong class="text-cyan-400 group-hover:text-cyan-300 font-extrabold underline decoration-cyan-500/30 underline-offset-2">Muhammad Rehan</strong>
+          </span>
+          <span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
+            BS Software Engineering
+          </span>
+          <span class="text-slate-400 group-hover:text-cyan-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform text-[10px]">↗</span>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Socket.IO Client Library -->
+  <script src="/socket.io/socket.io.js"></script>
+
+  <!-- Modular Frontend Scripts -->
+  <script src="/js/socket.js"></script>
+  <script src="/js/arena.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/app.js"></script>
+
+</body>
+</html>
