@@ -1065,24 +1065,24 @@
             </div>
           </div>
 
-          <!-- Dynamic 60-Point Contest Budget Panel -->
+          <!-- Dynamic 60-Point Contest Question Readiness Panel -->
           <div id="contestBudgetPanel" class="contest-budget-panel p-4 rounded-xl border border-white/10 space-y-3">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div class="flex items-center gap-2">
                 <span class="text-base">🎯</span>
-                <span class="contest-budget-label text-xs font-mono font-bold text-slate-200">Active Contest Budget:</span>
-                <span id="contestBudgetPointsDisplay" class="text-xs font-mono font-black text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">60 / 60 Points</span>
+                <span class="contest-budget-label text-xs font-mono font-bold text-slate-200">Contest Question Readiness:</span>
+                <span id="contestBudgetPointsDisplay" class="text-xs font-mono font-black text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">0 / 60 Points</span>
               </div>
               <div id="contestBudgetStatusBadge">
-                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
-                  ✅ 60/60 Points • Ready for Contest
+                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                  ⚠️ Incomplete • Awaiting Approved Teams
                 </span>
               </div>
             </div>
 
             <!-- Visual Progress Meter -->
             <div class="contest-budget-track w-full bg-slate-900 rounded-full h-2.5 overflow-hidden border border-white/10">
-              <div id="contestBudgetProgressBar" class="bg-gradient-to-r from-emerald-500 to-lime-400 h-2.5 rounded-full transition-all duration-300" style="width: 100%;"></div>
+              <div id="contestBudgetProgressBar" class="bg-gradient-to-r from-amber-500 to-yellow-400 h-2.5 rounded-full transition-all duration-300" style="width: 0%;"></div>
             </div>
           </div>
 

@@ -315,6 +315,20 @@ function initSocketClient() {
       if (window.loadApprovedTeams) {
         window.loadApprovedTeams();
       }
+      if (window.renderContestReadinessMeter) {
+        window.renderContestReadinessMeter();
+      }
+    });
+
+    // Contest Questions Readiness Updated (Live progress bar update across all screens)
+    socket.on('contestReadinessUpdated', (data) => {
+      console.log('[Socket.IO] Contest readiness updated:', data);
+      if (window.renderContestReadinessMeter) {
+        window.renderContestReadinessMeter(data);
+      }
+      if (window.loadApprovedTeams) {
+        window.loadApprovedTeams();
+      }
     });
 
     // Judge Session Force-Unlocked or Changed from another device (Option A)

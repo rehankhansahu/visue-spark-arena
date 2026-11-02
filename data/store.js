@@ -135,6 +135,97 @@ const store = {
     return { ready: true };
   },
 
+  getContestReadiness() {
+    const approved = this.getApprovedTeams();
+    const totalApproved = approved.length;
+
+    if (totalApproved === 0) {
+      const activePts = this.getActiveContestPoints();
+      const pct = Math.min(100, Math.round((activePts / 60) * 100));
+      return {
+        hasApprovedTeams: false,
+        totalApproved: 0,
+        readyTeamsCount: 0,
+        percentage: pct,
+        totalAssignedPoints: activePts,
+        totalTargetPoints: 60,
+        isAllReady: false,
+        displayPoints: `${activePts} / 60 Points (Awaiting Teams)`,
+        statusText: activePts >= 60 
+          ? 'Question Bank Ready (60/60 pts) • Awaiting Approved Teams' 
+          : `Awaiting Approved Teams (${activePts}/60 pts in Bank)`,
+        statusType: 'awaiting_teams',
+        teamBreakdown: []
+      };
+    }
+
+    const teamBreakdown = [];
+    let readyTeamsCount = 0;
+    let totalAssignedPoints = 0;
+    const totalTargetPoints = totalApproved * 60;
+    const unreadyLangList = [];
+
+    for (const team of approved) {
+      const problems = this.getProblemsForTeam(team.id) || [];
+      const pts = problems.reduce((sum, p) => sum + (p.points || 0), 0);
+      const isReady = (pts === 60);
+      if (isReady) {
+        readyTeamsCount++;
+      } else {
+        const langName = (team.language || 'cpp').toUpperCase();
+        if (!unreadyLangList.includes(langName)) {
+          unreadyLangList.push(langName);
+        }
+      }
+      totalAssignedPoints += Math.min(60, pts);
+
+      teamBreakdown.push({
+        teamId: team.id,
+        teamName: team.teamName,
+        language: (team.language || 'cpp').toUpperCase(),
+        points: pts,
+        isReady: isReady,
+        problemCount: problems.length
+      });
+    }
+
+    const percentage = totalTargetPoints > 0 
+      ? Math.min(100, Math.round((totalAssignedPoints / totalTargetPoints) * 100))
+      : 0;
+
+    const isAllReady = (readyTeamsCount === totalApproved && totalApproved > 0);
+
+    let statusText = '';
+    let statusType = 'incomplete';
+
+    if (isAllReady) {
+      statusType = 'ready';
+      statusText = `All Teams Ready (${readyTeamsCount}/${totalApproved} Teams • ${totalAssignedPoints}/${totalTargetPoints} pts)`;
+    } else if (readyTeamsCount > 0) {
+      statusType = 'partial';
+      const needLangs = unreadyLangList.join(', ');
+      statusText = `Partially Ready (${readyTeamsCount}/${totalApproved} Teams) • ${needLangs} needs questions`;
+    } else {
+      statusType = 'incomplete';
+      const needLangs = unreadyLangList.length > 0 ? ` (${unreadyLangList.join(', ')})` : '';
+      statusText = `Incomplete (0/${totalApproved} Teams Ready) • Assign questions to teams${needLangs}`;
+    }
+
+    return {
+      hasApprovedTeams: true,
+      totalApproved,
+      readyTeamsCount,
+      percentage,
+      totalAssignedPoints,
+      totalTargetPoints,
+      isAllReady,
+      displayPoints: `${readyTeamsCount} / ${totalApproved} Teams Ready (${totalAssignedPoints} / ${totalTargetPoints} pts)`,
+      statusText,
+      statusType,
+      teamBreakdown
+    };
+  },
+
   startTimer() {
     const readyCheck = this.checkAllApprovedTeamsHaveAssignedQuestions();
     if (!readyCheck.ready) {
@@ -640,14 +731,6 @@ const store = {
     let matchingProblems = allProblems;
     if (team && team.language) {
       matchingProblems = allProblems.filter(q => this.doesQuestionMatchLanguage(q, team.language));
-
-      // Fallback: if active questions didn't match (e.g. Sir only added language-specific questions in questionBank)
-      if (matchingProblems.length === 0) {
-        const bankMatching = questionBank.filter(q => this.doesQuestionMatchLanguage(q, team.language));
-        if (bankMatching.length > 0) {
-          matchingProblems = bankMatching.slice(0, 3).map(q => ({ ...q }));
-        }
-      }
     }
 
     // Sort strictly in difficulty sequence: Easy (10p, #1) -> Medium (20p, #2) -> Hard (30p, #3)
@@ -710,23 +793,6 @@ const store = {
     };
 
     questionBank.push(newQuestion);
-
-    // If budget allows for each track this question supports, auto-add
-    let canAutoAdd = true;
-    for (const track of ['c', 'cpp', 'java', 'python']) {
-      if (this.doesQuestionMatchLanguage(newQuestion, track)) {
-        if (this.getActiveContestPointsForLang(track) + newQuestion.points > 60) {
-          canAutoAdd = false;
-          break;
-        }
-      }
-    }
-
-    if (canAutoAdd) {
-      activeContestQuestionIds.push(newQuestion.id);
-      this.syncGlobalSlots();
-    }
-
     return newQuestion;
   },
 

@@ -626,6 +626,7 @@ async function loadApprovedTeams() {
       approvedTeams = data.teams || [];
       renderApprovedTeams(approvedTeams);
       updateJudgeMetrics();
+      renderContestReadinessMeter(data.readiness || null);
     }
   } catch (err) {
     console.error('Failed to load approved teams:', err);
@@ -820,7 +821,7 @@ async function loadQuestionBank() {
       activeContestPoints = data.totalPoints || 0;
       questionMode = data.mode || 'same';
 
-      renderContestBudgetMeter(activeContestPoints, activeContestQuestions);
+      renderContestReadinessMeter(data.readiness || null);
       renderQuestionBankTable(questionBank, activeQuestionIds);
     }
   } catch (err) {
@@ -828,55 +829,121 @@ async function loadQuestionBank() {
   }
 }
 
-function renderContestBudgetMeter(totalPoints, activeQuestions) {
+function renderContestReadinessMeter(readinessData = null) {
   const pointsDisplay = document.getElementById('contestBudgetPointsDisplay');
   const badgeContainer = document.getElementById('contestBudgetStatusBadge');
   const progressBar = document.getElementById('contestBudgetProgressBar');
-  const chipsContainer = document.getElementById('activeContestQuestionsChips');
+  const labelEl = document.querySelector('.contest-budget-label');
 
+  if (labelEl) {
+    labelEl.textContent = 'Contest Question Readiness:';
+  }
+
+  let totalApproved = (approvedTeams || []).length;
+  let readyTeamsCount = 0;
+  let totalAssignedPoints = 0;
+  let totalTargetPoints = totalApproved * 60;
+  let percentage = 0;
+  let unreadyLangs = [];
+
+  if (readinessData && typeof readinessData.percentage === 'number') {
+    percentage = readinessData.percentage;
+    totalApproved = readinessData.totalApproved;
+    readyTeamsCount = readinessData.readyTeamsCount;
+    totalAssignedPoints = readinessData.totalAssignedPoints;
+    totalTargetPoints = readinessData.totalTargetPoints;
+    if (readinessData.teamBreakdown) {
+      readinessData.teamBreakdown.forEach(t => {
+        if (!t.isReady && !unreadyLangs.includes(t.language)) {
+          unreadyLangs.push(t.language);
+        }
+      });
+    }
+  } else if (totalApproved === 0) {
+    percentage = 0;
+    totalAssignedPoints = 0;
+    totalTargetPoints = 60;
+  } else {
+    for (const team of approvedTeams) {
+      const problems = team.assignedProblems || [];
+      const pts = problems.reduce((s, p) => s + (p.points || 0), 0);
+      const isReady = (pts === 60);
+      if (isReady) {
+        readyTeamsCount++;
+      } else {
+        const langName = (team.language || 'cpp').toUpperCase();
+        if (!unreadyLangs.includes(langName)) {
+          unreadyLangs.push(langName);
+        }
+      }
+      totalAssignedPoints += Math.min(60, pts);
+    }
+    percentage = totalTargetPoints > 0 
+      ? Math.min(100, Math.round((totalAssignedPoints / totalTargetPoints) * 100))
+      : 0;
+  }
+
+  // Update Points Display
   if (pointsDisplay) {
-    pointsDisplay.textContent = `${totalPoints} / 60 Points`;
-    if (totalPoints === 60) {
-      pointsDisplay.className = 'text-xs font-mono font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded border border-emerald-500/30';
-    } else if (totalPoints > 60) {
-      pointsDisplay.className = 'text-xs font-mono font-black text-rose-400 bg-rose-500/10 px-2.5 py-0.5 rounded border border-rose-500/30';
-    } else {
+    if (totalApproved === 0) {
+      pointsDisplay.textContent = '0 / 60 Points (Awaiting Teams)';
       pointsDisplay.className = 'text-xs font-mono font-black text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded border border-amber-500/30';
-    }
-  }
-
-  if (progressBar) {
-    const pct = Math.min(100, Math.round((totalPoints / 60) * 100));
-    progressBar.style.width = `${pct}%`;
-    if (totalPoints === 60) {
-      progressBar.className = 'bg-gradient-to-r from-emerald-500 to-lime-400 h-2.5 rounded-full transition-all duration-300';
-    } else if (totalPoints > 60) {
-      progressBar.className = 'bg-gradient-to-r from-rose-500 to-red-600 h-2.5 rounded-full transition-all duration-300';
     } else {
-      progressBar.className = 'bg-gradient-to-r from-amber-500 to-yellow-400 h-2.5 rounded-full transition-all duration-300';
+      pointsDisplay.textContent = `${readyTeamsCount} / ${totalApproved} Teams Ready (${totalAssignedPoints} / ${totalTargetPoints} pts)`;
+      if (percentage === 100) {
+        pointsDisplay.className = 'text-xs font-mono font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded border border-emerald-500/30';
+      } else if (percentage >= 50) {
+        pointsDisplay.className = 'text-xs font-mono font-black text-cyan-400 bg-cyan-500/10 px-2.5 py-0.5 rounded border border-cyan-500/30';
+      } else {
+        pointsDisplay.className = 'text-xs font-mono font-black text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded border border-amber-500/30';
+      }
     }
   }
 
+  // Update Visual Progress Bar Line
+  if (progressBar) {
+    progressBar.style.width = `${percentage}%`;
+    if (percentage === 100) {
+      progressBar.className = 'bg-gradient-to-r from-emerald-500 to-lime-400 h-2.5 rounded-full transition-all duration-300';
+    } else if (percentage >= 50) {
+      progressBar.className = 'bg-gradient-to-r from-cyan-500 to-emerald-400 h-2.5 rounded-full transition-all duration-300';
+    } else if (percentage > 0) {
+      progressBar.className = 'bg-gradient-to-r from-amber-500 to-yellow-400 h-2.5 rounded-full transition-all duration-300';
+    } else {
+      progressBar.className = 'bg-slate-700 h-2.5 rounded-full transition-all duration-300';
+    }
+  }
+
+  // Update Status Badge
   if (badgeContainer) {
-    if (totalPoints === 60) {
-      badgeContainer.innerHTML = `
-        <span class="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-sm flex items-center gap-1">
-          <span>✅</span>
-          <span>60/60 Points Assigned • Ready for Contest</span>
-        </span>
-      `;
-    } else if (totalPoints < 60) {
+    if (totalApproved === 0) {
       badgeContainer.innerHTML = `
         <span class="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm flex items-center gap-1">
           <span>⚠️</span>
-          <span>Incomplete (${totalPoints}/60 pts) • Need ${60 - totalPoints} pts more</span>
+          <span>Awaiting Approved Teams • Approve teams below to assign challenges</span>
+        </span>
+      `;
+    } else if (percentage === 100) {
+      badgeContainer.innerHTML = `
+        <span class="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-sm flex items-center gap-1">
+          <span>✅</span>
+          <span>100% Ready • All Approved Teams have 60-point challenges (${readyTeamsCount}/${totalApproved} Teams)</span>
+        </span>
+      `;
+    } else if (readyTeamsCount > 0) {
+      const needText = unreadyLangs.length > 0 ? `${unreadyLangs.join(', ')} track needs questions` : `Need ${totalTargetPoints - totalAssignedPoints} pts more`;
+      badgeContainer.innerHTML = `
+        <span class="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm flex items-center gap-1">
+          <span>⚡</span>
+          <span>${percentage}% Ready (${readyTeamsCount}/${totalApproved} Teams Ready) • ${needText}</span>
         </span>
       `;
     } else {
+      const needText = unreadyLangs.length > 0 ? `Assign questions to approved teams (${unreadyLangs.join(', ')})` : `Need ${totalTargetPoints - totalAssignedPoints} pts more`;
       badgeContainer.innerHTML = `
-        <span class="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40 shadow-sm flex items-center gap-1">
-          <span>❌</span>
-          <span>Exceeded 60 Points Limit (${totalPoints}/60 pts)</span>
+        <span class="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm flex items-center gap-1">
+          <span>⚠️</span>
+          <span>Incomplete (${totalAssignedPoints}/${totalTargetPoints} pts) • ${needText}</span>
         </span>
       `;
     }
@@ -884,6 +951,10 @@ function renderContestBudgetMeter(totalPoints, activeQuestions) {
 
   // Radio buttons & pills for mode
   updateModeToggleButtons();
+}
+
+function renderContestBudgetMeter(totalPoints, activeQuestions) {
+  renderContestReadinessMeter(null);
 }
 
 function updateModeToggleButtons() {
@@ -2532,6 +2603,7 @@ async function toggleTeamQuestionAssignment(teamId, questionId, shouldAssign) {
     if (data.success) {
       showToast('Updated 🎯', data.message, 'success');
       selectTeamForQuestionAssignment(teamId);
+      loadApprovedTeams();
     } else {
       showToast('Error', data.message, 'error');
     }
@@ -2563,6 +2635,7 @@ async function handleApplyTeamPreset(presetName = 'standard') {
     if (data.success) {
       showToast('Preset Applied 🎯', data.message, 'success');
       selectTeamForQuestionAssignment(currentSpecifyTeamId);
+      loadApprovedTeams();
     } else {
       showToast('Preset Error', data.message, 'error');
     }
@@ -2626,3 +2699,5 @@ window.deleteQuestionFromBank = deleteQuestionFromBank;
 window.setQuestionDistributionMode = setQuestionDistributionMode;
 window.closeSameModeQuestionSelectModal = closeSameModeQuestionSelectModal;
 window.confirmSameModeQuestionSelection = confirmSameModeQuestionSelection;
+window.renderContestReadinessMeter = renderContestReadinessMeter;
+window.renderContestBudgetMeter = renderContestBudgetMeter;

@@ -276,10 +276,12 @@ router.get('/admin/pending-requests', (req, res) => {
 router.get('/admin/approved-teams', verifySirToken, (req, res) => {
   try {
     const approved = store.getApprovedTeams();
+    const readiness = store.getContestReadiness();
     return res.status(200).json({
       success: true,
       count: approved.length,
-      teams: approved
+      teams: approved,
+      readiness: readiness
     });
   } catch (err) {
     return res.status(500).json({ success: false, message: 'Failed to retrieve teams' });
@@ -310,6 +312,8 @@ router.post('/admin/approve-team', verifySirToken, (req, res) => {
         leaderboard: lbData.leaderboard,
         event: 'TEAM_APPROVED'
       });
+
+      io.emit('contestReadinessUpdated', store.getContestReadiness());
     }
 
     return res.status(200).json({
@@ -376,6 +380,7 @@ router.post('/admin/kickout-team', verifySirToken, (req, res) => {
         leaderboard: lbData.leaderboard,
         event: 'TEAM_KICKED_OUT'
       });
+      io.emit('contestReadinessUpdated', store.getContestReadiness());
     }
 
     return res.status(200).json({
@@ -413,6 +418,7 @@ router.post('/admin/remove-team', verifySirToken, (req, res) => {
         leaderboard: lbData.leaderboard,
         event: 'TEAM_REMOVED'
       });
+      io.emit('contestReadinessUpdated', store.getContestReadiness());
     }
 
     return res.status(200).json({
@@ -487,6 +493,7 @@ router.post('/admin/timer/reset', verifySirToken, (req, res) => {
       }
       io.emit('questionsUpdated', {});
       io.emit('pendingRequestsUpdated', []);
+      io.emit('contestReadinessUpdated', store.getContestReadiness());
     }
     return res.status(200).json({
       success: true,
@@ -530,6 +537,7 @@ router.post('/admin/reset-contest-all', verifySirToken, (req, res) => {
       });
       io.emit('questionsUpdated', {});
       io.emit('pendingRequestsUpdated', []);
+      io.emit('contestReadinessUpdated', store.getContestReadiness());
     }
     return res.status(200).json({
       success: true,
@@ -568,6 +576,7 @@ router.get('/admin/questions', verifySirToken, (req, res) => {
     const totalPoints = store.getActiveContestPoints();
     const slots = store.getActiveGlobalSlots();
     const mode = store.getQuestionMode();
+    const readiness = store.getContestReadiness();
     return res.status(200).json({
       success: true,
       bank,
@@ -576,10 +585,26 @@ router.get('/admin/questions', verifySirToken, (req, res) => {
       totalPoints,
       isReady: (totalPoints === 60),
       activeSlots: slots,
-      mode
+      mode,
+      readiness
     });
   } catch (err) {
     return res.status(400).json({ success: false, message: err.message });
+  }
+});
+
+/**
+ * GET /api/admin/readiness
+ * Returns comprehensive team question readiness & progress across all approved teams
+ */
+router.get('/admin/readiness', verifySirToken, (req, res) => {
+  try {
+    return res.status(200).json({
+      success: true,
+      readiness: store.getContestReadiness()
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
   }
 });
 
@@ -656,6 +681,7 @@ router.post('/admin/contest-questions/preset', verifySirToken, ensureContestNotR
         isReady: result.isReady,
         preset: presetName
       });
+      io.emit('contestReadinessUpdated', store.getContestReadiness());
     }
     return res.status(200).json({
       success: true,
@@ -671,7 +697,10 @@ router.post('/admin/questions', verifySirToken, ensureContestNotRunning, (req, r
   try {
     const newQ = store.addQuestionToBank(req.body);
     const io = req.app.get('io');
-    if (io) io.emit('questionsUpdated', { bankCount: store.getQuestionBank().length });
+    if (io) {
+      io.emit('questionsUpdated', { bankCount: store.getQuestionBank().length });
+      io.emit('contestReadinessUpdated', store.getContestReadiness());
+    }
     return res.status(201).json({
       success: true,
       message: `Question #${newQ.id} ("${newQ.title}") added to bank!`,
@@ -687,7 +716,10 @@ router.delete('/admin/questions/:id', verifySirToken, ensureContestNotRunning, (
     const { id } = req.params;
     store.removeQuestionFromBank(id);
     const io = req.app.get('io');
-    if (io) io.emit('questionsUpdated', { bankCount: store.getQuestionBank().length });
+    if (io) {
+      io.emit('questionsUpdated', { bankCount: store.getQuestionBank().length });
+      io.emit('contestReadinessUpdated', store.getContestReadiness());
+    }
     return res.status(200).json({
       success: true,
       message: `Question #${id} removed from bank.`
@@ -702,7 +734,10 @@ router.post('/admin/assign-question', verifySirToken, ensureContestNotRunning, (
     const { slot, questionId } = req.body;
     const slots = store.assignGlobalSlot(slot, questionId);
     const io = req.app.get('io');
-    if (io) io.emit('questionsUpdated', { activeSlots: slots });
+    if (io) {
+      io.emit('questionsUpdated', { activeSlots: slots });
+      io.emit('contestReadinessUpdated', store.getContestReadiness());
+    }
     return res.status(200).json({
       success: true,
       message: `Slot "${slot}" assigned to Question #${questionId}.`,
@@ -814,6 +849,7 @@ router.post('/admin/team-questions', verifySirToken, ensureContestNotRunning, (r
         isReady: result.isReady
       });
       io.emit('questionsUpdated', { mode: 'different' });
+      io.emit('contestReadinessUpdated', store.getContestReadiness());
     }
 
     return res.status(200).json({
@@ -845,6 +881,7 @@ router.post('/admin/team-questions/preset', verifySirToken, ensureContestNotRunn
         isReady: result.isReady
       });
       io.emit('questionsUpdated', { mode: 'different' });
+      io.emit('contestReadinessUpdated', store.getContestReadiness());
     }
 
     return res.status(200).json({
