@@ -186,17 +186,6 @@ node server.js
 
 ---
 
-## 🌐 Deploying Live to Railway (Step-by-Step)
-
-Because this repository is already optimized for production:
-1. Go to **[Railway.app](https://railway.app)** and log in with GitHub.
-2. Click **"+ New Project"** ➔ **"Deploy from GitHub repo"**.
-3. Select **`visue-spark-arena`**.
-4. Railway will automatically detect Node.js, install dependencies, and start `server.js`.
-5. Under your project settings, navigate to **Networking** ➔ **"Generate Domain"** to get your live HTTPS URL.
-
----
-
 ## 📜 License & Acknowledgements
 - Developed by **Muhammad Rehan** as an academic submission for the **Department of Computer Science**, COMSATS University Islamabad, Vehari Campus.
 - Designed to inspire students to push the boundaries of modern, real-time web application engineering.
