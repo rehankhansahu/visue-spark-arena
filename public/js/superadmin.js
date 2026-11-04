@@ -298,7 +298,7 @@ async function loadTeachersList() {
                 type="button" 
                 onclick="openEditTeacherModal('${t.id}')" 
                 class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold text-purple-300 bg-purple-950/60 border border-purple-500/40 hover:bg-purple-900/50 transition flex items-center gap-1">
-                <span>🖼️</span> <span>Edit Profile Pic</span>
+                <span>✏️</span> <span>Edit Profile</span>
               </button>
               <button 
                 type="button" 
@@ -324,6 +324,10 @@ function openAddTeacherModal() {
   const modal = document.getElementById('addTeacherModal');
   const form = document.getElementById('addTeacherForm');
   if (form) form.reset();
+  const picInput = document.getElementById('newTeacherPicInput');
+  if (picInput) picInput.value = '';
+  const fileInput = document.getElementById('newTeacherFileInput');
+  if (fileInput) fileInput.value = '';
   const preview = document.getElementById('newTeacherPicPreview');
   if (preview) {
     preview.src = 'https://api.dicebear.com/7.x/bottts/svg?seed=new';
@@ -334,6 +338,65 @@ function openAddTeacherModal() {
 function closeAddTeacherModal() {
   const modal = document.getElementById('addTeacherModal');
   if (modal) modal.classList.add('hidden');
+}
+
+/**
+ * Handle Photo Upload from PC (FileReader + Canvas Resizer)
+ */
+function handleTeacherPicUpload(e, mode) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+
+  if (file.size > 10 * 1024 * 1024) {
+    showToast('File Too Large', 'Please select an image file under 10MB.', 'error');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      const maxDim = 256;
+      let width = img.width;
+      let height = img.height;
+
+      if (width > height) {
+        if (width > maxDim) {
+          height = Math.round((height * maxDim) / width);
+          width = maxDim;
+        }
+      } else {
+        if (height > maxDim) {
+          width = Math.round((width * maxDim) / height);
+          height = maxDim;
+        }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+
+      const optimizedDataUrl = canvas.toDataURL('image/jpeg', 0.88);
+
+      if (mode === 'edit') {
+        const input = document.getElementById('editTeacherPicInput');
+        const preview = document.getElementById('editTeacherPicPreview');
+        if (input) input.value = optimizedDataUrl;
+        if (preview) preview.src = optimizedDataUrl;
+      } else {
+        const input = document.getElementById('newTeacherPicInput');
+        const preview = document.getElementById('newTeacherPicPreview');
+        if (input) input.value = optimizedDataUrl;
+        if (preview) preview.src = optimizedDataUrl;
+      }
+
+      showToast('Photo Loaded! 📸', `${file.name} uploaded from PC and ready to save.`, 'success');
+    };
+    img.src = evt.target.result;
+  };
+  reader.readAsDataURL(file);
 }
 
 /**
@@ -413,6 +476,8 @@ function openEditTeacherModal(id) {
   document.getElementById('editTeacherDesignationInput').value = teacher.designation || '';
   document.getElementById('editTeacherDeptInput').value = teacher.department || '';
   document.getElementById('editTeacherPicInput').value = teacher.profilePic || '';
+  const editFileInput = document.getElementById('editTeacherFileInput');
+  if (editFileInput) editFileInput.value = '';
 
   const preview = document.getElementById('editTeacherPicPreview');
   if (preview) {
@@ -541,3 +606,4 @@ window.updateEditTeacherPicPreview = updateEditTeacherPicPreview;
 window.pickEditTeacherPreset = pickEditTeacherPreset;
 window.handleUpdateTeacher = handleUpdateTeacher;
 window.handleDeleteTeacher = handleDeleteTeacher;
+window.handleTeacherPicUpload = handleTeacherPicUpload;
