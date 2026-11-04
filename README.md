@@ -37,6 +37,7 @@ Traditional inter-university hackathons, lab assessments, and coding competition
 | **Institution** | COMSATS University Islamabad, Vehari Campus |
 | **Department** | Department of Computer Science |
 | **Course** | Advanced Web Technologies |
+| **Portfolio** | [rehankhansahu.github.io/muhammad-rehan-portfolio](https://rehankhansahu.github.io/muhammad-rehan-portfolio/) |
 | **GitHub** | [@rehankhansahu](https://github.com/rehankhansahu) |
 | **Repository** | [rehankhansahu/visue-spark-arena](https://github.com/rehankhansahu/visue-spark-arena) |
 
@@ -52,7 +53,7 @@ Traditional inter-university hackathons, lab assessments, and coding competition
 - **Contest Lifecycle Protection:** Automatically locks registrations when a contest is currently in-flight or ended until Sir explicitly resets the session.
 
 ### 2. ⚡ Interactive Speed Arena (IDE & Test Runner)
-- **Multi-Language Support:** First-class syntax support for **C, C++, Java, and Python**.
+- **Multi-Language Support:** First-class syntax support for 8 languages: **C, C++, Java, Python, HTML, JavaScript, Dart, and PHP**.
 - **Integrated Code Workspace:** In-browser code editor with dark/light themes, keyboard navigation, and auto-indentation.
 - **Multi-Difficulty Problem Slots:** Dynamically rendered challenge sets categorized by difficulty:
   - 🟢 **Easy (10 Points)**
@@ -66,7 +67,7 @@ Traditional inter-university hackathons, lab assessments, and coding competition
 - **Esports-Style Podium Display:** Visual pedestal for 1st Place (Champion Winner), 2nd Place (Runner-up), and 3rd Place (2nd Runner-up).
 - **Masked vs. Published Standings:** Keeps scores hidden from public view until the judge publishes final official results.
 - **Score Breakdown Badges:** Detailed per-problem points breakdown (`Easy: +10p`, `Medium: +20p`, `Hard: +30p`).
-- **Previous Test Standings Archive:** Displays archived results from preceding rounds without overwriting current data.
+- **Student Results Export:** One-click download of official contest results in both **Excel (.xlsx)** and **PDF (.pdf)** formats.
 
 ### 4. 🧑‍🏫 Sir's Desk (Administrative Cockpit)
 - **JWT-Secured Judge Authentication:** Role-based access control (RBAC) protecting judge operations.
@@ -74,9 +75,15 @@ Traditional inter-university hackathons, lab assessments, and coding competition
   - Set custom durations (e.g., 90 minutes).
   - Start, Pause, Resume, and Full State Reset.
   - Broadcasts time left to every connected student in real time via Socket.IO.
-- **Question Bank Manager:**
+- **Question Bank Manager & Excel Import:**
   - Create, view, edit, and toggle active status for contest challenges.
-  - Total points budget validator (maintains standard 60-point cap).
+  - Download pre-formatted Excel template (`VISUE_SPARK_Question_Template.xlsx`).
+  - Bulk import questions directly from Excel with automatic Question Bank integration.
+  - Question selection checkbox with auto-fill into modal and dual "Update Existing" vs "Save as New" actions.
+  - Language filters for all 8 tracks (C, C++, Java, Python, HTML, JavaScript, Dart, PHP).
+- **Permanent Competition History:**
+  - Automatic snapshot freezing of previous competitions into `data/competitions.json`.
+  - Preserves original questions, statements, options (A-D), and correct answers permanently immune to edits.
 - **Team Verification & Approval:** Live pending registration queue with one-click approve/reject actions.
 - **Live Code Inspector & Grading:** View submitted code in a syntax-highlighted modal in both light and dark themes with full zoom support.
 - **Bonus & Penalty Engine:** Judge can award custom bonuses or deduct points with real-time audio and visual announcements.

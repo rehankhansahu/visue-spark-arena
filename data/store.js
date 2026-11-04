@@ -44,6 +44,32 @@ let archivedPodium = [];
 let archivedAt = null;
 let archivedContestPoints = 60;
 
+// Permanent Competition History Persistence
+const COMPETITIONS_FILE = path.join(__dirname, 'competitions.json');
+
+function loadCompetitionHistoryFromFile() {
+  try {
+    if (fs.existsSync(COMPETITIONS_FILE)) {
+      const raw = fs.readFileSync(COMPETITIONS_FILE, 'utf-8');
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+    }
+  } catch (err) {
+    console.error('[Store] Error loading competitions.json:', err);
+  }
+  return [];
+}
+
+function saveCompetitionHistoryToFile(history) {
+  try {
+    fs.writeFileSync(COMPETITIONS_FILE, JSON.stringify(history, null, 2), 'utf-8');
+  } catch (err) {
+    console.error('[Store] Error saving competitions.json:', err);
+  }
+}
+
+let competitionHistory = loadCompetitionHistoryFromFile();
+
 // In-Memory Database Collections (Clean initial state - No default dummy teams)
 const teams = new Map();
 let submissions = [];
@@ -254,7 +280,90 @@ const store = {
     return this.getContestTimer();
   },
 
+  saveCurrentCompetitionSnapshot(customTitle = null) {
+    try {
+      const currentLeaderboard = this.getLeaderboard(true);
+      const teamsList = currentLeaderboard.leaderboard || [];
+
+      // Only save if there was at least one team, or questions were assigned
+      if (teamsList.length === 0 && questionBank.length === 0) {
+        return null;
+      }
+
+      const timestamp = new Date().toISOString();
+      const dateFormatted = new Date().toLocaleString();
+      const compId = `COMP-${Date.now()}`;
+      const compNum = competitionHistory.length + 1;
+      const title = customTitle || `VISUE SPARK Competition #${compNum}`;
+
+      // Snapshot all questions included in this competition (Question Bank + Active + Team Specific)
+      const includedQuestionsMap = new Map();
+      questionBank.forEach(q => {
+        if (q && q.id) {
+          includedQuestionsMap.set(q.id, JSON.parse(JSON.stringify(q)));
+        }
+      });
+      activeContestQuestionIds.forEach(id => {
+        const q = this.getQuestionById(id);
+        if (q && !includedQuestionsMap.has(q.id)) {
+          includedQuestionsMap.set(q.id, JSON.parse(JSON.stringify(q)));
+        }
+      });
+      teamSpecificQuestions.forEach((qIds) => {
+        if (Array.isArray(qIds)) {
+          qIds.forEach(id => {
+            const q = this.getQuestionById(id);
+            if (q && !includedQuestionsMap.has(q.id)) {
+              includedQuestionsMap.set(q.id, JSON.parse(JSON.stringify(q)));
+            }
+          });
+        }
+      });
+
+      const questionsSnapshot = Array.from(includedQuestionsMap.values());
+
+      const snapshot = {
+        id: compId,
+        title: title,
+        timestamp: timestamp,
+        dateFormatted: dateFormatted,
+        durationMinutes: contestDurationMinutes,
+        totalPoints: this.getTotalContestPoints() || 60,
+        winner: teamsList[0] ? {
+          teamName: teamsList[0].teamName,
+          leaderName: teamsList[0].leaderName,
+          leaderRoll: teamsList[0].leaderRoll,
+          university: teamsList[0].university,
+          score: teamsList[0].score,
+          totalPoints: teamsList[0].totalContestPoints || 60
+        } : null,
+        teams: JSON.parse(JSON.stringify(teamsList)),
+        questions: questionsSnapshot,
+        totalTeams: teamsList.length,
+        totalQuestions: questionsSnapshot.length
+      };
+
+      competitionHistory.push(snapshot);
+      saveCompetitionHistoryToFile(competitionHistory);
+      return snapshot;
+    } catch (err) {
+      console.error('[Store] Failed to save competition snapshot:', err);
+      return null;
+    }
+  },
+
+  getCompetitionHistory() {
+    return [...competitionHistory].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  },
+
+  getCompetitionById(id) {
+    return competitionHistory.find(c => c.id === id) || null;
+  },
+
   resetContestFull() {
+    // 0. Automatically preserve current competition in permanent history before resetting!
+    this.saveCurrentCompetitionSnapshot();
+
     // 1. Preserve current evaluated standings as archived podium so users can still view previous winners
     try {
       const currentLeaderboard = this.getLeaderboard(true);
@@ -294,6 +403,9 @@ const store = {
 
   // 100% Full Contest Reset: Completely wipes teams, submissions, timer, questions AND podium archive
   resetContestWipeAll() {
+    // Automatically preserve competition snapshot before wiping live arena
+    this.saveCurrentCompetitionSnapshot();
+
     timerStatus = 'not_started';
     timerStartTime = null;
     elapsedBeforePause = 0;
@@ -392,7 +504,7 @@ const store = {
     if (!question) return false;
     const qLangs = (question.languages && Array.isArray(question.languages) && question.languages.length > 0)
       ? question.languages
-      : ['C', 'C++', 'Java', 'Python'];
+      : ['C', 'C++', 'Java', 'Python', 'HTML', 'JavaScript', 'Dart', 'PHP'];
 
     const cleanTeamLang = teamLang.toLowerCase().trim();
     const aliasMap = {
@@ -401,7 +513,12 @@ const store = {
       'c++': ['c++', 'cpp'],
       'java': ['java'],
       'python': ['python', 'py'],
-      'py': ['python', 'py']
+      'py': ['python', 'py'],
+      'html': ['html', 'html5'],
+      'javascript': ['javascript', 'js'],
+      'js': ['javascript', 'js'],
+      'dart': ['dart'],
+      'php': ['php']
     };
 
     const accepted = aliasMap[cleanTeamLang] || [cleanTeamLang];
@@ -421,7 +538,7 @@ const store = {
 
   getActiveContestPoints() {
     const questions = this.getActiveContestQuestions();
-    const allTracks = ['c', 'cpp', 'java', 'python'];
+    const allTracks = ['c', 'cpp', 'java', 'python', 'html', 'javascript', 'dart', 'php'];
     const trackPoints = allTracks.map(t => this.getActiveContestPointsForLang(t));
     const maxTrack = Math.max(...trackPoints, 0);
     return maxTrack > 0 ? maxTrack : questions.reduce((sum, q) => sum + (q.points || 0), 0);
@@ -761,39 +878,165 @@ const store = {
     const diff = questionData.difficulty || 'Easy';
     const points = parseInt(questionData.points, 10) || (diff === 'Easy' ? 10 : (diff === 'Medium' ? 20 : 30));
 
-    let selectedLangs = ['C', 'C++', 'Java', 'Python'];
+    let selectedLangs = ['C', 'C++', 'Java', 'Python', 'HTML', 'JavaScript', 'Dart', 'PHP'];
     if (Array.isArray(questionData.languages) && questionData.languages.length > 0) {
       selectedLangs = questionData.languages;
     } else if (typeof questionData.languages === 'string' && questionData.languages.trim()) {
-      selectedLangs = [questionData.languages.trim()];
+      selectedLangs = questionData.languages.split(/[,;|]/).map(s => s.trim()).filter(Boolean);
     }
+
+    const optA = (questionData.optionA || (questionData.options && questionData.options.a) || '').toString().trim();
+    const optB = (questionData.optionB || (questionData.options && questionData.options.b) || '').toString().trim();
+    const optC = (questionData.optionC || (questionData.options && questionData.options.c) || '').toString().trim();
+    const optD = (questionData.optionD || (questionData.options && questionData.options.d) || '').toString().trim();
+    const correctAns = (questionData.correctAnswer || questionData.correct_answer || '').toString().trim();
 
     const newQuestion = {
       id: newId,
-      title: questionData.title.trim(),
+      title: (questionData.title || `Challenge #${newId}`).trim(),
       difficulty: diff,
       points: points,
       timeLimit: questionData.timeLimit || "1.5s",
       memoryLimit: questionData.memoryLimit || "256MB",
       tags: questionData.tags || ["Algorithm", "Logic"],
-      description: questionData.description.trim(),
+      description: (questionData.description || questionData.statement || '').trim(),
       inputFormat: questionData.inputFormat || "Standard Input",
       outputFormat: questionData.outputFormat || "Standard Output",
       constraints: questionData.constraints || ["1 <= N <= 10^5"],
+      optionA: optA,
+      optionB: optB,
+      optionC: optC,
+      optionD: optD,
+      options: {
+        a: optA,
+        b: optB,
+        c: optC,
+        d: optD
+      },
+      correctAnswer: correctAns,
       sampleCases: questionData.sampleCases || [
-        { input: "Sample input", expected: "Sample output", explanation: "Sample demonstration" }
+        { input: questionData.sampleInput || "Sample input", expected: questionData.sampleOutput || "Sample output", explanation: "Sample demonstration" }
       ],
       starterCode: questionData.starterCode || {
         c: `// Write your C code here...\n`,
         cpp: `// Write your C++ code here...\n`,
         java: `// Write your Java code here...\n`,
-        python: `# Write your Python code here...\n`
+        python: `# Write your Python code here...\n`,
+        html: `<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n`,
+        javascript: `// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n`,
+        dart: `// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n`,
+        php: `<?php\n// Write your PHP code here...\n`
       },
       languages: selectedLangs
     };
 
     questionBank.push(newQuestion);
     return newQuestion;
+  },
+
+  updateQuestionInBank(id, questionData) {
+    const numId = parseInt(id, 10);
+    const existing = questionBank.find(q => q.id === numId);
+    if (!existing) throw new Error(`Question #${numId} not found in Question Bank.`);
+
+    const diff = questionData.difficulty || existing.difficulty || 'Easy';
+    const points = parseInt(questionData.points, 10) || (diff === 'Easy' ? 10 : (diff === 'Medium' ? 20 : 30));
+
+    let selectedLangs = existing.languages || ['C', 'C++', 'Java', 'Python', 'HTML', 'JavaScript', 'Dart', 'PHP'];
+    if (Array.isArray(questionData.languages) && questionData.languages.length > 0) {
+      selectedLangs = questionData.languages;
+    } else if (typeof questionData.languages === 'string' && questionData.languages.trim()) {
+      selectedLangs = questionData.languages.split(/[,;|]/).map(s => s.trim()).filter(Boolean);
+    }
+
+    const optA = questionData.optionA !== undefined ? questionData.optionA.toString().trim() : (existing.optionA || '');
+    const optB = questionData.optionB !== undefined ? questionData.optionB.toString().trim() : (existing.optionB || '');
+    const optC = questionData.optionC !== undefined ? questionData.optionC.toString().trim() : (existing.optionC || '');
+    const optD = questionData.optionD !== undefined ? questionData.optionD.toString().trim() : (existing.optionD || '');
+    const correctAns = questionData.correctAnswer !== undefined ? questionData.correctAnswer.toString().trim() : (existing.correctAnswer || '');
+
+    existing.title = (questionData.title || existing.title).trim();
+    existing.description = (questionData.description !== undefined ? questionData.description : existing.description).trim();
+    existing.difficulty = diff;
+    existing.points = points;
+    existing.languages = selectedLangs;
+    existing.optionA = optA;
+    existing.optionB = optB;
+    existing.optionC = optC;
+    existing.optionD = optD;
+    existing.options = {
+      a: optA,
+      b: optB,
+      c: optC,
+      d: optD
+    };
+    existing.correctAnswer = correctAns;
+
+    if (questionData.sampleInput || questionData.sampleOutput) {
+      existing.sampleCases = [
+        {
+          input: questionData.sampleInput || (existing.sampleCases && existing.sampleCases[0] && existing.sampleCases[0].input) || '',
+          expected: questionData.sampleOutput || (existing.sampleCases && existing.sampleCases[0] && existing.sampleCases[0].expected) || '',
+          explanation: (existing.sampleCases && existing.sampleCases[0] && existing.sampleCases[0].explanation) || ''
+        }
+      ];
+    }
+
+    return existing;
+  },
+
+  bulkImportQuestions(importedList) {
+    if (!Array.isArray(importedList) || importedList.length === 0) {
+      throw new Error('Imported data must contain at least one question row.');
+    }
+    const addedQuestions = [];
+    for (const item of importedList) {
+      if (!item.title && !item.Title && !item.statement && !item.Description && !item.description) {
+        continue; // skip blank rows
+      }
+      const title = (item.title || item.Title || item['Problem Title'] || item['Question Title'] || 'Imported Challenge').toString().trim();
+      const description = (item.description || item.Description || item['Question Statement'] || item['Description / Problem Statement'] || title).toString().trim();
+      const diff = (item.difficulty || item.Difficulty || 'Easy').toString().trim();
+      const rawPoints = parseInt(item.points || item.Points, 10);
+      const points = !isNaN(rawPoints) && rawPoints > 0 ? rawPoints : (diff.toLowerCase() === 'hard' ? 30 : (diff.toLowerCase() === 'medium' ? 20 : 10));
+
+      let langs = ['C', 'C++', 'Java', 'Python', 'HTML', 'JavaScript', 'Dart', 'PHP'];
+      const rawLangs = item.languages || item.Languages || item.language || item.Language;
+      if (typeof rawLangs === 'string' && rawLangs.trim()) {
+        langs = rawLangs.split(/[,;|]/).map(s => s.trim()).filter(Boolean);
+      } else if (Array.isArray(rawLangs) && rawLangs.length > 0) {
+        langs = rawLangs;
+      }
+
+      const optionA = (item.optionA || item['Option A'] || item.a || item.A || '').toString().trim();
+      const optionB = (item.optionB || item['Option B'] || item.b || item.B || '').toString().trim();
+      const optionC = (item.optionC || item['Option C'] || item.c || item.C || '').toString().trim();
+      const optionD = (item.optionD || item['Option D'] || item.d || item.D || '').toString().trim();
+      const correctAnswer = (item.correctAnswer || item['Correct Answer'] || item.answer || item.Answer || '').toString().trim();
+      const sampleIn = (item.sampleInput || item['Sample Input'] || '').toString().trim();
+      const sampleOut = (item.sampleOutput || item['Sample Output'] || item.expected || '').toString().trim();
+
+      const newQ = this.addQuestionToBank({
+        title,
+        description,
+        difficulty: diff,
+        points,
+        languages: langs,
+        optionA,
+        optionB,
+        optionC,
+        optionD,
+        correctAnswer,
+        sampleInput: sampleIn,
+        sampleOutput: sampleOut
+      });
+      addedQuestions.push(newQ);
+    }
+
+    if (addedQuestions.length === 0) {
+      throw new Error('No valid questions could be imported. Please verify your Excel column headers.');
+    }
+    return addedQuestions;
   },
 
   removeQuestionFromBank(id) {

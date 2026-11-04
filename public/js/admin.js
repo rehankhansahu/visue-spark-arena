@@ -1093,8 +1093,8 @@ function renderQuestionBankTable(bank, activeIds = []) {
   if (!bank || bank.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="6" class="text-center py-6 text-slate-500 text-xs font-mono">
-          Question bank is empty. Click "+ Add Question to Bank" above to create challenges.
+        <td colspan="7" class="text-center py-6 text-slate-500 text-xs font-mono">
+          Question bank is empty. Click "+ Add Question to Bank" or "Import Excel" above to create challenges.
         </td>
       </tr>
     `;
@@ -1104,8 +1104,10 @@ function renderQuestionBankTable(bank, activeIds = []) {
   let filteredBank = bank;
   if (currentQBankFilter && currentQBankFilter !== 'all') {
     filteredBank = bank.filter(q => {
-      const qLangs = (q.languages && q.languages.length > 0) ? q.languages : ['C', 'C++', 'Java', 'Python'];
-      const targetLangs = currentQBankFilter === 'cpp' ? ['c++', 'cpp'] : [currentQBankFilter];
+      const qLangs = (q.languages && q.languages.length > 0) ? q.languages : ['C', 'C++', 'Java', 'Python', 'HTML', 'JavaScript', 'Dart', 'PHP'];
+      let targetLangs = [currentQBankFilter];
+      if (currentQBankFilter === 'cpp') targetLangs = ['c++', 'cpp'];
+      if (currentQBankFilter === 'javascript') targetLangs = ['javascript', 'js'];
       return qLangs.some(l => targetLangs.includes(l.toLowerCase()));
     });
   }
@@ -1116,7 +1118,7 @@ function renderQuestionBankTable(bank, activeIds = []) {
   if (filteredBank.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="6" class="text-center py-6 text-slate-500 text-xs font-mono">
+        <td colspan="7" class="text-center py-6 text-slate-500 text-xs font-mono">
           No questions found matching "${currentQBankFilter.toUpperCase()}" filter. Click "All" or "+ Add Question to Bank".
         </td>
       </tr>
@@ -1124,28 +1126,31 @@ function renderQuestionBankTable(bank, activeIds = []) {
     return;
   }
 
-  const isTeamSpecific = (questionMode === 'different');
-
   tbody.innerHTML = filteredBank.map(q => {
-    const isActive = (activeIds || []).includes(q.id);
-    const wouldExceed = !isActive && (activeContestPoints + (q.points || 10) > 60);
-
-    const teamOptions = approvedTeams && approvedTeams.length > 0
-      ? approvedTeams.map(t => `<option value="${t.id}">${t.teamName} (${t.university})</option>`).join('')
-      : '<option value="" disabled>No approved teams yet</option>';
-
-    const qLangs = (q.languages && q.languages.length > 0) ? q.languages : ['C', 'C++', 'Java', 'Python'];
+    const qLangs = (q.languages && q.languages.length > 0) ? q.languages : ['C', 'C++', 'Java', 'Python', 'HTML', 'JavaScript', 'Dart', 'PHP'];
     const langBadges = qLangs.map(l => {
       const cleanL = l.toLowerCase();
       if (cleanL === 'c') return '<span class="lang-badge-c px-1.5 py-0.5 rounded text-[10px] font-mono font-bold">C</span>';
       if (cleanL === 'c++' || cleanL === 'cpp') return '<span class="lang-badge-cpp px-1.5 py-0.5 rounded text-[10px] font-mono font-bold">C++</span>';
       if (cleanL === 'java') return '<span class="lang-badge-java px-1.5 py-0.5 rounded text-[10px] font-mono font-bold">Java</span>';
       if (cleanL === 'python' || cleanL === 'py') return '<span class="lang-badge-python px-1.5 py-0.5 rounded text-[10px] font-mono font-bold">Python</span>';
+      if (cleanL === 'html') return '<span class="lang-badge-html px-1.5 py-0.5 rounded text-[10px] font-mono font-bold">HTML</span>';
+      if (cleanL === 'javascript' || cleanL === 'js') return '<span class="lang-badge-javascript px-1.5 py-0.5 rounded text-[10px] font-mono font-bold">JavaScript</span>';
+      if (cleanL === 'dart') return '<span class="lang-badge-dart px-1.5 py-0.5 rounded text-[10px] font-mono font-bold">Dart</span>';
+      if (cleanL === 'php') return '<span class="lang-badge-php px-1.5 py-0.5 rounded text-[10px] font-mono font-bold">PHP</span>';
       return `<span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-800 text-slate-300">${l}</span>`;
     }).join(' ');
 
     return `
     <tr class="border-b border-white/5 hover:bg-slate-800/40 transition">
+      <td class="px-2.5 py-3 text-center">
+        <input 
+          type="checkbox" 
+          class="q-row-select-checkbox accent-cyan-500 cursor-pointer w-4 h-4 rounded" 
+          data-id="${q.id}"
+          onchange="handleQuestionRowSelect(this, ${q.id})"
+          title="Select to auto-populate question details">
+      </td>
       <td class="px-3 py-3 font-mono text-xs q-id text-slate-400">#${q.id}</td>
       <td class="px-3 py-3">
         <div class="text-xs font-bold q-title text-slate-200">${q.title}</div>
@@ -1166,6 +1171,14 @@ function renderQuestionBankTable(bank, activeIds = []) {
       <td class="px-3 py-3 text-right whitespace-nowrap">
         <div class="flex items-center justify-end gap-1.5">
           <button 
+            type="button"
+            onclick="openEditQuestionModal(${q.id})" 
+            title="Edit question details or duplicate as new" 
+            class="px-2.5 py-1 text-xs text-cyan-400 hover:text-cyan-200 hover:bg-cyan-950/60 rounded-lg border border-cyan-500/30 transition shadow-sm font-mono inline-flex items-center gap-1">
+            <span>✏️</span> <span>Edit</span>
+          </button>
+          <button 
+            type="button"
             onclick="deleteQuestionFromBank(${q.id})" 
             title="Delete this question permanently from bank" 
             class="px-2.5 py-1 text-xs text-rose-400 hover:text-rose-200 hover:bg-rose-950/60 rounded-lg border border-rose-500/30 transition shadow-sm font-mono inline-flex items-center gap-1">
@@ -1601,6 +1614,12 @@ async function handleAddNewQuestion(e) {
   const sampleInput = document.getElementById('newQSampleIn').value.trim();
   const sampleExpected = document.getElementById('newQSampleOut').value.trim();
 
+  const optionA = document.getElementById('newQOptionA') ? document.getElementById('newQOptionA').value.trim() : '';
+  const optionB = document.getElementById('newQOptionB') ? document.getElementById('newQOptionB').value.trim() : '';
+  const optionC = document.getElementById('newQOptionC') ? document.getElementById('newQOptionC').value.trim() : '';
+  const optionD = document.getElementById('newQOptionD') ? document.getElementById('newQOptionD').value.trim() : '';
+  const correctAnswer = document.getElementById('newQCorrectAnswer') ? document.getElementById('newQCorrectAnswer').value.trim() : '';
+
   const langCheckboxes = document.querySelectorAll('input[name="newQLangCheckbox"]:checked');
   let selectedLanguages = Array.from(langCheckboxes).map(cb => cb.value);
   if (selectedLanguages.length === 0) {
@@ -1625,6 +1644,11 @@ async function handleAddNewQuestion(e) {
         difficulty,
         description,
         languages: selectedLanguages,
+        optionA,
+        optionB,
+        optionC,
+        optionD,
+        correctAnswer,
         sampleCases: [{ input: sampleInput, expected: sampleExpected }]
       })
     });
@@ -1641,6 +1665,345 @@ async function handleAddNewQuestion(e) {
   } catch (e) {
     showToast('Error', 'Failed to add question', 'error');
   }
+}
+
+function openNewQuestionModal() {
+  const modal = document.getElementById('newQuestionModal');
+  if (!modal) return;
+
+  const form = document.getElementById('newQuestionForm');
+  if (form) form.reset();
+
+  const editIdInput = document.getElementById('editingQuestionId');
+  if (editIdInput) editIdInput.value = '';
+
+  const modalIcon = document.getElementById('newQuestionModalIcon');
+  if (modalIcon) modalIcon.textContent = '➕';
+
+  const modalTitle = document.getElementById('newQuestionModalTitle');
+  if (modalTitle) modalTitle.textContent = 'Add New Problem to Question Bank';
+
+  const btnUpdate = document.getElementById('btnUpdateQuestion');
+  if (btnUpdate) btnUpdate.classList.add('hidden');
+
+  const btnSave = document.getElementById('btnSaveNewQuestion');
+  if (btnSave) {
+    btnSave.textContent = '➕ Save as New Question';
+  }
+
+  // Check all languages by default
+  document.querySelectorAll('input[name="newQLangCheckbox"]').forEach(cb => {
+    cb.checked = true;
+    updateNewQLangChipState(cb);
+  });
+  const btn = document.getElementById('newQToggleAllLangsBtn');
+  if (btn) btn.textContent = 'Deselect All';
+
+  toggleNewQuestionModal(true);
+}
+
+function openEditQuestionModal(qId) {
+  const numId = parseInt(qId, 10);
+  const q = (questionBank || []).find(item => item.id === numId);
+  if (!q) {
+    showToast('Not Found', `Question #${qId} not found in Question Bank.`, 'error');
+    return;
+  }
+
+  const modal = document.getElementById('newQuestionModal');
+  if (!modal) return;
+
+  // Set hidden ID
+  const editIdInput = document.getElementById('editingQuestionId');
+  if (editIdInput) editIdInput.value = q.id;
+
+  // Populate fields
+  const titleInput = document.getElementById('newQTitle');
+  if (titleInput) titleInput.value = q.title || '';
+
+  const diffSelect = document.getElementById('newQDifficulty');
+  if (diffSelect) diffSelect.value = q.difficulty || 'Easy';
+
+  const descInput = document.getElementById('newQDesc');
+  if (descInput) descInput.value = q.description || q.statement || '';
+
+  const optA = document.getElementById('newQOptionA');
+  if (optA) optA.value = q.optionA || (q.options && q.options.a) || '';
+
+  const optB = document.getElementById('newQOptionB');
+  if (optB) optB.value = q.optionB || (q.options && q.options.b) || '';
+
+  const optC = document.getElementById('newQOptionC');
+  if (optC) optC.value = q.optionC || (q.options && q.options.c) || '';
+
+  const optD = document.getElementById('newQOptionD');
+  if (optD) optD.value = q.optionD || (q.options && q.options.d) || '';
+
+  const correctAns = document.getElementById('newQCorrectAnswer');
+  if (correctAns) correctAns.value = q.correctAnswer || '';
+
+  const sampleIn = document.getElementById('newQSampleIn');
+  if (sampleIn) sampleIn.value = (q.sampleCases && q.sampleCases[0] && q.sampleCases[0].input) || '';
+
+  const sampleOut = document.getElementById('newQSampleOut');
+  if (sampleOut) sampleOut.value = (q.sampleCases && q.sampleCases[0] && q.sampleCases[0].expected) || '';
+
+  // Synchronize language checkboxes
+  const qLangs = (q.languages && q.languages.length > 0) 
+    ? q.languages.map(l => l.toLowerCase()) 
+    : ['c', 'c++', 'cpp', 'java', 'python', 'html', 'javascript', 'js', 'dart', 'php'];
+
+  document.querySelectorAll('input[name="newQLangCheckbox"]').forEach(cb => {
+    const val = cb.value.toLowerCase();
+    const isMatched = qLangs.includes(val) || (val === 'c++' && qLangs.includes('cpp')) || (val === 'javascript' && qLangs.includes('js'));
+    cb.checked = isMatched;
+    updateNewQLangChipState(cb);
+  });
+
+  // Update modal header & buttons
+  const modalIcon = document.getElementById('newQuestionModalIcon');
+  if (modalIcon) modalIcon.textContent = '✏️';
+
+  const modalTitle = document.getElementById('newQuestionModalTitle');
+  if (modalTitle) modalTitle.textContent = `Edit Question #${q.id} (or Save as New)`;
+
+  const btnUpdate = document.getElementById('btnUpdateQuestion');
+  if (btnUpdate) {
+    btnUpdate.classList.remove('hidden');
+    btnUpdate.textContent = `💾 Update Question #${q.id}`;
+  }
+
+  const btnSave = document.getElementById('btnSaveNewQuestion');
+  if (btnSave) {
+    btnSave.textContent = '➕ Save as New Question';
+  }
+
+  toggleNewQuestionModal(true);
+}
+
+function handleQuestionRowSelect(checkbox, qId) {
+  if (checkbox && checkbox.checked) {
+    openEditQuestionModal(qId);
+  }
+}
+
+async function handleUpdateQuestion(e) {
+  if (e) e.preventDefault();
+  if (currentContestTimer && currentContestTimer.status === 'running') {
+    alert('Competition is currently running! Question modifications are locked.');
+    return;
+  }
+  const token = sessionStorage.getItem('sirToken');
+  if (!token) return;
+
+  const id = document.getElementById('editingQuestionId').value;
+  if (!id) {
+    alert('No question selected for update.');
+    return;
+  }
+
+  const title = document.getElementById('newQTitle').value.trim();
+  const difficulty = document.getElementById('newQDifficulty').value;
+  const description = document.getElementById('newQDesc').value.trim();
+  const optionA = document.getElementById('newQOptionA') ? document.getElementById('newQOptionA').value.trim() : '';
+  const optionB = document.getElementById('newQOptionB') ? document.getElementById('newQOptionB').value.trim() : '';
+  const optionC = document.getElementById('newQOptionC') ? document.getElementById('newQOptionC').value.trim() : '';
+  const optionD = document.getElementById('newQOptionD') ? document.getElementById('newQOptionD').value.trim() : '';
+  const correctAnswer = document.getElementById('newQCorrectAnswer') ? document.getElementById('newQCorrectAnswer').value.trim() : '';
+  const sampleInput = document.getElementById('newQSampleIn').value.trim();
+  const sampleExpected = document.getElementById('newQSampleOut').value.trim();
+
+  const langCheckboxes = document.querySelectorAll('input[name="newQLangCheckbox"]:checked');
+  let selectedLanguages = Array.from(langCheckboxes).map(cb => cb.value);
+  if (selectedLanguages.length === 0) {
+    alert('Please select at least one supported language for this question.');
+    return;
+  }
+
+  if (!title || !description) {
+    alert('Please provide Title and Description.');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/admin/questions/update', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        id,
+        title,
+        difficulty,
+        description,
+        languages: selectedLanguages,
+        optionA,
+        optionB,
+        optionC,
+        optionD,
+        correctAnswer,
+        sampleInput,
+        sampleOutput: sampleExpected
+      })
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      showToast('Question Updated! 💾', data.message, 'success');
+      document.getElementById('newQuestionForm').reset();
+      toggleNewQuestionModal(false);
+      loadQuestionBank();
+    } else {
+      showToast('Error', data.message, 'error');
+    }
+  } catch (err) {
+    showToast('Error', 'Failed to update question', 'error');
+  }
+}
+
+// Download Excel Question Template (.xlsx)
+function downloadQuestionExcelTemplate() {
+  if (typeof XLSX === 'undefined') {
+    alert('Excel export engine is loading. Please try again in a few seconds.');
+    return;
+  }
+
+  const sampleData = [
+    {
+      'Title': 'Subarray Maximum Product',
+      'Description': 'Given an integer array nums, find a contiguous non-empty subarray within the array that has the largest product, and return that product.',
+      'Difficulty': 'Medium',
+      'Points': 20,
+      'Languages': 'C, C++, Java, Python, HTML, JavaScript, Dart, PHP',
+      'Option A': 'O(N) Dynamic Programming with running min/max',
+      'Option B': 'O(N^2) Nested loop checking all sub-arrays',
+      'Option C': 'O(N log N) Divide and conquer approach',
+      'Option D': 'O(1) Constant pointer arithmetic only',
+      'Correct Answer': 'Option A',
+      'Sample Input': '2 3 -2 4',
+      'Sample Output': '6'
+    },
+    {
+      'Title': 'Valid Parentheses Checker',
+      'Description': 'Given a string containing just the characters "(", ")", "{", "}", "[" and "]", determine if the input string is valid and properly balanced.',
+      'Difficulty': 'Easy',
+      'Points': 10,
+      'Languages': 'Java, Python, JavaScript, Dart, PHP, C, C++',
+      'Option A': 'Stack-based LIFO balance validation',
+      'Option B': 'Queue-based FIFO sequential matching',
+      'Option C': 'Hash map counter without stack state',
+      'Option D': 'Recursive string reversal check',
+      'Correct Answer': 'Option A',
+      'Sample Input': '()[]{}',
+      'Sample Output': 'true'
+    },
+    {
+      'Title': 'Responsive Grid Architecture (HTML/JS/CSS)',
+      'Description': 'Design a semantic UI card container with responsive flex/grid layout and event-driven interactive state tracking.',
+      'Difficulty': 'Hard',
+      'Points': 30,
+      'Languages': 'HTML, JavaScript, PHP, Dart',
+      'Option A': 'CSS Grid with auto-fit and minmax(280px, 1fr)',
+      'Option B': 'Hardcoded absolute pixel positioning',
+      'Option C': 'Table-based nested markup structure',
+      'Option D': 'Float left layout with clear fix divs',
+      'Correct Answer': 'Option A',
+      'Sample Input': 'columns: 3; gap: 16px',
+      'Sample Output': 'grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))'
+    }
+  ];
+
+  const ws = XLSX.utils.json_to_sheet(sampleData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Questions');
+
+  // Set friendly column widths
+  ws['!cols'] = [
+    { wch: 30 },
+    { wch: 45 },
+    { wch: 12 },
+    { wch: 8 },
+    { wch: 32 },
+    { wch: 25 },
+    { wch: 25 },
+    { wch: 25 },
+    { wch: 25 },
+    { wch: 16 },
+    { wch: 20 },
+    { wch: 20 }
+  ];
+
+  XLSX.writeFile(wb, 'VISUE_SPARK_Question_Template.xlsx');
+  showToast('Template Downloaded! 📥', 'Excel Question Template (.xlsx) ready with sample rows.', 'success');
+}
+
+// Import Questions from Excel File (.xlsx, .xls, .csv)
+async function handleExcelQuestionImport(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  if (currentContestTimer && currentContestTimer.status === 'running') {
+    alert('Competition is currently running! Question imports are locked.');
+    event.target.value = '';
+    return;
+  }
+
+  const token = sessionStorage.getItem('sirToken');
+  if (!token) {
+    showToast('Unauthorized', 'Please login to Sir Desk first.', 'error');
+    event.target.value = '';
+    return;
+  }
+
+  if (typeof XLSX === 'undefined') {
+    alert('Excel engine is still loading. Please wait a moment and try again.');
+    event.target.value = '';
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    try {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+      const rows = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+
+      if (!rows || rows.length === 0) {
+        showToast('Empty Excel File', 'No data rows found in the selected Excel file.', 'warning');
+        return;
+      }
+
+      showToast('Importing...', `Processing ${rows.length} question row(s) from Excel file...`, 'info');
+
+      const res = await fetch('/api/admin/questions/import', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ questions: rows })
+      });
+
+      const result = await res.json();
+      if (result.success) {
+        showToast('Questions Imported! 🚀', result.message, 'success');
+        loadQuestionBank();
+      } else {
+        alert(`Excel Import Error:\n\n${result.message}`);
+        showToast('Import Failed', result.message, 'error');
+      }
+    } catch (err) {
+      console.error('[Excel Import Error]', err);
+      alert('Failed to parse Excel file. Please ensure it follows the downloaded template format.');
+      showToast('Import Error', 'Failed to read Excel workbook.', 'error');
+    } finally {
+      event.target.value = '';
+    }
+  };
+  reader.readAsArrayBuffer(file);
 }
 
 function toggleAllNewQLanguages() {
@@ -2311,6 +2674,502 @@ function exportResultsCSV() {
   exportResultsTxt();
 }
 
+// Export Official Student Results in Excel (.xlsx) Format
+function exportResultsExcel() {
+  if (typeof XLSX === 'undefined') {
+    alert('Excel export engine is loading. Please try again.');
+    return;
+  }
+
+  const teamsList = approvedTeams || [];
+  const submissionsList = allSubmissions || [];
+
+  // Sheet 1: Leaderboard & Official Results
+  const resultsData = teamsList.map((t, idx) => {
+    const rank = idx + 1;
+    const award = rank === 1 ? 'Winner / Champion 🏆' : (rank === 2 ? '1st Runner Up 🥈' : (rank === 3 ? '2nd Runner Up 🥉' : 'Qualified Participant'));
+    const totalContestPts = t.totalContestPoints || 60;
+    const percentage = totalContestPts > 0 ? Math.round((t.score / totalContestPts) * 100) : 0;
+    const duration = t.timeTakenWords || t.timeTakenFormatted || (t.timeTakenSeconds ? `${Math.floor(t.timeTakenSeconds / 60)}m ${t.timeTakenSeconds % 60}s` : 'N/A');
+
+    return {
+      'Rank': rank,
+      'Standing / Award': award,
+      'Team Name': t.teamName,
+      'Team Type': (t.teamType || 'solo').toUpperCase(),
+      'University / College': t.university,
+      'Primary Language': (t.language || 'cpp').toUpperCase(),
+      'Score': t.score,
+      'Max Points': totalContestPts,
+      'Percentage (%)': `${percentage}%`,
+      'Challenges Solved': (t.solvedProblems || []).length,
+      'Duration': duration,
+      'Leader Name': t.leaderName,
+      'Leader Roll No': t.leaderRoll || t.rollNo,
+      'Member 2 Name': t.member2Name || 'N/A',
+      'Member 2 Roll No': t.member2Roll || 'N/A',
+      'Bonus Marks': t.bonusMarks ? `+${t.bonusMarks}` : '0',
+      'Status': t.leftEarly ? 'Left Early (Incomplete)' : 'Completed'
+    };
+  });
+
+  // Sheet 2: Code Submissions Audit
+  const auditData = submissionsList.map((sub, idx) => {
+    return {
+      'Index': idx + 1,
+      'Submission ID': sub.id,
+      'Timestamp': sub.submittedAt,
+      'Team Name': sub.teamName,
+      'University': sub.university,
+      'Leader Name': sub.leaderName,
+      'Leader Roll No': sub.leaderRoll,
+      'Question ID': `#${sub.problemId}`,
+      'Question Title': sub.problemTitle,
+      'Language': (sub.language || 'cpp').toUpperCase(),
+      'Status': sub.status,
+      'Points Awarded': sub.scoreAwarded,
+      'Bonus Points': sub.bonus || 0,
+      'Judge Remarks': sub.judgeNotes || 'Official AC'
+    };
+  });
+
+  // Sheet 3: Developer & Contest Metadata
+  const metaData = [
+    { 'Key': 'Contest Title', 'Value': 'VISUE SPARK 2026 - Inter-University Programming Arena' },
+    { 'Key': 'Export Timestamp', 'Value': new Date().toLocaleString() },
+    { 'Key': 'Total Approved Teams', 'Value': teamsList.length },
+    { 'Key': 'Total Code Submissions', 'Value': submissionsList.length },
+    { 'Key': 'Lead Developer', 'Value': 'Muhammad Rehan (BS Software Engineering)' },
+    { 'Key': 'Portfolio Website', 'Value': 'https://rehankhansahu.github.io/muhammad-rehan-portfolio/' },
+    { 'Key': 'Institution', 'Value': 'COMSATS University Islamabad, Vehari Campus' }
+  ];
+
+  const wb = XLSX.utils.book_new();
+
+  const wsResults = XLSX.utils.json_to_sheet(resultsData.length > 0 ? resultsData : [{ 'Notice': 'No approved teams yet' }]);
+  XLSX.utils.book_append_sheet(wb, wsResults, 'Leaderboard');
+
+  const wsAudit = XLSX.utils.json_to_sheet(auditData.length > 0 ? auditData : [{ 'Notice': 'No submissions yet' }]);
+  XLSX.utils.book_append_sheet(wb, wsAudit, 'Submissions Audit');
+
+  const wsMeta = XLSX.utils.json_to_sheet(metaData);
+  XLSX.utils.book_append_sheet(wb, wsMeta, 'Contest Info');
+
+  const fileName = `VISUE_SPARK_2026_Student_Results_${new Date().toISOString().slice(0, 10)}.xlsx`;
+  XLSX.writeFile(wb, fileName);
+  showToast('Excel Exported! 📊', `Student results exported successfully to ${fileName}`, 'success');
+}
+
+// Export Official Student Results in PDF Format
+function exportResultsPDF() {
+  if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
+    alert('PDF export engine is loading. Please try again in a few moments.');
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({
+    orientation: 'landscape',
+    unit: 'pt',
+    format: 'a4'
+  });
+
+  const teamsList = approvedTeams || [];
+  const generatedAt = new Date().toLocaleString();
+
+  // Header Branded Banner
+  doc.setFillColor(10, 13, 22);
+  doc.rect(0, 0, doc.internal.pageSize.getWidth(), 85, 'F');
+
+  // Neon Accent Line
+  doc.setFillColor(16, 185, 129);
+  doc.rect(0, 85, doc.internal.pageSize.getWidth(), 3, 'F');
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(18);
+  doc.setTextColor(255, 255, 255);
+  doc.text('VISUE SPARK 2026 - INTER-UNIVERSITY PROGRAMMING ARENA', 40, 35);
+
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(16, 185, 129);
+  doc.text('OFFICIAL CONTEST RESULTS & STUDENT PERFORMANCE AUDIT', 40, 52);
+
+  doc.setFontSize(9);
+  doc.setTextColor(148, 163, 184);
+  doc.text(`Generated: ${generatedAt}  |  Chief Judge: Dr. Rashid Jahangir  |  Target Budget: 60 pts`, 40, 68);
+
+  // Table Body Rows
+  const tableRows = teamsList.map((t, idx) => {
+    const rank = idx + 1;
+    const award = rank === 1 ? 'Champion (1st)' : (rank === 2 ? 'Runner Up (2nd)' : (rank === 3 ? '3rd Place' : 'Qualified'));
+    const totalContestPts = t.totalContestPoints || 60;
+    const percentage = totalContestPts > 0 ? Math.round((t.score / totalContestPts) * 100) : 0;
+    const duration = t.timeTakenWords || t.timeTakenFormatted || (t.timeTakenSeconds ? `${Math.floor(t.timeTakenSeconds / 60)}m` : 'N/A');
+
+    return [
+      `#${rank}`,
+      t.teamName || 'Solo',
+      `${t.leaderName} (${t.leaderRoll || t.rollNo || ''})`,
+      t.university || 'COMSATS',
+      (t.language || 'cpp').toUpperCase(),
+      `${(t.solvedProblems || []).length} / 3`,
+      duration,
+      `${t.score} / ${totalContestPts} (${percentage}%)`,
+      award
+    ];
+  });
+
+  if (tableRows.length === 0) {
+    tableRows.push(['-', 'No Teams', 'N/A', 'N/A', 'N/A', '0/3', 'N/A', '0 / 60', 'No Records']);
+  }
+
+  // Render Table via AutoTable
+  if (typeof doc.autoTable === 'function') {
+    doc.autoTable({
+      startY: 105,
+      head: [['Rank', 'Team Name', 'Leader (Roll #)', 'University', 'Lang', 'Solved', 'Time', 'Score (%)', 'Award']],
+      body: tableRows,
+      theme: 'grid',
+      styles: {
+        font: 'helvetica',
+        fontSize: 9,
+        cellPadding: 5,
+        textColor: [30, 41, 59]
+      },
+      headStyles: {
+        fillColor: [15, 23, 42],
+        textColor: [255, 255, 255],
+        fontStyle: 'bold',
+        halign: 'left'
+      },
+      alternateRowStyles: {
+        fillColor: [248, 250, 252]
+      },
+      margin: { left: 40, right: 40 }
+    });
+  }
+
+  // Footer Credit
+  const pageHeight = doc.internal.pageSize.getHeight();
+  doc.setFontSize(8.5);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(71, 85, 105);
+  doc.text('Developed by Muhammad Rehan (BS Software Engineering)', 40, pageHeight - 20);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(14, 165, 233);
+  doc.text('Portfolio: https://rehankhansahu.github.io/muhammad-rehan-portfolio/', 340, pageHeight - 20);
+
+  const fileName = `VISUE_SPARK_2026_Student_Results_${new Date().toISOString().slice(0, 10)}.pdf`;
+  doc.save(fileName);
+  showToast('PDF Exported! 📕', `Official results downloaded to ${fileName}`, 'success');
+}
+
+// =========================================================================
+// PERMANENT COMPETITION HISTORY CONTROLLER
+// =========================================================================
+let competitionHistoryCache = [];
+
+async function openCompetitionHistoryModal() {
+  const modal = document.getElementById('competitionHistoryModal');
+  if (!modal) return;
+  modal.classList.remove('hidden');
+
+  const listView = document.getElementById('historyListView');
+  const detailView = document.getElementById('historyDetailView');
+  if (listView) listView.classList.remove('hidden');
+  if (detailView) detailView.classList.add('hidden');
+
+  await loadCompetitionHistory();
+}
+
+function closeCompetitionHistoryModal() {
+  const modal = document.getElementById('competitionHistoryModal');
+  if (modal) modal.classList.add('hidden');
+}
+
+async function loadCompetitionHistory() {
+  const container = document.getElementById('historyListContainer');
+  const badge = document.getElementById('historyTotalBadge');
+  if (!container) return;
+
+  const token = sessionStorage.getItem('sirToken');
+  if (!token) return;
+
+  container.innerHTML = `
+    <div class="text-center py-8 text-slate-400 font-mono text-xs">
+      <span class="animate-spin inline-block mr-2">↻</span> Loading permanently archived competitions...
+    </div>
+  `;
+
+  try {
+    const res = await fetch('/api/admin/competitions', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      competitionHistoryCache = data.history || [];
+      if (badge) badge.textContent = `${competitionHistoryCache.length} Contests`;
+
+      if (competitionHistoryCache.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12 p-6 glass-panel rounded-xl border border-white/5 space-y-2">
+            <div class="text-3xl">📜</div>
+            <h4 class="text-sm font-bold text-white">No Previous Competitions Yet</h4>
+            <p class="text-xs text-slate-400 max-w-md mx-auto">
+              Whenever a contest concludes or is reset by Sir, a permanent historical snapshot is automatically frozen in <code class="text-purple-300">data/competitions.json</code>.
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = competitionHistoryCache.map((comp, idx) => {
+        const winner = comp.winner;
+        const totalTeams = comp.totalTeams || (comp.teams ? comp.teams.length : 0);
+        const totalQuestions = comp.totalQuestions || (comp.questions ? comp.questions.length : 0);
+
+        return `
+          <div class="glass-panel p-4 sm:p-5 rounded-xl border border-white/10 hover:border-purple-500/40 transition space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-white/5 pb-2.5">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40">
+                  ${comp.id}
+                </span>
+                <h4 class="text-sm font-bold text-white">${comp.title}</h4>
+              </div>
+              <div class="text-[11px] font-mono text-slate-400">
+                📅 ${comp.dateFormatted || new Date(comp.timestamp).toLocaleString()}
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono">
+              <div class="bg-slate-950/50 p-2 rounded-lg border border-white/5">
+                <span class="text-slate-400 block text-[10px] uppercase">Contest Duration</span>
+                <span class="text-white font-bold">${comp.durationMinutes || 90} Minutes</span>
+              </div>
+              <div class="bg-slate-950/50 p-2 rounded-lg border border-white/5">
+                <span class="text-slate-400 block text-[10px] uppercase">Total Teams</span>
+                <span class="text-cyan-300 font-bold">${totalTeams} Teams</span>
+              </div>
+              <div class="bg-slate-950/50 p-2 rounded-lg border border-white/5">
+                <span class="text-slate-400 block text-[10px] uppercase">Preserved Questions</span>
+                <span class="text-amber-300 font-bold">${totalQuestions} Challenges</span>
+              </div>
+              <div class="bg-slate-950/50 p-2 rounded-lg border border-white/5">
+                <span class="text-slate-400 block text-[10px] uppercase">Champion Team</span>
+                <span class="text-emerald-300 font-bold truncate block">${winner ? winner.teamName : 'Evaluated'}</span>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-1 flex-wrap gap-2">
+              <div class="text-[11px] text-slate-400">
+                ${winner ? `🏆 Winner: <strong>${winner.teamName}</strong> (${winner.university || 'COMSATS'}) - ${winner.score}/60 pts` : 'Podium archived'}
+              </div>
+              <button 
+                type="button" 
+                onclick="viewCompetitionSnapshot('${comp.id}')"
+                class="btn-cyber px-3.5 py-1.5 rounded-lg text-xs font-bold text-purple-300 bg-purple-950/60 border border-purple-500/40 hover:bg-purple-900/50 transition flex items-center gap-1.5 shadow-sm">
+                <span>🔍</span>
+                <span>Inspect Snapshot & Questions</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  } catch (err) {
+    container.innerHTML = `<div class="text-rose-400 p-4 text-xs font-mono">Error loading history: ${err.message}</div>`;
+  }
+}
+
+async function viewCompetitionSnapshot(id) {
+  const token = sessionStorage.getItem('sirToken');
+  if (!token) return;
+
+  const detailContainer = document.getElementById('historyDetailContainer');
+  if (!detailContainer) return;
+
+  detailContainer.innerHTML = `
+    <div class="text-center py-8 text-slate-400 font-mono text-xs">
+      <span class="animate-spin inline-block mr-2">↻</span> Loading competition snapshot #${id}...
+    </div>
+  `;
+
+  document.getElementById('historyListView').classList.add('hidden');
+  document.getElementById('historyDetailView').classList.remove('hidden');
+
+  try {
+    const res = await fetch(`/api/admin/competitions/${id}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+
+    if (!data.success || !data.competition) {
+      detailContainer.innerHTML = `<div class="text-rose-400 p-4 text-xs font-mono">Failed to load competition snapshot.</div>`;
+      return;
+    }
+
+    const comp = data.competition;
+    const questions = comp.questions || [];
+    const teams = comp.teams || [];
+
+    const questionsHtml = questions.length > 0 ? questions.map((q, idx) => {
+      const qLangs = (q.languages && q.languages.length > 0) ? q.languages.join(', ') : 'All Languages';
+      const hasOptions = q.optionA || q.optionB || q.optionC || q.optionD || q.options;
+      const optA = q.optionA || (q.options && q.options.a) || '';
+      const optB = q.optionB || (q.options && q.options.b) || '';
+      const optC = q.optionC || (q.options && q.options.c) || '';
+      const optD = q.optionD || (q.options && q.options.d) || '';
+
+      return `
+        <div class="p-3.5 rounded-xl bg-slate-900/80 border border-white/10 space-y-2">
+          <div class="flex items-center justify-between gap-2 flex-wrap">
+            <div class="flex items-center gap-2">
+              <span class="font-mono text-xs font-bold text-slate-400">#${idx + 1} (QID: ${q.id})</span>
+              <h5 class="text-xs sm:text-sm font-bold text-white">${q.title}</h5>
+            </div>
+            <div class="flex items-center gap-1.5 font-mono text-[10px]">
+              <span class="px-2 py-0.5 rounded font-bold ${
+                q.difficulty === 'Easy' ? 'bg-emerald-500/20 text-emerald-400' :
+                q.difficulty === 'Medium' ? 'bg-cyan-500/20 text-cyan-400' : 'bg-amber-500/20 text-amber-400'
+              }">${q.difficulty || 'Easy'}</span>
+              <span class="px-2 py-0.5 rounded font-bold text-amber-300 bg-amber-500/20">${q.points || 10} pts</span>
+              <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300">${qLangs}</span>
+            </div>
+          </div>
+
+          <div class="text-xs text-slate-300 bg-slate-950/60 p-2.5 rounded-lg border border-white/5 whitespace-pre-wrap font-sans">
+            ${q.description || q.statement || 'No description recorded.'}
+          </div>
+
+          ${hasOptions ? `
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs font-mono pt-1">
+              ${optA ? `<div class="p-1.5 rounded bg-slate-950/40 border border-white/5 text-slate-300"><strong>A:</strong> ${optA}</div>` : ''}
+              ${optB ? `<div class="p-1.5 rounded bg-slate-950/40 border border-white/5 text-slate-300"><strong>B:</strong> ${optB}</div>` : ''}
+              ${optC ? `<div class="p-1.5 rounded bg-slate-950/40 border border-white/5 text-slate-300"><strong>C:</strong> ${optC}</div>` : ''}
+              ${optD ? `<div class="p-1.5 rounded bg-slate-950/40 border border-white/5 text-slate-300"><strong>D:</strong> ${optD}</div>` : ''}
+            </div>
+          ` : ''}
+
+          ${q.correctAnswer ? `
+            <div class="text-[11px] font-mono text-emerald-400 pt-1 flex items-center gap-1">
+              <span>✅ Correct Answer:</span>
+              <strong class="text-white bg-emerald-500/20 px-2 py-0.5 rounded border border-emerald-500/30">${q.correctAnswer}</strong>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }).join('') : '<div class="text-xs text-slate-400 font-mono py-2">No question snapshot found for this contest.</div>';
+
+    const teamsHtml = teams.length > 0 ? `
+      <div class="overflow-x-auto rounded-lg border border-white/5">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-950/80 text-slate-400 font-mono uppercase text-[10px] tracking-wider border-b border-white/10">
+            <tr>
+              <th class="px-3 py-2">Rank</th>
+              <th class="px-3 py-2">Team Name</th>
+              <th class="px-3 py-2">Leader (Roll #)</th>
+              <th class="px-3 py-2">University</th>
+              <th class="px-3 py-2">Language</th>
+              <th class="px-3 py-2">Solved</th>
+              <th class="px-3 py-2">Score (/60)</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${teams.map((t, idx) => `
+              <tr class="border-b border-white/5">
+                <td class="px-3 py-2 font-mono font-bold ${idx === 0 ? 'text-amber-400' : 'text-slate-400'}">#${idx + 1}</td>
+                <td class="px-3 py-2 font-bold text-white">${t.teamName}</td>
+                <td class="px-3 py-2 text-slate-300">${t.leaderName} (${t.leaderRoll || t.rollNo || ''})</td>
+                <td class="px-3 py-2 text-slate-300">${t.university}</td>
+                <td class="px-3 py-2 font-mono uppercase text-cyan-300">${t.language || 'cpp'}</td>
+                <td class="px-3 py-2 font-mono text-slate-300">${(t.solvedProblems || []).length} / 3</td>
+                <td class="px-3 py-2 font-mono font-bold text-emerald-400">${t.score} pts</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    ` : '<div class="text-xs text-slate-400 font-mono py-2">No team records in this contest.</div>';
+
+    detailContainer.innerHTML = `
+      <div class="space-y-4">
+        <!-- Back Navigation & Header -->
+        <div class="flex items-center justify-between gap-3 border-b border-white/10 pb-3 flex-wrap">
+          <button 
+            type="button" 
+            onclick="backToHistoryList()" 
+            class="px-3 py-1.5 rounded-lg text-xs font-mono font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 transition flex items-center gap-1.5">
+            <span>← Back to Competitions List</span>
+          </button>
+
+          <div class="flex items-center gap-2">
+            <span class="text-[11px] font-mono text-purple-300 bg-purple-500/20 px-2.5 py-1 rounded-md border border-purple-500/40 font-bold">
+              🔒 Preserved Snapshot (Read-Only)
+            </span>
+          </div>
+        </div>
+
+        <!-- Competition Overview Banner -->
+        <div class="glass-panel p-4 rounded-xl border border-purple-500/30 space-y-2 bg-gradient-to-r from-purple-950/30 via-slate-900/60 to-slate-950/60">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <h4 class="text-base font-black text-white">${comp.title}</h4>
+            <span class="text-xs font-mono text-slate-400">📅 ${comp.dateFormatted || comp.timestamp}</span>
+          </div>
+          <div class="text-xs text-slate-300 flex items-center gap-4 flex-wrap font-mono">
+            <span>Duration: <strong>${comp.durationMinutes || 90} mins</strong></span>
+            <span>Total Points: <strong>${comp.totalPoints || 60} pts</strong></span>
+            <span>Teams: <strong>${teams.length}</strong></span>
+            <span>Questions: <strong>${questions.length}</strong></span>
+          </div>
+          ${comp.winner ? `
+            <div class="pt-2 border-t border-white/5 flex items-center gap-2 text-xs">
+              <span>🏆 Champion / 1st Place:</span>
+              <strong class="text-amber-300">${comp.winner.teamName}</strong>
+              <span class="text-slate-400">(${comp.winner.university || 'COMSATS'})</span>
+              <span class="text-emerald-400 font-bold font-mono">• ${comp.winner.score} / 60 points</span>
+            </div>
+          ` : ''}
+        </div>
+
+        <!-- Questions Preserved in this Competition -->
+        <div class="space-y-2.5">
+          <div class="flex items-center justify-between">
+            <h5 class="text-xs font-bold text-white uppercase tracking-wider font-mono flex items-center gap-1.5">
+              <span>📚</span>
+              <span>Questions Included in this Competition (${questions.length})</span>
+            </h5>
+            <span class="text-[10px] text-slate-400 font-mono">Original questions & options frozen</span>
+          </div>
+          <div class="space-y-3">
+            ${questionsHtml}
+          </div>
+        </div>
+
+        <!-- Teams Standings -->
+        <div class="space-y-2.5 pt-2">
+          <h5 class="text-xs font-bold text-white uppercase tracking-wider font-mono flex items-center gap-1.5">
+            <span>🏆</span>
+            <span>Final Team Standings (${teams.length})</span>
+          </h5>
+          ${teamsHtml}
+        </div>
+      </div>
+    `;
+  } catch (err) {
+    detailContainer.innerHTML = `<div class="text-rose-400 p-4 text-xs font-mono">Error viewing snapshot: ${err.message}</div>`;
+  }
+}
+
+function backToHistoryList() {
+  const detailView = document.getElementById('historyDetailView');
+  const listView = document.getElementById('historyListView');
+  if (detailView) detailView.classList.add('hidden');
+  if (listView) listView.classList.remove('hidden');
+}
+
 // =========================================================================
 // SPECIFY QUESTIONS BY TEAM (Sir Dynamic Language-Gated Assignment)
 // =========================================================================
@@ -2323,6 +3182,10 @@ function getLangBadgeClass(lang) {
   if (clean === 'python' || clean === 'py') return 'lang-badge-python bg-blue-500/20 text-blue-300 border border-blue-500/40';
   if (clean === 'cpp' || clean === 'c++') return 'lang-badge-cpp bg-indigo-500/20 text-indigo-300 border border-indigo-500/40';
   if (clean === 'c') return 'lang-badge-c bg-slate-700/40 text-slate-300 border border-slate-500/40';
+  if (clean === 'html') return 'lang-badge-html bg-orange-500/20 text-orange-400 border border-orange-500/40';
+  if (clean === 'javascript' || clean === 'js') return 'lang-badge-javascript bg-yellow-500/20 text-yellow-300 border border-yellow-500/40';
+  if (clean === 'dart') return 'lang-badge-dart bg-sky-500/20 text-sky-400 border border-sky-500/40';
+  if (clean === 'php') return 'lang-badge-php bg-purple-500/20 text-purple-300 border border-purple-500/40';
   return 'bg-purple-500/20 text-purple-300 border border-purple-500/40';
 }
 
@@ -2701,3 +3564,16 @@ window.closeSameModeQuestionSelectModal = closeSameModeQuestionSelectModal;
 window.confirmSameModeQuestionSelection = confirmSameModeQuestionSelection;
 window.renderContestReadinessMeter = renderContestReadinessMeter;
 window.renderContestBudgetMeter = renderContestBudgetMeter;
+window.openNewQuestionModal = openNewQuestionModal;
+window.openEditQuestionModal = openEditQuestionModal;
+window.handleQuestionRowSelect = handleQuestionRowSelect;
+window.handleUpdateQuestion = handleUpdateQuestion;
+window.downloadQuestionExcelTemplate = downloadQuestionExcelTemplate;
+window.handleExcelQuestionImport = handleExcelQuestionImport;
+window.exportResultsExcel = exportResultsExcel;
+window.exportResultsPDF = exportResultsPDF;
+window.openCompetitionHistoryModal = openCompetitionHistoryModal;
+window.closeCompetitionHistoryModal = closeCompetitionHistoryModal;
+window.loadCompetitionHistory = loadCompetitionHistory;
+window.viewCompetitionSnapshot = viewCompetitionSnapshot;
+window.backToHistoryList = backToHistoryList;

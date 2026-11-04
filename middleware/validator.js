@@ -44,7 +44,7 @@ const validateRegister = [
   body('language')
     .trim()
     .toLowerCase()
-    .isIn(['c', 'cpp', 'java', 'python']).withMessage('Programming language must be C, C++, Java, or Python.'),
+    .isIn(['c', 'cpp', 'java', 'python', 'html', 'javascript', 'js', 'dart', 'php']).withMessage('Programming language must be C, C++, Java, Python, HTML, JavaScript, Dart, or PHP.'),
 
   body('teamType')
     .optional()
@@ -67,7 +67,7 @@ const validateSubmit = [
   body('language')
     .trim()
     .toLowerCase()
-    .isIn(['c', 'cpp', 'java', 'python']).withMessage('Language must be C, C++, Java, or Python.'),
+    .isIn(['c', 'cpp', 'java', 'python', 'html', 'javascript', 'js', 'dart', 'php']).withMessage('Language must be C, C++, Java, Python, HTML, JavaScript, Dart, or PHP.'),
   
   body('code')
     .trim()

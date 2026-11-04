@@ -684,6 +684,14 @@ function getCleanCommentForLanguage(lang) {
     return '// Write your Java code here...\n';
   } else if (l === 'c') {
     return '// Write your C code here...\n';
+  } else if (l === 'html') {
+    return '<!-- Write your HTML structure / solution here -->\n';
+  } else if (l === 'javascript' || l === 'js') {
+    return '// Write your JavaScript (Node.js/ES6) code here...\n';
+  } else if (l === 'dart') {
+    return '// Write your Dart code here...\n';
+  } else if (l === 'php') {
+    return '<?php\n// Write your PHP code here...\n';
   } else {
     return '// Write your C++ code here...\n';
   }

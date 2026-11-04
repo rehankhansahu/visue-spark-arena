@@ -2097,6 +2097,54 @@ html.light .lang-badge-python {
   border-color: #a7f3d0 !important;
 }
 
+.lang-badge-html {
+  background-color: rgba(249, 115, 22, 0.15);
+  color: #fb923c;
+  border: 1px solid rgba(249, 115, 22, 0.35);
+}
+html:not(.dark) .lang-badge-html,
+html.light .lang-badge-html {
+  background-color: #fff7ed !important;
+  color: #c2410c !important;
+  border-color: #fed7aa !important;
+}
+
+.lang-badge-javascript {
+  background-color: rgba(234, 179, 8, 0.15);
+  color: #facc15;
+  border: 1px solid rgba(234, 179, 8, 0.35);
+}
+html:not(.dark) .lang-badge-javascript,
+html.light .lang-badge-javascript {
+  background-color: #fefce8 !important;
+  color: #a16207 !important;
+  border-color: #fef08a !important;
+}
+
+.lang-badge-dart {
+  background-color: rgba(14, 165, 233, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(14, 165, 233, 0.35);
+}
+html:not(.dark) .lang-badge-dart,
+html.light .lang-badge-dart {
+  background-color: #f0f9ff !important;
+  color: #0369a1 !important;
+  border-color: #bae6fd !important;
+}
+
+.lang-badge-php {
+  background-color: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.35);
+}
+html:not(.dark) .lang-badge-php,
+html.light .lang-badge-php {
+  background-color: #faf5ff !important;
+  color: #7e22ce !important;
+  border-color: #e9d5ff !important;
+}
+
 /* Dark Mode Fallbacks for Chips */
 html.dark .contest-budget-panel {
   background-color: rgba(2, 6, 23, 0.75) !important;

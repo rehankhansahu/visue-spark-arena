@@ -729,6 +729,130 @@ router.delete('/admin/questions/:id', verifySirToken, ensureContestNotRunning, (
   }
 });
 
+/**
+ * POST /api/admin/questions/update & PUT /api/admin/questions/:id
+ * In-place edit of existing question in Question Bank
+ */
+router.post('/admin/questions/update', verifySirToken, ensureContestNotRunning, (req, res) => {
+  try {
+    const { id } = req.body;
+    if (!id) {
+      return res.status(400).json({ success: false, message: 'Question ID is required for editing.' });
+    }
+    const updated = store.updateQuestionInBank(id, req.body);
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('questionsUpdated', { bankCount: store.getQuestionBank().length });
+      io.emit('contestReadinessUpdated', store.getContestReadiness());
+    }
+    return res.status(200).json({
+      success: true,
+      message: `Question #${updated.id} ("${updated.title}") updated successfully!`,
+      question: updated
+    });
+  } catch (err) {
+    return res.status(400).json({ success: false, message: err.message });
+  }
+});
+
+router.put('/admin/questions/:id', verifySirToken, ensureContestNotRunning, (req, res) => {
+  try {
+    const { id } = req.params;
+    const updated = store.updateQuestionInBank(id, req.body);
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('questionsUpdated', { bankCount: store.getQuestionBank().length });
+      io.emit('contestReadinessUpdated', store.getContestReadiness());
+    }
+    return res.status(200).json({
+      success: true,
+      message: `Question #${updated.id} ("${updated.title}") updated successfully!`,
+      question: updated
+    });
+  } catch (err) {
+    return res.status(400).json({ success: false, message: err.message });
+  }
+});
+
+/**
+ * POST /api/admin/questions/import
+ * Bulk import questions parsed from Excel template
+ */
+router.post('/admin/questions/import', verifySirToken, ensureContestNotRunning, (req, res) => {
+  try {
+    const { questions } = req.body;
+    if (!questions || !Array.isArray(questions)) {
+      return res.status(400).json({ success: false, message: 'Questions array is required for bulk import.' });
+    }
+    const added = store.bulkImportQuestions(questions);
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('questionsUpdated', { bankCount: store.getQuestionBank().length });
+      io.emit('contestReadinessUpdated', store.getContestReadiness());
+    }
+    return res.status(200).json({
+      success: true,
+      message: `Successfully imported ${added.length} question(s) into the Question Bank!`,
+      count: added.length,
+      questions: added
+    });
+  } catch (err) {
+    return res.status(400).json({ success: false, message: err.message });
+  }
+});
+
+/**
+ * Permanent Competition History Endpoints
+ */
+router.get('/admin/competitions', verifySirToken, (req, res) => {
+  try {
+    const history = store.getCompetitionHistory();
+    return res.status(200).json({
+      success: true,
+      history,
+      totalCompetitions: history.length
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+router.get('/admin/competitions/:id', verifySirToken, (req, res) => {
+  try {
+    const { id } = req.params;
+    const competition = store.getCompetitionById(id);
+    if (!competition) {
+      return res.status(404).json({ success: false, message: `Competition "${id}" not found.` });
+    }
+    return res.status(200).json({
+      success: true,
+      competition
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+router.post('/admin/competitions/snapshot', verifySirToken, (req, res) => {
+  try {
+    const { title } = req.body;
+    const snapshot = store.saveCurrentCompetitionSnapshot(title);
+    if (!snapshot) {
+      return res.status(400).json({
+        success: false,
+        message: 'Unable to snapshot: No active teams or questions found to snapshot.'
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: `Competition snapshot saved permanently as "${snapshot.title}".`,
+      competition: snapshot
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 router.post('/admin/assign-question', verifySirToken, ensureContestNotRunning, (req, res) => {
   try {
     const { slot, questionId } = req.body;
