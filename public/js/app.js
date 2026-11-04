@@ -62,9 +62,70 @@ document.addEventListener('DOMContentLoaded', () => {
   // Sync Timer from Backend
   fetchTimerState();
 
+  // Sync Global Website Lock Status from Backend
+  syncInitialLockState();
+
   // Default view
   switchView('arena');
 });
+
+// =========================================================================
+// 1.5 GLOBAL WEBSITE LOCK (READ-ONLY MODE) HANDLER
+// =========================================================================
+window.isWebsiteLocked = false;
+
+function applyWebsiteLockState(isLocked) {
+  window.isWebsiteLocked = Boolean(isLocked);
+  const banner = document.getElementById('websiteLockBanner');
+  if (banner) {
+    if (isLocked) {
+      banner.classList.remove('hidden');
+    } else {
+      banner.classList.add('hidden');
+    }
+  }
+
+  // Registration Button
+  const regBtn = document.getElementById('submitRegisterBtn');
+  if (regBtn) {
+    if (isLocked) {
+      regBtn.disabled = true;
+      regBtn.innerHTML = '<span>🔒 Registration Locked (Read-Only Mode)</span>';
+      regBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    } else {
+      regBtn.disabled = false;
+      regBtn.innerHTML = '<span>🚀 Generate Arena Pass & Enter</span>';
+      regBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    }
+  }
+
+  // Speed Arena Submit Button
+  const submitCodeBtn = document.getElementById('submitCodeBtn');
+  if (submitCodeBtn) {
+    if (isLocked) {
+      submitCodeBtn.disabled = true;
+      submitCodeBtn.classList.add('opacity-50', 'cursor-not-allowed');
+      submitCodeBtn.title = 'Submissions are paused. Website is in Read-Only mode.';
+    } else {
+      submitCodeBtn.disabled = false;
+      submitCodeBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      submitCodeBtn.removeAttribute('title');
+    }
+  }
+}
+window.applyWebsiteLockState = applyWebsiteLockState;
+
+async function syncInitialLockState() {
+  try {
+    const res = await fetch('/api/system-status');
+    const data = await res.json();
+    if (data.success && data.locked !== undefined) {
+      applyWebsiteLockState(data.locked);
+    }
+  } catch (err) {
+    // Network retry or offline
+  }
+}
 
 // =========================================================================
 // 2. CONTEST COUNTDOWN TIMER (Controlled by Sir)
@@ -296,7 +357,7 @@ function formatSeconds(sec) {
 function switchView(viewName) {
   currentView = viewName;
 
-  const views = ['arena', 'leaderboard', 'pass', 'admin'];
+  const views = ['arena', 'leaderboard', 'pass', 'admin', 'superadmin'];
   views.forEach(v => {
     const el = document.getElementById(`view-${v}`);
     const navBtn = document.getElementById(`nav-btn-${v}`);
@@ -332,6 +393,8 @@ function switchView(viewName) {
     renderContestPassView();
   } else if (viewName === 'admin') {
     if (window.checkSirAuth) window.checkSirAuth();
+  } else if (viewName === 'superadmin') {
+    if (window.checkSuperAdminAuth) window.checkSuperAdminAuth();
   }
 }
 

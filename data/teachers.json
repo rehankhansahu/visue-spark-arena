@@ -1,0 +1,12 @@
+[
+  {
+    "id": "teacher-1",
+    "name": "Dr. Rashid Jahangir",
+    "username": "sir_visue",
+    "password": "spark2026",
+    "designation": "Chief Evaluation Judge",
+    "department": "Department of Computer Science",
+    "profilePic": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80",
+    "createdAt": "2026-11-04T10:00:00.000Z"
+  }
+]

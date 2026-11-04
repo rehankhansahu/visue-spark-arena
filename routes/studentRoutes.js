@@ -15,6 +15,14 @@ const { validateRegister } = require('../middleware/validator');
  */
 router.post('/register', validateRegister, (req, res) => {
   try {
+    if (store.isWebsiteLocked()) {
+      return res.status(403).json({
+        success: false,
+        locked: true,
+        message: '🔒 Arena is currently LOCKED in Read-Only mode by Super Admin. New team registrations are temporarily disabled.'
+      });
+    }
+
     const timer = store.getContestTimer();
     if (timer && timer.status && timer.status !== 'not_started') {
       return res.status(403).json({
@@ -145,6 +153,17 @@ router.get('/team-status/:passKey', (req, res) => {
   } catch (err) {
     return res.status(500).json({ success: false, message: 'Failed to check team status' });
   }
+});
+
+/**
+ * GET /api/system-status
+ * Public endpoint to check website lock / read-only state
+ */
+router.get('/system-status', (req, res) => {
+  return res.status(200).json({
+    success: true,
+    locked: store.isWebsiteLocked()
+  });
 });
 
 module.exports = router;

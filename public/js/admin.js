@@ -17,6 +17,29 @@ let questionMode = 'same';
 let currentResultsPublished = false;
 let currentContestTimer = null;
 
+function updateSirHeaderProfile(judge) {
+  if (!judge) return;
+  const judgeNameEl = document.getElementById('sirJudgeNameDisplay');
+  const judgeHeaderEl = document.getElementById('sirJudgeNameDisplayHeader');
+  const designationEl = document.getElementById('sirJudgeDesignationDisplay');
+  const avatarContainer = document.getElementById('sirJudgeAvatarContainer');
+
+  if (judgeNameEl && judge.name) judgeNameEl.textContent = judge.name;
+  if (judgeHeaderEl && judge.name) judgeHeaderEl.textContent = judge.name;
+  if (designationEl && (judge.designation || judge.department)) {
+    designationEl.textContent = `${judge.designation || 'Chief Evaluation Judge'} • ${judge.department || 'Department of Computer Science'}`;
+  }
+
+  if (avatarContainer) {
+    if (judge.profilePic) {
+      avatarContainer.innerHTML = `<img src="${judge.profilePic}" alt="${judge.name || 'Judge'}" class="w-full h-full object-cover rounded-[14px]" onerror="this.onerror=null; this.parentElement.innerHTML='👨‍🏫';" />`;
+    } else {
+      avatarContainer.innerHTML = `<span id="sirJudgeAvatarIcon">👨‍🏫</span>`;
+    }
+  }
+}
+window.updateSirHeaderProfile = updateSirHeaderProfile;
+
 // 1. Check Sir Authentication
 async function checkSirAuth() {
   const token = sessionStorage.getItem('sirToken');
@@ -37,12 +60,7 @@ async function checkSirAuth() {
 
     if (data.success) {
       currentJudge = data.judge;
-      const judgeNameEl = document.getElementById('sirJudgeNameDisplay');
-      const judgeHeaderEl = document.getElementById('sirJudgeNameDisplayHeader');
-      if (data.judge && data.judge.name) {
-        if (judgeNameEl) judgeNameEl.textContent = data.judge.name;
-        if (judgeHeaderEl) judgeHeaderEl.textContent = data.judge.name;
-      }
+      updateSirHeaderProfile(data.judge);
       if (loginGate) loginGate.classList.add('hidden');
       if (dashboard) dashboard.classList.remove('hidden');
       loadPendingRequests();
@@ -117,12 +135,7 @@ async function performSirLogin(username, password, forceUnlock = false) {
     if (data.success) {
       sessionStorage.setItem('sirToken', data.token);
       currentJudge = data.judge;
-      const judgeNameEl = document.getElementById('sirJudgeNameDisplay');
-      const judgeHeaderEl = document.getElementById('sirJudgeNameDisplayHeader');
-      if (data.judge && data.judge.name) {
-        if (judgeNameEl) judgeNameEl.textContent = data.judge.name;
-        if (judgeHeaderEl) judgeHeaderEl.textContent = data.judge.name;
-      }
+      updateSirHeaderProfile(data.judge);
       showToast('Authenticated 🔓', data.message, 'success');
       if (errorMsg) errorMsg.innerHTML = '';
       if (passwordInput) passwordInput.value = '';

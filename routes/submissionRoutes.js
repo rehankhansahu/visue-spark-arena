@@ -9,6 +9,17 @@ const store = require('../data/store');
 const { verifySirToken } = require('../middleware/auth');
 const { validateSubmit, validateBonus } = require('../middleware/validator');
 
+const ensureWebsiteNotLocked = (req, res, next) => {
+  if (store.isWebsiteLocked()) {
+    return res.status(403).json({
+      success: false,
+      locked: true,
+      message: '🔒 Platform is currently in Read-Only mode (Locked by Super Admin). Actions and submissions are paused.'
+    });
+  }
+  next();
+};
+
 /**
  * GET /api/problems
  * Return contest challenges for the active contest (dynamically scaled, totaling 60 points)
@@ -40,7 +51,7 @@ router.get('/problems', (req, res) => {
  * Student / Team code submission endpoint
  * Works directly from browser Arena, VS Code, or external IDE
  */
-router.post('/submit', validateSubmit, (req, res) => {
+router.post('/submit', ensureWebsiteNotLocked, validateSubmit, (req, res) => {
   try {
     const { teamId, rollNo, passKey, problemId, code, language } = req.body;
 
@@ -168,7 +179,7 @@ router.post('/submit', validateSubmit, (req, res) => {
  * Student/Team chooses to leave contest early (Incomplete)
  * Submits all current work to Sir and flags the team as left_early
  */
-router.post('/leave-contest', (req, res) => {
+router.post('/leave-contest', ensureWebsiteNotLocked, (req, res) => {
   try {
     const { teamId, passKey, draftCodeMap = {}, language, isTimeUp } = req.body;
     const identifier = teamId || passKey;
@@ -292,7 +303,7 @@ router.get('/admin/approved-teams', verifySirToken, (req, res) => {
  * POST /api/admin/approve-team
  * Sir approves a pending team
  */
-router.post('/admin/approve-team', verifySirToken, (req, res) => {
+router.post('/admin/approve-team', verifySirToken, ensureWebsiteNotLocked, (req, res) => {
   try {
     const { teamId } = req.body;
     const team = store.approveTeam(teamId);
@@ -330,7 +341,7 @@ router.post('/admin/approve-team', verifySirToken, (req, res) => {
  * POST /api/admin/reject-team
  * Sir rejects a pending team
  */
-router.post('/admin/reject-team', verifySirToken, (req, res) => {
+router.post('/admin/reject-team', verifySirToken, ensureWebsiteNotLocked, (req, res) => {
   try {
     const { teamId } = req.body;
     const team = store.rejectTeam(teamId);
@@ -359,7 +370,7 @@ router.post('/admin/reject-team', verifySirToken, (req, res) => {
  * POST /api/admin/kickout-team
  * Sir kicks out / disqualifies / removes a team from the competition
  */
-router.post('/admin/kickout-team', verifySirToken, (req, res) => {
+router.post('/admin/kickout-team', verifySirToken, ensureWebsiteNotLocked, (req, res) => {
   try {
     const { teamId } = req.body;
     const team = store.kickoutTeam(teamId);
@@ -397,7 +408,7 @@ router.post('/admin/kickout-team', verifySirToken, (req, res) => {
  * POST /api/admin/remove-team
  * Sir explicitly removes a team (Pending or Approved)
  */
-router.post('/admin/remove-team', verifySirToken, (req, res) => {
+router.post('/admin/remove-team', verifySirToken, ensureWebsiteNotLocked, (req, res) => {
   try {
     const { teamId } = req.body;
     const team = store.deleteTeam(teamId);
@@ -434,7 +445,7 @@ router.post('/admin/remove-team', verifySirToken, (req, res) => {
 /**
  * TIMER MANAGEMENT ENDPOINTS (Sir's Control)
  */
-router.post('/admin/timer/start', verifySirToken, (req, res) => {
+router.post('/admin/timer/start', verifySirToken, ensureWebsiteNotLocked, (req, res) => {
   try {
     const timer = store.startTimer();
     const io = req.app.get('io');
@@ -448,7 +459,7 @@ router.post('/admin/timer/start', verifySirToken, (req, res) => {
   }
 });
 
-router.post('/admin/timer/pause', verifySirToken, (req, res) => {
+router.post('/admin/timer/pause', verifySirToken, ensureWebsiteNotLocked, (req, res) => {
   try {
     const timer = store.pauseTimer();
     const io = req.app.get('io');
@@ -462,7 +473,7 @@ router.post('/admin/timer/pause', verifySirToken, (req, res) => {
   }
 });
 
-router.post('/admin/timer/reset', verifySirToken, (req, res) => {
+router.post('/admin/timer/reset', verifySirToken, ensureWebsiteNotLocked, (req, res) => {
   try {
     const result = store.resetContestFull();
     const timer = result.timer;
@@ -516,7 +527,7 @@ router.post('/admin/reset-contest', verifySirToken, (req, res, next) => {
  * POST /api/admin/reset-contest-all
  * Full Contest & Podium Reset: Wipes all teams, submissions, questions, timer, AND podium archive
  */
-router.post('/admin/reset-contest-all', verifySirToken, (req, res) => {
+router.post('/admin/reset-contest-all', verifySirToken, ensureWebsiteNotLocked, (req, res) => {
   try {
     const result = store.resetContestWipeAll();
     const timer = result.timer;
@@ -549,7 +560,7 @@ router.post('/admin/reset-contest-all', verifySirToken, (req, res) => {
   }
 });
 
-router.post('/admin/timer/duration', verifySirToken, (req, res) => {
+router.post('/admin/timer/duration', verifySirToken, ensureWebsiteNotLocked, (req, res) => {
   try {
     const { minutes } = req.body;
     const timer = store.setContestDuration(minutes);
@@ -612,6 +623,13 @@ router.get('/admin/readiness', verifySirToken, (req, res) => {
  * Guard: Locked while contest is running
  */
 const ensureContestNotRunning = (req, res, next) => {
+  if (store.isWebsiteLocked()) {
+    return res.status(403).json({
+      success: false,
+      locked: true,
+      message: '🔒 Platform is currently in Read-Only mode (Locked by Super Admin). Actions cannot be performed.'
+    });
+  }
   const timer = store.getContestTimer();
   if (timer.status === 'running') {
     return res.status(403).json({

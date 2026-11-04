@@ -70,6 +70,66 @@ function saveCompetitionHistoryToFile(history) {
 
 let competitionHistory = loadCompetitionHistoryFromFile();
 
+// Teachers and System Settings Persistence
+const TEACHERS_FILE = path.join(__dirname, 'teachers.json');
+const SETTINGS_FILE = path.join(__dirname, 'settings.json');
+
+const DEFAULT_TEACHER = {
+  id: 'teacher-1',
+  name: 'Dr. Rashid Jahangir',
+  username: 'sir_visue',
+  password: 'spark2026',
+  designation: 'Chief Evaluation Judge',
+  department: 'Department of Computer Science',
+  profilePic: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80',
+  createdAt: new Date().toISOString()
+};
+
+function loadTeachersFromFile() {
+  try {
+    if (fs.existsSync(TEACHERS_FILE)) {
+      const raw = fs.readFileSync(TEACHERS_FILE, 'utf-8');
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch (err) {
+    console.error('[Store] Error loading teachers.json:', err);
+  }
+  return [DEFAULT_TEACHER];
+}
+
+function saveTeachersToFile(teachersList) {
+  try {
+    fs.writeFileSync(TEACHERS_FILE, JSON.stringify(teachersList, null, 2), 'utf-8');
+  } catch (err) {
+    console.error('[Store] Error saving teachers.json:', err);
+  }
+}
+
+let teachers = loadTeachersFromFile();
+
+function loadSettingsFromFile() {
+  try {
+    if (fs.existsSync(SETTINGS_FILE)) {
+      const raw = fs.readFileSync(SETTINGS_FILE, 'utf-8');
+      return JSON.parse(raw);
+    }
+  } catch (err) {
+    console.error('[Store] Error loading settings.json:', err);
+  }
+  return { websiteLocked: false, lockedAt: null, lockedBy: null };
+}
+
+function saveSettingsToFile(settings) {
+  try {
+    fs.writeFileSync(SETTINGS_FILE, JSON.stringify(settings, null, 2), 'utf-8');
+  } catch (err) {
+    console.error('[Store] Error saving settings.json:', err);
+  }
+}
+
+let systemSettings = loadSettingsFromFile();
+
 // In-Memory Database Collections (Clean initial state - No default dummy teams)
 const teams = new Map();
 let submissions = [];
@@ -1744,6 +1804,112 @@ const store = {
       return true;
     }
     return false;
+  },
+
+  // =========================================================================
+  // 7. SUPER ADMIN: TEACHERS MANAGEMENT
+  // =========================================================================
+  getTeachers(includePasswords = false) {
+    return teachers.map(t => {
+      const copy = { ...t };
+      if (!includePasswords) delete copy.password;
+      return copy;
+    });
+  },
+
+  getTeacherById(id) {
+    return teachers.find(t => t.id === id) || null;
+  },
+
+  getTeacherByUsername(username) {
+    if (!username) return null;
+    const clean = username.trim().toLowerCase();
+    return teachers.find(t => t.username.toLowerCase() === clean) || null;
+  },
+
+  addTeacher({ name, username, password, designation, department, profilePic }) {
+    const cleanUser = (username || '').trim().toLowerCase();
+    if (!cleanUser) throw new Error('Username is required.');
+    if (!name || !name.trim()) throw new Error('Teacher name is required.');
+    if (!password || !password.trim()) throw new Error('Password is required.');
+
+    const exists = teachers.some(t => t.username.toLowerCase() === cleanUser);
+    if (exists) throw new Error(`Teacher with username "${cleanUser}" already exists.`);
+
+    const newTeacher = {
+      id: `teacher-${Date.now()}`,
+      name: name.trim(),
+      username: cleanUser,
+      password: password.trim(),
+      designation: (designation || 'Evaluation Judge').trim(),
+      department: (department || 'Department of Computer Science').trim(),
+      profilePic: (profilePic || '').trim() || `https://api.dicebear.com/7.x/bottts/svg?seed=${cleanUser}`,
+      createdAt: new Date().toISOString()
+    };
+
+    teachers.push(newTeacher);
+    saveTeachersToFile(teachers);
+    return newTeacher;
+  },
+
+  updateTeacher(id, { name, username, password, designation, department, profilePic }) {
+    const teacher = teachers.find(t => t.id === id);
+    if (!teacher) throw new Error(`Teacher #${id} not found.`);
+
+    if (username) {
+      const cleanUser = username.trim().toLowerCase();
+      if (cleanUser !== teacher.username.toLowerCase()) {
+        const exists = teachers.some(t => t.id !== id && t.username.toLowerCase() === cleanUser);
+        if (exists) throw new Error(`Username "${cleanUser}" is already taken.`);
+        teacher.username = cleanUser;
+      }
+    }
+
+    if (name) teacher.name = name.trim();
+    if (password && password.trim()) teacher.password = password.trim();
+    if (designation !== undefined) teacher.designation = designation.trim();
+    if (department !== undefined) teacher.department = department.trim();
+    if (profilePic !== undefined) teacher.profilePic = profilePic.trim();
+
+    saveTeachersToFile(teachers);
+    return teacher;
+  },
+
+  deleteTeacher(id) {
+    const idx = teachers.findIndex(t => t.id === id);
+    if (idx === -1) throw new Error(`Teacher #${id} not found.`);
+    if (teachers.length <= 1) throw new Error('Cannot delete the only remaining teacher.');
+
+    const removed = teachers.splice(idx, 1)[0];
+    saveTeachersToFile(teachers);
+    return removed;
+  },
+
+  authenticateTeacher(username, password) {
+    if (!username || !password) return null;
+    const cleanUser = username.trim().toLowerCase();
+    const cleanPass = password.trim();
+
+    return teachers.find(t => t.username.toLowerCase() === cleanUser && t.password === cleanPass) || null;
+  },
+
+  // =========================================================================
+  // 8. SUPER ADMIN: GLOBAL WEBSITE LOCK (READ-ONLY MODE)
+  // =========================================================================
+  isWebsiteLocked() {
+    return Boolean(systemSettings.websiteLocked);
+  },
+
+  getSystemSettings() {
+    return { ...systemSettings };
+  },
+
+  setWebsiteLocked(locked, user = 'Super Admin') {
+    systemSettings.websiteLocked = Boolean(locked);
+    systemSettings.lockedAt = Boolean(locked) ? new Date().toISOString() : null;
+    systemSettings.lockedBy = Boolean(locked) ? user : null;
+    saveSettingsToFile(systemSettings);
+    return { ...systemSettings };
   }
 };
 

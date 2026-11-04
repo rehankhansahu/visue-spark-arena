@@ -35,16 +35,16 @@ function verifySirToken(req, res, next) {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    // Ensure the token has the judge role
-    if (decoded.role !== 'judge') {
+    // Ensure the token has the judge or superadmin role
+    if (decoded.role !== 'judge' && decoded.role !== 'superadmin') {
       return res.status(403).json({
         success: false,
         message: 'Access Forbidden: Insufficient Judge Privileges'
       });
     }
 
-    // Option A: Single-Judge Active Session Lock
-    if (decoded.sessionId) {
+    // Option A: Single-Judge Active Session Lock (applies to judges)
+    if (decoded.role === 'judge' && decoded.sessionId) {
       const active = store.getActiveJudgeSession();
       if (!active || active.sessionId !== decoded.sessionId) {
         return res.status(403).json({
@@ -66,7 +66,51 @@ function verifySirToken(req, res, next) {
   }
 }
 
+/**
+ * Middleware to verify Super Admin JWT Token
+ * Expects header: Authorization: Bearer <token>
+ */
+function verifySuperAdminToken(req, res, next) {
+  const authHeader = req.headers['authorization'] || req.headers['Authorization'];
+
+  if (!authHeader) {
+    return res.status(401).json({
+      success: false,
+      message: 'Access Denied: Missing Authorization Header'
+    });
+  }
+
+  const parts = authHeader.split(' ');
+  if (parts.length !== 2 || parts[0] !== 'Bearer') {
+    return res.status(401).json({
+      success: false,
+      message: 'Access Denied: Invalid Token Format. Expected "Bearer <token>"'
+    });
+  }
+
+  const token = parts[1];
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    if (decoded.role !== 'superadmin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access Forbidden: Super Administrator privileges required.'
+      });
+    }
+
+    req.user = decoded;
+    next();
+  } catch (err) {
+    return res.status(403).json({
+      success: false,
+      message: 'Access Denied: Token Expired or Invalid Signature'
+    });
+  }
+}
+
 module.exports = {
   JWT_SECRET,
-  verifySirToken
+  verifySirToken,
+  verifySuperAdminToken
 };

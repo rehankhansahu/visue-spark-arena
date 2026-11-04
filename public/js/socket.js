@@ -320,6 +320,27 @@ function initSocketClient() {
       }
     });
 
+    // Global Website Lock / Read-Only Mode Changed by Super Admin
+    socket.on('websiteLockChanged', (data) => {
+      console.log('[Socket.IO] Website Lock Status Changed:', data);
+      if (window.applyWebsiteLockState) {
+        window.applyWebsiteLockState(data.locked);
+      }
+      showToast(
+        data.locked ? '🔒 Read-Only Mode Active' : '🔓 Normal Mode Restored',
+        data.message || (data.locked ? 'Website has been locked in Read-Only mode by Super Admin.' : 'Website has been unlocked.'),
+        data.locked ? 'warning' : 'success'
+      );
+    });
+
+    // Teacher Profile Picture or Details Updated by Super Admin
+    socket.on('teacherProfileUpdated', (data) => {
+      console.log('[Socket.IO] Teacher profile updated:', data);
+      if (window.updateSirHeaderProfile && data.teacher) {
+        window.updateSirHeaderProfile(data.teacher);
+      }
+    });
+
     // Contest Questions Readiness Updated (Live progress bar update across all screens)
     socket.on('contestReadinessUpdated', (data) => {
       console.log('[Socket.IO] Contest readiness updated:', data);

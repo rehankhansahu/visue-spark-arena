@@ -14,6 +14,7 @@ const store = require('./data/store');
 const authRoutes = require('./routes/authRoutes');
 const studentRoutes = require('./routes/studentRoutes');
 const submissionRoutes = require('./routes/submissionRoutes');
+const superAdminRoutes = require('./routes/superAdminRoutes');
 
 // Initialize Express App & HTTP Server
 const app = express();
@@ -57,6 +58,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api', authRoutes);
 app.use('/api', studentRoutes);
 app.use('/api', submissionRoutes);
+app.use('/api/superadmin', superAdminRoutes);
 
 // Single Page Application Fallback
 app.get('*', (req, res, next) => {

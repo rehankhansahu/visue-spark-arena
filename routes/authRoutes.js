@@ -25,15 +25,21 @@ router.post('/login', validateLogin, (req, res) => {
   const cleanUser = (username || '').trim().toLowerCase();
   const cleanPass = (password || '').trim();
 
-  const isUserValid = VALID_USERNAMES.some(u => u.toLowerCase() === cleanUser);
-  const isPassValid = VALID_PASSWORDS.includes(cleanPass);
+  const matchedTeacher = store.authenticateTeacher(cleanUser, cleanPass);
+  const isLegacyUserValid = VALID_USERNAMES.some(u => u.toLowerCase() === cleanUser);
+  const isLegacyPassValid = VALID_PASSWORDS.includes(cleanPass);
 
-  if (!isUserValid || !isPassValid) {
+  if (!matchedTeacher && (!isLegacyUserValid || !isLegacyPassValid)) {
     return res.status(401).json({
       success: false,
       message: 'Access Denied: Invalid Judge Username or Password.'
     });
   }
+
+  const teacherName = matchedTeacher ? matchedTeacher.name : 'Dr. Rashid Jahangir';
+  const teacherDept = matchedTeacher ? (matchedTeacher.department || 'Department of Computer Science') : 'Department of Computer Science';
+  const teacherDesignation = matchedTeacher ? (matchedTeacher.designation || 'Chief Evaluation Judge') : 'Chief Evaluation Judge';
+  const teacherPic = matchedTeacher ? (matchedTeacher.profilePic || null) : null;
 
   // Option A: Single-Judge Strict Lock Check
   const existingSession = store.getActiveJudgeSession();
@@ -42,7 +48,7 @@ router.post('/login', validateLogin, (req, res) => {
     return res.status(409).json({
       success: false,
       error: 'SESSION_LOCKED',
-      message: `Access Denied: Judge Portal is already active on another device! Dr. Rashid Jahangir is logged in (Active since: ${loginTime}). Single-session lock is active. Please log out from the active device or click Force Unlock below.`,
+      message: `Access Denied: Judge Portal is already active on another device! Active judge is logged in (Active since: ${loginTime}). Single-session lock is active. Please log out from the active device or click Force Unlock below.`,
       activeSession: {
         username: existingSession.username,
         loggedInAt: existingSession.loggedInAt,
@@ -65,8 +71,10 @@ router.post('/login', validateLogin, (req, res) => {
     role: 'judge',
     sessionId,
     username: cleanUser,
-    name: 'Dr. Rashid Jahangir (Chief Evaluation Judge)',
-    department: 'Department of Computer Science',
+    name: teacherName,
+    department: teacherDept,
+    designation: teacherDesignation,
+    profilePic: teacherPic,
     issuedAt: Date.now()
   };
 
@@ -84,14 +92,16 @@ router.post('/login', validateLogin, (req, res) => {
 
   return res.status(200).json({
     success: true,
-    message: 'Welcome Dr. Rashid Jahangir! Judge Evaluation Portal unlocked.',
+    message: `Welcome ${teacherName}! Judge Evaluation Portal unlocked.`,
     token,
     sessionId,
     judge: {
       username: payload.username,
       name: payload.name,
       role: payload.role,
-      department: payload.department
+      department: payload.department,
+      designation: payload.designation,
+      profilePic: payload.profilePic
     }
   });
 });
@@ -123,13 +133,16 @@ router.get('/verify-auth', (req, res) => {
       store.touchJudgeSession();
     }
 
+    const teacher = store.getTeacherByUsername(decoded.username);
     return res.status(200).json({
       success: true,
       judge: {
         username: decoded.username,
-        name: decoded.name,
+        name: (teacher ? teacher.name : decoded.name) || 'Judge',
         role: decoded.role,
-        department: decoded.department
+        department: (teacher ? teacher.department : decoded.department) || 'Department of Computer Science',
+        designation: (teacher ? teacher.designation : decoded.designation) || 'Chief Evaluation Judge',
+        profilePic: (teacher ? teacher.profilePic : decoded.profilePic) || null
       }
     });
   } catch (err) {

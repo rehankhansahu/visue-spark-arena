@@ -91,6 +91,9 @@
           <span>👨‍🏫</span> Sir's Desk
           <span id="navPendingBadge" class="hidden px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-amber-500 text-slate-950">!</span>
         </button>
+        <button id="nav-btn-superadmin" onclick="switchView('superadmin')" class="px-3 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all text-slate-400 border border-transparent hover:text-white">
+          <span>🛡️</span> Super Admin
+        </button>
       </nav>
 
       <!-- Right Controls: 90-Min Timer, Theme Toggle, Live Status & Team Badge -->
@@ -137,8 +140,20 @@
       <button onclick="switchView('leaderboard')" class="text-slate-400">Podium</button>
       <button onclick="switchView('pass')" class="text-slate-400">Pass</button>
       <button onclick="switchView('admin')" class="text-slate-400">Sir Desk</button>
+      <button onclick="switchView('superadmin')" class="text-slate-400">Admin</button>
     </div>
   </header>
+
+  <!-- Global Website Lock / Read-Only Mode Banner -->
+  <div id="websiteLockBanner" class="hidden bg-gradient-to-r from-rose-950 via-red-900 to-rose-950 text-rose-200 border-b border-rose-500/40 px-4 py-2 text-xs font-mono font-bold shadow-lg">
+    <div class="max-w-7xl mx-auto w-full flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <span class="animate-pulse text-base">🔒</span>
+        <span>READ-ONLY MODE ACTIVE: The arena is currently locked by Super Admin. Viewing is enabled, but registrations and submissions are paused.</span>
+      </div>
+      <span class="px-2 py-0.5 rounded bg-rose-500/30 text-rose-300 text-[10px] uppercase tracking-wider shrink-0 font-bold border border-rose-500/40">Read Only</span>
+    </div>
+  </div>
 
   <!-- =========================================================================
        2. Main Content Canvas (Compact Viewport Fit)
@@ -910,8 +925,8 @@
         <div class="glass-panel rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-purple-500/30 shadow-xl">
           <div class="flex items-center gap-3.5">
             <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-amber-500 p-[2px] shadow-md shadow-purple-500/20 shrink-0">
-              <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center text-xl sm:text-2xl judge-avatar-inner">
-                👨‍🏫
+              <div id="sirJudgeAvatarContainer" class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center text-xl sm:text-2xl judge-avatar-inner overflow-hidden">
+                <span id="sirJudgeAvatarIcon">👨‍🏫</span>
               </div>
             </div>
             <div>
@@ -927,7 +942,7 @@
               <h2 id="sirJudgeNameDisplayHeader" class="text-lg sm:text-xl font-black text-white mt-0.5 tracking-tight">
                 Dr. Rashid Jahangir
               </h2>
-              <p class="text-[11px] text-slate-400 font-mono">
+              <p id="sirJudgeDesignationDisplay" class="text-[11px] text-slate-400 font-mono">
                 Department of Computer Science • CUI Vehari Campus
               </p>
             </div>
@@ -1286,6 +1301,183 @@
           <!-- Grouped by Team Container -->
           <div id="sirSubmissionsByTeamContainer" class="space-y-4">
             <!-- Injected by admin.js -->
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- =======================================================================
+         VIEW 5: SUPER ADMINISTRATOR CONSOLE (Teacher & Website Governance)
+         ======================================================================= -->
+    <section id="view-superadmin" class="hidden flex-1 flex flex-col gap-4 min-h-0 pb-6 overflow-y-auto h-full">
+
+      <!-- State 1: Super Admin Login Gate -->
+      <div id="superAdminLoginView" class="glass-panel rounded-2xl p-6 sm:p-8 max-w-md w-full mx-auto my-auto text-center space-y-4 border border-indigo-500/30 shadow-2xl">
+        <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 p-[2px] shadow-lg shadow-indigo-500/30">
+          <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center text-2xl">
+            🛡️
+          </div>
+        </div>
+
+        <div>
+          <span class="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 uppercase tracking-wider">
+            Super Administrator Control
+          </span>
+          <h2 class="text-xl font-black text-white mt-1.5 tracking-tight">Super Admin Cockpit</h2>
+          <p class="text-xs text-slate-400 mt-1">
+            Manage teacher accounts, customize faculty profile photos, and toggle global Read-Only platform locks.
+          </p>
+        </div>
+
+        <form onsubmit="handleSuperAdminLogin(event); return false;" class="space-y-3 pt-2 text-left">
+          <div>
+            <label class="block text-[10px] font-mono text-slate-400 uppercase mb-1">Super Admin Username</label>
+            <input 
+              type="text" 
+              id="superAdminUserInput" 
+              required
+              placeholder="e.g. superadmin" 
+              class="w-full bg-slate-900 border border-white/10 text-slate-200 text-xs font-mono rounded-lg px-3 py-2 focus:outline-none focus:border-indigo-500 transition">
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-mono text-slate-400 uppercase mb-1">Super Admin Password</label>
+            <input 
+              type="password" 
+              id="superAdminPassInput" 
+              required
+              placeholder="Enter password" 
+              class="w-full bg-slate-900 border border-white/10 text-slate-200 text-xs font-mono rounded-lg px-3 py-2 focus:outline-none focus:border-indigo-500 transition">
+          </div>
+
+          <div id="superAdminLoginError" class="text-xs font-mono text-rose-400 min-h-[16px]"></div>
+
+          <button 
+            type="submit" 
+            id="superAdminSubmitBtn"
+            class="btn-cyber w-full py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-500 hover:to-purple-500 transition shadow-lg shadow-indigo-600/30">
+            Unlock Super Admin Console
+          </button>
+        </form>
+      </div>
+
+      <!-- State 2: Super Admin Authenticated Dashboard -->
+      <div id="superAdminDashboard" class="hidden flex-1 flex flex-col gap-5">
+        
+        <!-- Header Banner -->
+        <div class="glass-panel rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-indigo-500/40 shadow-xl bg-gradient-to-r from-indigo-950/40 via-slate-900/70 to-purple-950/40">
+          <div class="flex items-center gap-3.5">
+            <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 p-[2px] shadow-md shadow-indigo-500/20 shrink-0">
+              <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center text-xl sm:text-2xl">
+                🛡️
+              </div>
+            </div>
+            <div>
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 uppercase tracking-wider">
+                  Platform Governance
+                </span>
+                <span id="superAdminNameBadge" class="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+                  Head Administrator
+                </span>
+              </div>
+              <h2 class="text-lg sm:text-xl font-black text-white mt-0.5 tracking-tight">
+                Super Admin Cockpit
+              </h2>
+              <p class="text-[11px] text-slate-400 font-mono">
+                System Oversight • Teacher Management • Global Read-Only Safety Switch
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button 
+              type="button" 
+              onclick="handleSuperAdminLogout()" 
+              class="px-4 py-2 rounded-xl text-xs font-mono font-bold text-rose-300 bg-rose-950/60 border border-rose-500/40 hover:bg-rose-900/50 transition flex items-center gap-1.5 shadow-sm">
+              <span>🚪</span>
+              <span>Logout Admin</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Section 1: Global Website Lock (Read-Only Mode) Control -->
+        <div class="glass-panel p-5 rounded-2xl border border-indigo-500/30 space-y-3 bg-gradient-to-br from-slate-900/80 to-slate-950/90 shadow-lg">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-white/5 pb-3">
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                  <span>🔒</span>
+                  <span>Global Website Lock (Read-Only Mode)</span>
+                </h3>
+                <span id="superAdminLockStatusBadge" class="px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center gap-1.5 shadow-sm">
+                  <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                  <span>UNLOCKED (NORMAL ARENA MODE)</span>
+                </span>
+              </div>
+              <p id="superAdminLockDescription" class="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
+                The arena is currently in NORMAL mode. Students can register, run & submit code, and teachers can manage contests and grading.
+              </p>
+            </div>
+
+            <button 
+              type="button" 
+              id="superAdminLockToggleBtn"
+              onclick="toggleWebsiteLock()" 
+              class="btn-cyber px-5 py-2.5 rounded-xl text-xs font-bold text-rose-300 bg-rose-950/70 border border-rose-500/50 hover:bg-rose-900/60 transition flex items-center gap-2 shadow-lg shrink-0">
+              <span>🔒</span>
+              <span>Lock Website (Enable Read-Only Mode)</span>
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-mono pt-1">
+            <div class="p-3 rounded-xl bg-slate-950/60 border border-white/5 space-y-1">
+              <span class="text-slate-400 text-[10px] uppercase font-bold block">1. Student Registrations</span>
+              <span class="text-slate-200">Automatically paused when locked. New teams cannot join.</span>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-950/60 border border-white/5 space-y-1">
+              <span class="text-slate-400 text-[10px] uppercase font-bold block">2. Code Submissions</span>
+              <span class="text-slate-200">Submissions blocked. Workspace becomes strictly read-only.</span>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-950/60 border border-white/5 space-y-1">
+              <span class="text-slate-400 text-[10px] uppercase font-bold block">3. Leaderboard & Problems</span>
+              <span class="text-slate-200">Remain viewable so evaluators and students can inspect data.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2: Teacher & Faculty Judge Accounts -->
+        <div class="glass-panel p-5 rounded-2xl border border-white/10 space-y-4 shadow-lg">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-white/5 pb-3">
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                  <span>👨‍🏫</span>
+                  <span>Faculty Teachers & Evaluation Judges</span>
+                </h3>
+                <span id="superAdminTeacherCountBadge" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/40">
+                  1 Teacher
+                </span>
+              </div>
+              <p class="text-xs text-slate-400 mt-0.5">
+                Manage teacher accounts, change profile photos, update credentials, or grant evaluation access.
+              </p>
+            </div>
+
+            <button 
+              type="button" 
+              onclick="openAddTeacherModal()" 
+              class="btn-cyber px-4 py-2 rounded-xl text-xs font-bold text-emerald-300 bg-emerald-950/70 border border-emerald-500/40 hover:bg-emerald-900/60 transition flex items-center gap-1.5 shadow-md">
+              <span>➕</span>
+              <span>Add New Teacher</span>
+            </button>
+          </div>
+
+          <!-- Teachers Grid -->
+          <div id="superAdminTeachersGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Injected by superadmin.js -->
           </div>
         </div>
 
@@ -1853,6 +2045,168 @@
     </div>
   </footer>
 
+  <!-- =========================================================================
+       9. Super Admin: Add New Teacher Modal
+       ========================================================================= -->
+  <div id="addTeacherModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5">
+    <div class="glass-panel w-full max-w-lg rounded-2xl border border-indigo-500/40 shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+      <!-- Header -->
+      <div class="p-4 sm:p-5 border-b border-white/10 flex items-center justify-between bg-slate-900/80">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-300 flex items-center justify-center text-base border border-indigo-500/30">
+            ➕
+          </div>
+          <div>
+            <h3 class="text-sm sm:text-base font-bold text-white">Add Faculty Teacher / Judge</h3>
+            <p class="text-[11px] text-slate-400">Register a new evaluation teacher with login credentials and avatar.</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeAddTeacherModal()" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-lg leading-none transition">
+          &times;
+        </button>
+      </div>
+
+      <!-- Body Form -->
+      <form id="addTeacherForm" onsubmit="handleSaveNewTeacher(event); return false;" class="p-4 sm:p-5 overflow-y-auto space-y-3.5 flex-1 text-left text-xs font-mono">
+        <div>
+          <label class="block text-slate-400 uppercase text-[10px] mb-1">Teacher Full Name *</label>
+          <input type="text" id="newTeacherNameInput" required placeholder="e.g. Prof. Salman Tariq" class="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-400 uppercase text-[10px] mb-1">Judge Username *</label>
+            <input type="text" id="newTeacherUserInput" required placeholder="e.g. salman_judge" class="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+          </div>
+          <div>
+            <label class="block text-slate-400 uppercase text-[10px] mb-1">Judge Password *</label>
+            <input type="password" id="newTeacherPassInput" required placeholder="e.g. spark2026" class="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-400 uppercase text-[10px] mb-1">Designation</label>
+            <input type="text" id="newTeacherDesignationInput" placeholder="e.g. Associate Professor" value="Evaluation Judge" class="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+          </div>
+          <div>
+            <label class="block text-slate-400 uppercase text-[10px] mb-1">Department</label>
+            <input type="text" id="newTeacherDeptInput" placeholder="e.g. Department of Computer Science" value="Department of Computer Science" class="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-slate-400 uppercase text-[10px] mb-1">Profile Picture URL (Optional)</label>
+          <div class="flex items-center gap-2">
+            <input type="url" id="newTeacherPicInput" oninput="updateNewTeacherPicPreview()" placeholder="https://.../avatar.jpg" class="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500 text-[11px]">
+            <div class="w-10 h-10 rounded-lg bg-slate-900 border border-indigo-500/30 overflow-hidden shrink-0">
+              <img id="newTeacherPicPreview" src="https://api.dicebear.com/7.x/bottts/svg?seed=new" alt="Preview" class="w-full h-full object-cover">
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5 mt-2 flex-wrap text-[10px]">
+            <span class="text-slate-500">Quick Presets:</span>
+            <button type="button" onclick="pickNewTeacherPreset('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300">Avatar 1</button>
+            <button type="button" onclick="pickNewTeacherPreset('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300">Avatar 2</button>
+            <button type="button" onclick="pickNewTeacherPreset('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300">Avatar 3</button>
+            <button type="button" onclick="pickNewTeacherPreset('https://api.dicebear.com/7.x/bottts/svg?seed=rashid')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300">Bot 1</button>
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-white/10 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeAddTeacherModal()" class="px-4 py-2 rounded-xl text-xs font-mono font-bold bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+            Cancel
+          </button>
+          <button type="submit" class="btn-cyber px-5 py-2 rounded-xl text-xs font-mono font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition flex items-center gap-1.5 shadow-lg">
+            <span>💾</span>
+            <span>Save Teacher</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       10. Super Admin: Edit Teacher Profile Modal
+       ========================================================================= -->
+  <div id="editTeacherModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5">
+    <div class="glass-panel w-full max-w-lg rounded-2xl border border-purple-500/40 shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+      <!-- Header -->
+      <div class="p-4 sm:p-5 border-b border-white/10 flex items-center justify-between bg-slate-900/80">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-300 flex items-center justify-center text-base border border-purple-500/30">
+            🖼️
+          </div>
+          <div>
+            <h3 class="text-sm sm:text-base font-bold text-white">Edit Teacher Profile Picture & Info</h3>
+            <p class="text-[11px] text-slate-400">Update teacher photo, designation, or access credentials.</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeEditTeacherModal()" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-lg leading-none transition">
+          &times;
+        </button>
+      </div>
+
+      <!-- Body Form -->
+      <form id="editTeacherForm" onsubmit="handleUpdateTeacher(event); return false;" class="p-4 sm:p-5 overflow-y-auto space-y-3.5 flex-1 text-left text-xs font-mono">
+        <input type="hidden" id="editTeacherIdInput">
+
+        <div class="flex items-center gap-4 p-3 rounded-xl bg-slate-900/60 border border-white/5">
+          <div class="w-16 h-16 rounded-xl bg-slate-950 border border-purple-500/40 overflow-hidden shrink-0 shadow-md">
+            <img id="editTeacherPicPreview" src="https://api.dicebear.com/7.x/bottts/svg?seed=preview" alt="Preview" class="w-full h-full object-cover">
+          </div>
+          <div class="min-w-0 flex-1 space-y-1">
+            <label class="block text-slate-400 uppercase text-[10px]">Change Photo URL</label>
+            <input type="url" id="editTeacherPicInput" oninput="updateEditTeacherPicPreview()" placeholder="Paste image URL here..." class="w-full bg-slate-950 border border-white/10 rounded-lg px-2.5 py-1.5 text-white focus:outline-none focus:border-purple-500 text-[11px]">
+            <div class="flex items-center gap-1.5 flex-wrap text-[10px] pt-0.5">
+              <span class="text-slate-500">Presets:</span>
+              <button type="button" onclick="pickEditTeacherPreset('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80')" class="px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 hover:bg-slate-700">1</button>
+              <button type="button" onclick="pickEditTeacherPreset('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80')" class="px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 hover:bg-slate-700">2</button>
+              <button type="button" onclick="pickEditTeacherPreset('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80')" class="px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 hover:bg-slate-700">3</button>
+              <button type="button" onclick="pickEditTeacherPreset('https://api.dicebear.com/7.x/bottts/svg?seed=rashid')" class="px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 hover:bg-slate-700">Bot</button>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-slate-400 uppercase text-[10px] mb-1">Teacher Full Name *</label>
+          <input type="text" id="editTeacherNameInput" required placeholder="Full Name" class="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-purple-500">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-400 uppercase text-[10px] mb-1">Judge Username *</label>
+            <input type="text" id="editTeacherUserInput" required placeholder="Username" class="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-purple-500">
+          </div>
+          <div>
+            <label class="block text-slate-400 uppercase text-[10px] mb-1">Change Password (Optional)</label>
+            <input type="password" id="editTeacherPassInput" placeholder="Leave empty to keep current" class="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-purple-500">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-400 uppercase text-[10px] mb-1">Designation</label>
+            <input type="text" id="editTeacherDesignationInput" placeholder="Designation" class="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-purple-500">
+          </div>
+          <div>
+            <label class="block text-slate-400 uppercase text-[10px] mb-1">Department</label>
+            <input type="text" id="editTeacherDeptInput" placeholder="Department" class="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-purple-500">
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-white/10 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeEditTeacherModal()" class="px-4 py-2 rounded-xl text-xs font-mono font-bold bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+            Cancel
+          </button>
+          <button type="submit" class="btn-cyber px-5 py-2 rounded-xl text-xs font-mono font-bold bg-purple-600 hover:bg-purple-500 text-white transition flex items-center gap-1.5 shadow-lg">
+            <span>💾</span>
+            <span>Update Profile</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Socket.IO Client Library -->
   <script src="/socket.io/socket.io.js"></script>
 
@@ -1860,6 +2214,7 @@
   <script src="/js/socket.js"></script>
   <script src="/js/arena.js"></script>
   <script src="/js/admin.js"></script>
+  <script src="/js/superadmin.js"></script>
   <script src="/js/app.js"></script>
 
 </body>
