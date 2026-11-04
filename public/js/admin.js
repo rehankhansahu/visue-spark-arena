@@ -1826,42 +1826,43 @@ async function handleUpdateQuestion(e) {
   }
 }
 
-// Download Blank Excel Question Template (.xlsx) - Format only!
+// Download Excel Question Template (.xlsx) with guided edit format
 function downloadQuestionExcelTemplate() {
   if (typeof XLSX === 'undefined') {
     alert('Excel export engine is loading. Please try again in a few seconds.');
     return;
   }
 
-  // Pure template format headers - Clean format for Sir to fill in questions
-  const headers = [
-    'Title',
-    'Description',
-    'Difficulty',
-    'Points',
-    'Languages',
-    'Sample Input',
-    'Sample Output'
+  // Guidance format row for Sir to edit
+  const templateData = [
+    {
+      'Title': 'Write your question title here (e.g. Reverse an Array)',
+      'Description': 'Write your question statement or problem description here...',
+      'Difficulty': 'Easy',
+      'Points': 10,
+      'Languages': 'C, C++, Java, Python, HTML, JavaScript, Dart, PHP',
+      'Sample Input': 'Write sample input here (e.g. 1 2 3)',
+      'Sample Output': 'Write sample output here (e.g. 3 2 1)'
+    }
   ];
 
-  // Create clean blank sheet with format header only
-  const ws = XLSX.utils.aoa_to_sheet([headers]);
+  const ws = XLSX.utils.json_to_sheet(templateData);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Questions');
 
   // Set friendly column widths
   ws['!cols'] = [
-    { wch: 30 }, // Title
+    { wch: 45 }, // Title
     { wch: 60 }, // Description
     { wch: 14 }, // Difficulty
     { wch: 10 }, // Points
-    { wch: 35 }, // Languages
-    { wch: 25 }, // Sample Input
-    { wch: 25 }  // Sample Output
+    { wch: 40 }, // Languages
+    { wch: 30 }, // Sample Input
+    { wch: 30 }  // Sample Output
   ];
 
   XLSX.writeFile(wb, 'VISUE_SPARK_Question_Template.xlsx');
-  showToast('Template Downloaded! 📥', 'Blank Excel format downloaded. Fill in your questions and click Import.', 'success');
+  showToast('Template Downloaded! 📥', 'Excel template downloaded with "Write your question here" format. Edit and click Import.', 'success');
 }
 
 // Import Questions from Excel File (.xlsx, .xls, .csv)
