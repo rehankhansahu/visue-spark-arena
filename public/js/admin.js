@@ -2852,7 +2852,7 @@ async function loadCompetitionHistory() {
             <div class="text-3xl">📜</div>
             <h4 class="text-sm font-bold text-white">No Previous Competitions Yet</h4>
             <p class="text-xs text-slate-400 max-w-md mx-auto">
-              Whenever a contest concludes or is reset by Sir, a permanent historical snapshot is automatically frozen in <code class="text-purple-300">data/competitions.json</code>.
+              Completed and evaluated competitions will appear here.
             </p>
           </div>
         `;
@@ -2888,7 +2888,7 @@ async function loadCompetitionHistory() {
                 <span class="text-cyan-300 font-bold">${totalTeams} Teams</span>
               </div>
               <div class="bg-slate-950/50 p-2 rounded-lg border border-white/5">
-                <span class="text-slate-400 block text-[10px] uppercase">Preserved Questions</span>
+                <span class="text-slate-400 block text-[10px] uppercase">Questions</span>
                 <span class="text-amber-300 font-bold">${totalQuestions} Challenges</span>
               </div>
               <div class="bg-slate-950/50 p-2 rounded-lg border border-white/5">
@@ -2906,7 +2906,7 @@ async function loadCompetitionHistory() {
                 onclick="viewCompetitionSnapshot('${comp.id}')"
                 class="btn-cyber px-3.5 py-1.5 rounded-lg text-xs font-bold text-purple-300 bg-purple-950/60 border border-purple-500/40 hover:bg-purple-900/50 transition flex items-center gap-1.5 shadow-sm">
                 <span>🔍</span>
-                <span>Inspect Snapshot & Questions</span>
+                <span>View Details & Questions</span>
               </button>
             </div>
           </div>
@@ -2927,7 +2927,7 @@ async function viewCompetitionSnapshot(id) {
 
   detailContainer.innerHTML = `
     <div class="text-center py-8 text-slate-400 font-mono text-xs">
-      <span class="animate-spin inline-block mr-2">↻</span> Loading competition snapshot #${id}...
+      <span class="animate-spin inline-block mr-2">↻</span> Loading competition #${id}...
     </div>
   `;
 
@@ -2941,7 +2941,7 @@ async function viewCompetitionSnapshot(id) {
     const data = await res.json();
 
     if (!data.success || !data.competition) {
-      detailContainer.innerHTML = `<div class="text-rose-400 p-4 text-xs font-mono">Failed to load competition snapshot.</div>`;
+      detailContainer.innerHTML = `<div class="text-rose-400 p-4 text-xs font-mono">Failed to load competition details.</div>`;
       return;
     }
 
@@ -2951,17 +2951,12 @@ async function viewCompetitionSnapshot(id) {
 
     const questionsHtml = questions.length > 0 ? questions.map((q, idx) => {
       const qLangs = (q.languages && q.languages.length > 0) ? q.languages.join(', ') : 'All Languages';
-      const hasOptions = q.optionA || q.optionB || q.optionC || q.optionD || q.options;
-      const optA = q.optionA || (q.options && q.options.a) || '';
-      const optB = q.optionB || (q.options && q.options.b) || '';
-      const optC = q.optionC || (q.options && q.options.c) || '';
-      const optD = q.optionD || (q.options && q.options.d) || '';
 
       return `
         <div class="p-3.5 rounded-xl bg-slate-900/80 border border-white/10 space-y-2">
           <div class="flex items-center justify-between gap-2 flex-wrap">
             <div class="flex items-center gap-2">
-              <span class="font-mono text-xs font-bold text-slate-400">#${idx + 1} (QID: ${q.id})</span>
+              <span class="font-mono text-xs font-bold text-slate-400">#${idx + 1}</span>
               <h5 class="text-xs sm:text-sm font-bold text-white">${q.title}</h5>
             </div>
             <div class="flex items-center gap-1.5 font-mono text-[10px]">
@@ -2978,24 +2973,15 @@ async function viewCompetitionSnapshot(id) {
             ${q.description || q.statement || 'No description recorded.'}
           </div>
 
-          ${hasOptions ? `
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs font-mono pt-1">
-              ${optA ? `<div class="p-1.5 rounded bg-slate-950/40 border border-white/5 text-slate-300"><strong>A:</strong> ${optA}</div>` : ''}
-              ${optB ? `<div class="p-1.5 rounded bg-slate-950/40 border border-white/5 text-slate-300"><strong>B:</strong> ${optB}</div>` : ''}
-              ${optC ? `<div class="p-1.5 rounded bg-slate-950/40 border border-white/5 text-slate-300"><strong>C:</strong> ${optC}</div>` : ''}
-              ${optD ? `<div class="p-1.5 rounded bg-slate-950/40 border border-white/5 text-slate-300"><strong>D:</strong> ${optD}</div>` : ''}
-            </div>
-          ` : ''}
-
-          ${q.correctAnswer ? `
-            <div class="text-[11px] font-mono text-emerald-400 pt-1 flex items-center gap-1">
-              <span>✅ Correct Answer:</span>
-              <strong class="text-white bg-emerald-500/20 px-2 py-0.5 rounded border border-emerald-500/30">${q.correctAnswer}</strong>
+          ${(q.sampleInput || q.sampleOutput) ? `
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono pt-1">
+              ${q.sampleInput ? `<div class="p-2 rounded bg-slate-950/40 border border-white/5 text-slate-300"><span class="text-slate-400 block text-[10px] uppercase">Sample Input:</span><pre class="whitespace-pre-wrap mt-0.5">${q.sampleInput}</pre></div>` : ''}
+              ${q.sampleOutput ? `<div class="p-2 rounded bg-slate-950/40 border border-white/5 text-slate-300"><span class="text-slate-400 block text-[10px] uppercase">Sample Output:</span><pre class="whitespace-pre-wrap mt-0.5">${q.sampleOutput}</pre></div>` : ''}
             </div>
           ` : ''}
         </div>
       `;
-    }).join('') : '<div class="text-xs text-slate-400 font-mono py-2">No question snapshot found for this contest.</div>';
+    }).join('') : '<div class="text-xs text-slate-400 font-mono py-2">No questions found for this contest.</div>';
 
     const teamsHtml = teams.length > 0 ? `
       <div class="overflow-x-auto rounded-lg border border-white/5">
@@ -3041,7 +3027,7 @@ async function viewCompetitionSnapshot(id) {
 
           <div class="flex items-center gap-2">
             <span class="text-[11px] font-mono text-purple-300 bg-purple-500/20 px-2.5 py-1 rounded-md border border-purple-500/40 font-bold">
-              🔒 Preserved Snapshot (Read-Only)
+              Competition Record
             </span>
           </div>
         </div>
@@ -3068,14 +3054,13 @@ async function viewCompetitionSnapshot(id) {
           ` : ''}
         </div>
 
-        <!-- Questions Preserved in this Competition -->
+        <!-- Questions Included in this Competition -->
         <div class="space-y-2.5">
           <div class="flex items-center justify-between">
             <h5 class="text-xs font-bold text-white uppercase tracking-wider font-mono flex items-center gap-1.5">
               <span>📚</span>
               <span>Questions Included in this Competition (${questions.length})</span>
             </h5>
-            <span class="text-[10px] text-slate-400 font-mono">Original questions & options frozen</span>
           </div>
           <div class="space-y-3">
             ${questionsHtml}
@@ -3093,7 +3078,7 @@ async function viewCompetitionSnapshot(id) {
       </div>
     `;
   } catch (err) {
-    detailContainer.innerHTML = `<div class="text-rose-400 p-4 text-xs font-mono">Error viewing snapshot: ${err.message}</div>`;
+    detailContainer.innerHTML = `<div class="text-rose-400 p-4 text-xs font-mono">Error viewing competition: ${err.message}</div>`;
   }
 }
 

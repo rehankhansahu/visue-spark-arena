@@ -939,7 +939,7 @@
               type="button"
               onclick="openCompetitionHistoryModal()" 
               class="btn-cyber px-3 py-1.5 rounded-xl text-xs font-bold text-purple-300 bg-purple-950/60 border border-purple-500/40 hover:bg-purple-900/50 transition flex items-center gap-1.5 shadow-sm"
-              title="View permanently preserved past competitions and snapshots">
+              title="View past competitions and questions">
               <span>📜</span>
               <span class="hidden md:inline">Competition</span><span>History</span>
             </button>
@@ -1504,11 +1504,11 @@
           </div>
           <div>
             <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
-              <span>Permanent Competition Archive & History</span>
+              <span>Competition History</span>
               <span id="historyTotalBadge" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/40">0 Contests</span>
             </h3>
             <p class="text-[11px] text-slate-400 mt-0.5">
-              Historical records, student standings, and original questions frozen permanently.
+              View completed competitions, student standings, and questions.
             </p>
           </div>
         </div>
@@ -1529,11 +1529,7 @@
       </div>
 
       <!-- Modal Footer -->
-      <div class="p-3 sm:p-4 border-t border-white/10 bg-slate-900/80 flex items-center justify-between">
-        <div class="text-[11px] font-mono text-slate-400 flex items-center gap-1.5">
-          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-          <span>Preserved permanently in <code class="text-slate-300 font-mono">data/competitions.json</code></span>
-        </div>
+      <div class="p-3 sm:p-4 border-t border-white/10 bg-slate-900/80 flex items-center justify-end">
         <button type="button" onclick="closeCompetitionHistoryModal()" class="px-4 py-1.5 rounded-xl text-xs font-mono font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 transition">
           Close
         </button>
