@@ -991,34 +991,62 @@ const store = {
     }
     const addedQuestions = [];
     for (const item of importedList) {
-      if (!item.title && !item.Title && !item.statement && !item.Description && !item.description) {
-        continue; // skip blank rows
+      if (!item || typeof item !== 'object') continue;
+
+      // Normalize all keys for case-insensitive and space-agnostic matching
+      const norm = {};
+      for (const [k, v] of Object.entries(item)) {
+        if (k) {
+          const cleanK = k.toString().toLowerCase().replace(/[^a-z0-9]/g, '');
+          norm[cleanK] = v;
+        }
       }
-      const title = (item.title || item.Title || item['Problem Title'] || item['Question Title'] || 'Imported Challenge').toString().trim();
-      const description = (item.description || item.Description || item['Question Statement'] || item['Description / Problem Statement'] || title).toString().trim();
-      const diff = (item.difficulty || item.Difficulty || 'Easy').toString().trim();
-      const rawPoints = parseInt(item.points || item.Points, 10);
-      const points = !isNaN(rawPoints) && rawPoints > 0 ? rawPoints : (diff.toLowerCase() === 'hard' ? 30 : (diff.toLowerCase() === 'medium' ? 20 : 10));
+
+      const rawTitle = norm['title'] || norm['problemtitle'] || norm['questiontitle'] || norm['problem'] || norm['question'] || item.title || item.Title || '';
+      const rawDesc = norm['description'] || norm['statement'] || norm['problemstatement'] || norm['questionstatement'] || norm['desc'] || item.description || item.Description || '';
+
+      const title = rawTitle.toString().trim();
+      const description = rawDesc.toString().trim();
+
+      // Skip completely empty rows
+      if (!title && !description) {
+        continue;
+      }
+
+      const finalTitle = title || description.slice(0, 40) || 'Imported Challenge';
+      const finalDesc = description || finalTitle;
+
+      let rawDiff = (norm['difficulty'] || norm['diff'] || norm['level'] || item.difficulty || item.Difficulty || 'Easy').toString().trim();
+      let diff = 'Easy';
+      const diffLower = rawDiff.toLowerCase();
+      if (diffLower.includes('hard')) diff = 'Hard';
+      else if (diffLower.includes('med')) diff = 'Medium';
+      else diff = 'Easy';
+
+      const rawPoints = parseInt(norm['points'] || norm['point'] || norm['pts'] || norm['score'] || norm['marks'] || item.points || item.Points, 10);
+      const points = (!isNaN(rawPoints) && rawPoints > 0) 
+        ? rawPoints 
+        : (diff === 'Hard' ? 30 : (diff === 'Medium' ? 20 : 10));
 
       let langs = ['C', 'C++', 'Java', 'Python', 'HTML', 'JavaScript', 'Dart', 'PHP'];
-      const rawLangs = item.languages || item.Languages || item.language || item.Language;
+      const rawLangs = norm['languages'] || norm['language'] || norm['lang'] || norm['langs'] || item.languages || item.Languages || item.language;
       if (typeof rawLangs === 'string' && rawLangs.trim()) {
         langs = rawLangs.split(/[,;|]/).map(s => s.trim()).filter(Boolean);
       } else if (Array.isArray(rawLangs) && rawLangs.length > 0) {
         langs = rawLangs;
       }
 
-      const optionA = (item.optionA || item['Option A'] || item.a || item.A || '').toString().trim();
-      const optionB = (item.optionB || item['Option B'] || item.b || item.B || '').toString().trim();
-      const optionC = (item.optionC || item['Option C'] || item.c || item.C || '').toString().trim();
-      const optionD = (item.optionD || item['Option D'] || item.d || item.D || '').toString().trim();
-      const correctAnswer = (item.correctAnswer || item['Correct Answer'] || item.answer || item.Answer || '').toString().trim();
-      const sampleIn = (item.sampleInput || item['Sample Input'] || '').toString().trim();
-      const sampleOut = (item.sampleOutput || item['Sample Output'] || item.expected || '').toString().trim();
+      const optionA = (norm['optiona'] || norm['opta'] || norm['a'] || item['Option A'] || item.optionA || item.a || item.A || '').toString().trim();
+      const optionB = (norm['optionb'] || norm['optb'] || norm['b'] || item['Option B'] || item.optionB || item.b || item.B || '').toString().trim();
+      const optionC = (norm['optionc'] || norm['optc'] || norm['c'] || item['Option C'] || item.optionC || item.c || item.C || '').toString().trim();
+      const optionD = (norm['optiond'] || norm['optd'] || norm['d'] || item['Option D'] || item.optionD || item.d || item.D || '').toString().trim();
+      const correctAnswer = (norm['correctanswer'] || norm['correct'] || norm['answer'] || norm['ans'] || item['Correct Answer'] || item.correctAnswer || item.answer || item.Answer || '').toString().trim();
+      const sampleIn = (norm['sampleinput'] || norm['samplein'] || norm['input'] || item['Sample Input'] || item.sampleInput || '').toString().trim();
+      const sampleOut = (norm['sampleoutput'] || norm['sampleout'] || norm['output'] || norm['expected'] || item['Sample Output'] || item.sampleOutput || item.expected || '').toString().trim();
 
       const newQ = this.addQuestionToBank({
-        title,
-        description,
+        title: finalTitle,
+        description: finalDesc,
         difficulty: diff,
         points,
         languages: langs,
@@ -1034,7 +1062,7 @@ const store = {
     }
 
     if (addedQuestions.length === 0) {
-      throw new Error('No valid questions could be imported. Please verify your Excel column headers.');
+      throw new Error('No valid questions could be imported. Please ensure at least one row has a Title or Description.');
     }
     return addedQuestions;
   },

@@ -1862,80 +1862,52 @@ async function handleUpdateQuestion(e) {
   }
 }
 
-// Download Excel Question Template (.xlsx)
+// Download Blank Excel Question Template (.xlsx) - Format only!
 function downloadQuestionExcelTemplate() {
   if (typeof XLSX === 'undefined') {
     alert('Excel export engine is loading. Please try again in a few seconds.');
     return;
   }
 
-  const sampleData = [
-    {
-      'Title': 'Subarray Maximum Product',
-      'Description': 'Given an integer array nums, find a contiguous non-empty subarray within the array that has the largest product, and return that product.',
-      'Difficulty': 'Medium',
-      'Points': 20,
-      'Languages': 'C, C++, Java, Python, HTML, JavaScript, Dart, PHP',
-      'Option A': 'O(N) Dynamic Programming with running min/max',
-      'Option B': 'O(N^2) Nested loop checking all sub-arrays',
-      'Option C': 'O(N log N) Divide and conquer approach',
-      'Option D': 'O(1) Constant pointer arithmetic only',
-      'Correct Answer': 'Option A',
-      'Sample Input': '2 3 -2 4',
-      'Sample Output': '6'
-    },
-    {
-      'Title': 'Valid Parentheses Checker',
-      'Description': 'Given a string containing just the characters "(", ")", "{", "}", "[" and "]", determine if the input string is valid and properly balanced.',
-      'Difficulty': 'Easy',
-      'Points': 10,
-      'Languages': 'Java, Python, JavaScript, Dart, PHP, C, C++',
-      'Option A': 'Stack-based LIFO balance validation',
-      'Option B': 'Queue-based FIFO sequential matching',
-      'Option C': 'Hash map counter without stack state',
-      'Option D': 'Recursive string reversal check',
-      'Correct Answer': 'Option A',
-      'Sample Input': '()[]{}',
-      'Sample Output': 'true'
-    },
-    {
-      'Title': 'Responsive Grid Architecture (HTML/JS/CSS)',
-      'Description': 'Design a semantic UI card container with responsive flex/grid layout and event-driven interactive state tracking.',
-      'Difficulty': 'Hard',
-      'Points': 30,
-      'Languages': 'HTML, JavaScript, PHP, Dart',
-      'Option A': 'CSS Grid with auto-fit and minmax(280px, 1fr)',
-      'Option B': 'Hardcoded absolute pixel positioning',
-      'Option C': 'Table-based nested markup structure',
-      'Option D': 'Float left layout with clear fix divs',
-      'Correct Answer': 'Option A',
-      'Sample Input': 'columns: 3; gap: 16px',
-      'Sample Output': 'grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))'
-    }
+  // Pure template format headers - Clean format for Sir to fill in questions
+  const headers = [
+    'Title',
+    'Description',
+    'Difficulty',
+    'Points',
+    'Languages',
+    'Option A',
+    'Option B',
+    'Option C',
+    'Option D',
+    'Correct Answer',
+    'Sample Input',
+    'Sample Output'
   ];
 
-  const ws = XLSX.utils.json_to_sheet(sampleData);
+  // Create clean blank sheet with format header only
+  const ws = XLSX.utils.aoa_to_sheet([headers]);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Questions');
 
   // Set friendly column widths
   ws['!cols'] = [
-    { wch: 30 },
-    { wch: 45 },
-    { wch: 12 },
-    { wch: 8 },
-    { wch: 32 },
-    { wch: 25 },
-    { wch: 25 },
-    { wch: 25 },
-    { wch: 25 },
-    { wch: 16 },
-    { wch: 20 },
-    { wch: 20 }
+    { wch: 30 }, // Title
+    { wch: 55 }, // Description
+    { wch: 14 }, // Difficulty
+    { wch: 10 }, // Points
+    { wch: 35 }, // Languages
+    { wch: 25 }, // Option A
+    { wch: 25 }, // Option B
+    { wch: 25 }, // Option C
+    { wch: 25 }, // Option D
+    { wch: 18 }, // Correct Answer
+    { wch: 22 }, // Sample Input
+    { wch: 22 }  // Sample Output
   ];
 
   XLSX.writeFile(wb, 'VISUE_SPARK_Question_Template.xlsx');
-  showToast('Template Downloaded! 📥', 'Excel Question Template (.xlsx) ready with sample rows.', 'success');
+  showToast('Template Downloaded! 📥', 'Blank Excel format downloaded. Fill in your questions and click Import.', 'success');
 }
 
 // Import Questions from Excel File (.xlsx, .xls, .csv)
@@ -1971,12 +1943,19 @@ async function handleExcelQuestionImport(event) {
       const worksheet = workbook.Sheets[firstSheetName];
       const rows = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
 
-      if (!rows || rows.length === 0) {
-        showToast('Empty Excel File', 'No data rows found in the selected Excel file.', 'warning');
+      // Filter out completely blank rows
+      const validRows = (rows || []).filter(r => {
+        if (!r || typeof r !== 'object') return false;
+        return Object.values(r).some(v => v !== null && v !== undefined && v.toString().trim() !== '');
+      });
+
+      if (validRows.length === 0) {
+        alert('The uploaded Excel file contains no question rows. Please write your questions in the rows under the header columns and save before uploading.');
+        showToast('Empty Excel File', 'No filled question rows found in file.', 'warning');
         return;
       }
 
-      showToast('Importing...', `Processing ${rows.length} question row(s) from Excel file...`, 'info');
+      showToast('Importing...', `Processing ${validRows.length} question(s) from Excel file...`, 'info');
 
       const res = await fetch('/api/admin/questions/import', {
         method: 'POST',
@@ -1984,13 +1963,13 @@ async function handleExcelQuestionImport(event) {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ questions: rows })
+        body: JSON.stringify({ questions: validRows })
       });
 
       const result = await res.json();
       if (result.success) {
         showToast('Questions Imported! 🚀', result.message, 'success');
-        loadQuestionBank();
+        await loadQuestionBank();
       } else {
         alert(`Excel Import Error:\n\n${result.message}`);
         showToast('Import Failed', result.message, 'error');
