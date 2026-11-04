@@ -1614,12 +1614,6 @@ async function handleAddNewQuestion(e) {
   const sampleInput = document.getElementById('newQSampleIn').value.trim();
   const sampleExpected = document.getElementById('newQSampleOut').value.trim();
 
-  const optionA = document.getElementById('newQOptionA') ? document.getElementById('newQOptionA').value.trim() : '';
-  const optionB = document.getElementById('newQOptionB') ? document.getElementById('newQOptionB').value.trim() : '';
-  const optionC = document.getElementById('newQOptionC') ? document.getElementById('newQOptionC').value.trim() : '';
-  const optionD = document.getElementById('newQOptionD') ? document.getElementById('newQOptionD').value.trim() : '';
-  const correctAnswer = document.getElementById('newQCorrectAnswer') ? document.getElementById('newQCorrectAnswer').value.trim() : '';
-
   const langCheckboxes = document.querySelectorAll('input[name="newQLangCheckbox"]:checked');
   let selectedLanguages = Array.from(langCheckboxes).map(cb => cb.value);
   if (selectedLanguages.length === 0) {
@@ -1644,11 +1638,6 @@ async function handleAddNewQuestion(e) {
         difficulty,
         description,
         languages: selectedLanguages,
-        optionA,
-        optionB,
-        optionC,
-        optionD,
-        correctAnswer,
         sampleCases: [{ input: sampleInput, expected: sampleExpected }]
       })
     });
@@ -1727,21 +1716,6 @@ function openEditQuestionModal(qId) {
   const descInput = document.getElementById('newQDesc');
   if (descInput) descInput.value = q.description || q.statement || '';
 
-  const optA = document.getElementById('newQOptionA');
-  if (optA) optA.value = q.optionA || (q.options && q.options.a) || '';
-
-  const optB = document.getElementById('newQOptionB');
-  if (optB) optB.value = q.optionB || (q.options && q.options.b) || '';
-
-  const optC = document.getElementById('newQOptionC');
-  if (optC) optC.value = q.optionC || (q.options && q.options.c) || '';
-
-  const optD = document.getElementById('newQOptionD');
-  if (optD) optD.value = q.optionD || (q.options && q.options.d) || '';
-
-  const correctAns = document.getElementById('newQCorrectAnswer');
-  if (correctAns) correctAns.value = q.correctAnswer || '';
-
   const sampleIn = document.getElementById('newQSampleIn');
   if (sampleIn) sampleIn.value = (q.sampleCases && q.sampleCases[0] && q.sampleCases[0].input) || '';
 
@@ -1805,11 +1779,6 @@ async function handleUpdateQuestion(e) {
   const title = document.getElementById('newQTitle').value.trim();
   const difficulty = document.getElementById('newQDifficulty').value;
   const description = document.getElementById('newQDesc').value.trim();
-  const optionA = document.getElementById('newQOptionA') ? document.getElementById('newQOptionA').value.trim() : '';
-  const optionB = document.getElementById('newQOptionB') ? document.getElementById('newQOptionB').value.trim() : '';
-  const optionC = document.getElementById('newQOptionC') ? document.getElementById('newQOptionC').value.trim() : '';
-  const optionD = document.getElementById('newQOptionD') ? document.getElementById('newQOptionD').value.trim() : '';
-  const correctAnswer = document.getElementById('newQCorrectAnswer') ? document.getElementById('newQCorrectAnswer').value.trim() : '';
   const sampleInput = document.getElementById('newQSampleIn').value.trim();
   const sampleExpected = document.getElementById('newQSampleOut').value.trim();
 
@@ -1838,11 +1807,6 @@ async function handleUpdateQuestion(e) {
         difficulty,
         description,
         languages: selectedLanguages,
-        optionA,
-        optionB,
-        optionC,
-        optionD,
-        correctAnswer,
         sampleInput,
         sampleOutput: sampleExpected
       })
@@ -1876,11 +1840,6 @@ function downloadQuestionExcelTemplate() {
     'Difficulty',
     'Points',
     'Languages',
-    'Option A',
-    'Option B',
-    'Option C',
-    'Option D',
-    'Correct Answer',
     'Sample Input',
     'Sample Output'
   ];
@@ -1893,17 +1852,12 @@ function downloadQuestionExcelTemplate() {
   // Set friendly column widths
   ws['!cols'] = [
     { wch: 30 }, // Title
-    { wch: 55 }, // Description
+    { wch: 60 }, // Description
     { wch: 14 }, // Difficulty
     { wch: 10 }, // Points
     { wch: 35 }, // Languages
-    { wch: 25 }, // Option A
-    { wch: 25 }, // Option B
-    { wch: 25 }, // Option C
-    { wch: 25 }, // Option D
-    { wch: 18 }, // Correct Answer
-    { wch: 22 }, // Sample Input
-    { wch: 22 }  // Sample Output
+    { wch: 25 }, // Sample Input
+    { wch: 25 }  // Sample Output
   ];
 
   XLSX.writeFile(wb, 'VISUE_SPARK_Question_Template.xlsx');
