@@ -978,6 +978,7 @@ html:not(.dark) .bg-emerald-500\/20,
 html:not(.dark) .bg-emerald-500\/30,
 html:not(.dark) .bg-emerald-950\/40,
 html:not(.dark) .bg-emerald-950\/60,
+html:not(.dark) .bg-emerald-950\/70,
 html:not(.dark) .bg-emerald-950\/80,
 html:not(.dark) .bg-emerald-900\/50,
 html:not(.dark) .bg-emerald-900\/60,
@@ -988,6 +989,7 @@ html.light .bg-emerald-500\/20,
 html.light .bg-emerald-500\/30,
 html.light .bg-emerald-950\/40,
 html.light .bg-emerald-950\/60,
+html.light .bg-emerald-950\/70,
 html.light .bg-emerald-950\/80,
 html.light .bg-emerald-900\/50,
 html.light .bg-emerald-900\/60,
@@ -1034,12 +1036,14 @@ html:not(.dark) .bg-rose-500\/20,
 html:not(.dark) .bg-rose-950\/30,
 html:not(.dark) .bg-rose-950\/40,
 html:not(.dark) .bg-rose-950\/60,
+html:not(.dark) .bg-rose-950\/70,
 html:not(.dark) .bg-rose-900\/40,
 html.light .bg-rose-500\/10,
 html.light .bg-rose-500\/20,
 html.light .bg-rose-950\/30,
 html.light .bg-rose-950\/40,
 html.light .bg-rose-950\/60,
+html.light .bg-rose-950\/70,
 html.light .bg-rose-900\/40 {
   background-color: #fef2f2 !important;
   color: #b91c1c !important;
@@ -2721,3 +2725,91 @@ html.light .test-case-block button:hover {
 
 
 
+
+
+/* ============================================================================
+   SUPER ADMIN COCKPIT BUTTONS (Light & Dark Theme Perfection)
+   ============================================================================ */
+
+/* 1. Add New Teacher Button in Light Mode */
+html:not(.dark) #superAdminAddTeacherBtn,
+html.light #superAdminAddTeacherBtn {
+  background-color: #ecfdf5 !important;
+  color: #047857 !important;
+  border: 1.5px solid #a7f3d0 !important;
+  box-shadow: 0 2px 5px rgba(5, 150, 105, 0.12) !important;
+  font-weight: 700 !important;
+}
+html:not(.dark) #superAdminAddTeacherBtn:hover,
+html.light #superAdminAddTeacherBtn:hover {
+  background-color: #d1fae5 !important;
+  color: #065f46 !important;
+  border-color: #6ee7b7 !important;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2) !important;
+}
+html:not(.dark) #superAdminAddTeacherBtn span,
+html.light #superAdminAddTeacherBtn span {
+  color: #047857 !important;
+}
+html:not(.dark) #superAdminAddTeacherBtn:hover span,
+html.light #superAdminAddTeacherBtn:hover span {
+  color: #065f46 !important;
+}
+
+/* 2. Global Lock Toggle Button in Light Mode (Unlocked / Normal State -> Lock Website) */
+html:not(.dark) #superAdminLockToggleBtn,
+html.light #superAdminLockToggleBtn,
+html:not(.dark) #superAdminLockToggleBtn:not(.is-locked),
+html.light #superAdminLockToggleBtn:not(.is-locked) {
+  background-color: #fff1f2 !important;
+  color: #b91c1c !important;
+  border: 1.5px solid #fecdd3 !important;
+  box-shadow: 0 2px 5px rgba(225, 29, 72, 0.1) !important;
+  font-weight: 700 !important;
+}
+html:not(.dark) #superAdminLockToggleBtn:hover,
+html.light #superAdminLockToggleBtn:hover,
+html:not(.dark) #superAdminLockToggleBtn:not(.is-locked):hover,
+html.light #superAdminLockToggleBtn:not(.is-locked):hover {
+  background-color: #ffe4e6 !important;
+  color: #9f1239 !important;
+  border-color: #fda4af !important;
+  box-shadow: 0 4px 12px rgba(225, 29, 72, 0.18) !important;
+}
+html:not(.dark) #superAdminLockToggleBtn span,
+html.light #superAdminLockToggleBtn span,
+html:not(.dark) #superAdminLockToggleBtn:not(.is-locked) span,
+html.light #superAdminLockToggleBtn:not(.is-locked) span {
+  color: #b91c1c !important;
+}
+html:not(.dark) #superAdminLockToggleBtn:hover span,
+html.light #superAdminLockToggleBtn:hover span,
+html:not(.dark) #superAdminLockToggleBtn:not(.is-locked):hover span,
+html.light #superAdminLockToggleBtn:not(.is-locked):hover span {
+  color: #9f1239 !important;
+}
+
+/* 3. Global Lock Toggle Button in Light Mode (Locked State -> Unlock Website) */
+html:not(.dark) #superAdminLockToggleBtn.is-locked,
+html.light #superAdminLockToggleBtn.is-locked {
+  background-color: #ecfdf5 !important;
+  color: #047857 !important;
+  border: 1.5px solid #a7f3d0 !important;
+  box-shadow: 0 2px 5px rgba(5, 150, 105, 0.12) !important;
+  font-weight: 700 !important;
+}
+html:not(.dark) #superAdminLockToggleBtn.is-locked:hover,
+html.light #superAdminLockToggleBtn.is-locked:hover {
+  background-color: #d1fae5 !important;
+  color: #065f46 !important;
+  border-color: #6ee7b7 !important;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2) !important;
+}
+html:not(.dark) #superAdminLockToggleBtn.is-locked span,
+html.light #superAdminLockToggleBtn.is-locked span {
+  color: #047857 !important;
+}
+html:not(.dark) #superAdminLockToggleBtn.is-locked:hover span,
+html.light #superAdminLockToggleBtn.is-locked:hover span {
+  color: #065f46 !important;
+}

@@ -181,7 +181,7 @@ function updateWebsiteLockUI(isLocked, lockedAt, lockedBy) {
 
   if (toggleBtn) {
     if (isLocked) {
-      toggleBtn.className = 'btn-cyber px-5 py-2.5 rounded-xl text-xs font-bold text-emerald-300 bg-emerald-950/70 border border-emerald-500/50 hover:bg-emerald-900/60 transition flex items-center gap-2 shadow-lg';
+      toggleBtn.className = 'btn-cyber px-5 py-2.5 rounded-xl text-xs font-bold text-emerald-300 bg-emerald-950/70 border border-emerald-500/50 hover:bg-emerald-900/60 transition flex items-center gap-2 shadow-lg is-locked';
       toggleBtn.innerHTML = '<span>🔓</span><span>Unlock Website (Resume Normal Operations)</span>';
     } else {
       toggleBtn.className = 'btn-cyber px-5 py-2.5 rounded-xl text-xs font-bold text-rose-300 bg-rose-950/70 border border-rose-500/50 hover:bg-rose-900/60 transition flex items-center gap-2 shadow-lg';
