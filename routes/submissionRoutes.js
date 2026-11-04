@@ -14,7 +14,7 @@ const ensureWebsiteNotLocked = (req, res, next) => {
     return res.status(403).json({
       success: false,
       locked: true,
-      message: '🔒 Platform is currently in Read-Only mode (Locked by Super Admin). Actions and submissions are paused.'
+      message: '🔒 Platform is currently in Read-Only mode (Locked by Super Admin). All editing, contest mutations, timer actions, and submissions are paused.'
     });
   }
   next();
@@ -518,7 +518,7 @@ router.post('/admin/timer/reset', verifySirToken, ensureWebsiteNotLocked, (req, 
 });
 
 // Alias for full contest reset
-router.post('/admin/reset-contest', verifySirToken, (req, res, next) => {
+router.post('/admin/reset-contest', verifySirToken, ensureWebsiteNotLocked, (req, res, next) => {
   req.url = '/admin/timer/reset';
   router.handle(req, res, next);
 });
@@ -640,7 +640,7 @@ const ensureContestNotRunning = (req, res, next) => {
   next();
 };
 
-router.post('/admin/contest-questions/toggle', verifySirToken, ensureContestNotRunning, (req, res) => {
+router.post('/admin/contest-questions/toggle', verifySirToken, ensureWebsiteNotLocked, ensureContestNotRunning, (req, res) => {
   try {
     const { questionId, forceAction } = req.body;
     const result = store.toggleContestQuestion(questionId, forceAction);
@@ -663,7 +663,7 @@ router.post('/admin/contest-questions/toggle', verifySirToken, ensureContestNotR
   }
 });
 
-router.post('/admin/contest-questions/set', verifySirToken, ensureContestNotRunning, (req, res) => {
+router.post('/admin/contest-questions/set', verifySirToken, ensureWebsiteNotLocked, ensureContestNotRunning, (req, res) => {
   try {
     const { questionIds } = req.body;
     const result = store.setContestQuestions(questionIds);
@@ -686,7 +686,7 @@ router.post('/admin/contest-questions/set', verifySirToken, ensureContestNotRunn
   }
 });
 
-router.post('/admin/contest-questions/preset', verifySirToken, ensureContestNotRunning, (req, res) => {
+router.post('/admin/contest-questions/preset', verifySirToken, ensureWebsiteNotLocked, ensureContestNotRunning, (req, res) => {
   try {
     const { presetName } = req.body;
     const result = store.applyContestPreset(presetName);
@@ -711,7 +711,7 @@ router.post('/admin/contest-questions/preset', verifySirToken, ensureContestNotR
   }
 });
 
-router.post('/admin/questions', verifySirToken, ensureContestNotRunning, (req, res) => {
+router.post('/admin/questions', verifySirToken, ensureWebsiteNotLocked, ensureContestNotRunning, (req, res) => {
   try {
     const newQ = store.addQuestionToBank(req.body);
     const io = req.app.get('io');
@@ -729,7 +729,7 @@ router.post('/admin/questions', verifySirToken, ensureContestNotRunning, (req, r
   }
 });
 
-router.delete('/admin/questions/:id', verifySirToken, ensureContestNotRunning, (req, res) => {
+router.delete('/admin/questions/:id', verifySirToken, ensureWebsiteNotLocked, ensureContestNotRunning, (req, res) => {
   try {
     const { id } = req.params;
     store.removeQuestionFromBank(id);
@@ -751,7 +751,7 @@ router.delete('/admin/questions/:id', verifySirToken, ensureContestNotRunning, (
  * POST /api/admin/questions/update & PUT /api/admin/questions/:id
  * In-place edit of existing question in Question Bank
  */
-router.post('/admin/questions/update', verifySirToken, ensureContestNotRunning, (req, res) => {
+router.post('/admin/questions/update', verifySirToken, ensureWebsiteNotLocked, ensureContestNotRunning, (req, res) => {
   try {
     const { id } = req.body;
     if (!id) {
@@ -773,7 +773,7 @@ router.post('/admin/questions/update', verifySirToken, ensureContestNotRunning, 
   }
 });
 
-router.put('/admin/questions/:id', verifySirToken, ensureContestNotRunning, (req, res) => {
+router.put('/admin/questions/:id', verifySirToken, ensureWebsiteNotLocked, ensureContestNotRunning, (req, res) => {
   try {
     const { id } = req.params;
     const updated = store.updateQuestionInBank(id, req.body);
@@ -796,7 +796,7 @@ router.put('/admin/questions/:id', verifySirToken, ensureContestNotRunning, (req
  * POST /api/admin/questions/import
  * Bulk import questions parsed from Excel template
  */
-router.post('/admin/questions/import', verifySirToken, ensureContestNotRunning, (req, res) => {
+router.post('/admin/questions/import', verifySirToken, ensureWebsiteNotLocked, ensureContestNotRunning, (req, res) => {
   try {
     const { questions } = req.body;
     if (!questions || !Array.isArray(questions)) {
@@ -851,7 +851,7 @@ router.get('/admin/competitions/:id', verifySirToken, (req, res) => {
   }
 });
 
-router.post('/admin/competitions/snapshot', verifySirToken, (req, res) => {
+router.post('/admin/competitions/snapshot', verifySirToken, ensureWebsiteNotLocked, (req, res) => {
   try {
     const { title } = req.body;
     const snapshot = store.saveCurrentCompetitionSnapshot(title);
@@ -871,7 +871,7 @@ router.post('/admin/competitions/snapshot', verifySirToken, (req, res) => {
   }
 });
 
-router.post('/admin/assign-question', verifySirToken, ensureContestNotRunning, (req, res) => {
+router.post('/admin/assign-question', verifySirToken, ensureWebsiteNotLocked, ensureContestNotRunning, (req, res) => {
   try {
     const { slot, questionId } = req.body;
     const slots = store.assignGlobalSlot(slot, questionId);
@@ -890,7 +890,7 @@ router.post('/admin/assign-question', verifySirToken, ensureContestNotRunning, (
   }
 });
 
-router.post('/admin/question-mode', verifySirToken, ensureContestNotRunning, (req, res) => {
+router.post('/admin/question-mode', verifySirToken, ensureWebsiteNotLocked, ensureContestNotRunning, (req, res) => {
   try {
     const { mode } = req.body;
     const newMode = store.setQuestionMode(mode);
@@ -976,7 +976,7 @@ router.get('/admin/team-questions/:teamId', verifySirToken, (req, res) => {
  * POST /api/admin/team-questions
  * Sir updates the custom question assignment for a team
  */
-router.post('/admin/team-questions', verifySirToken, ensureContestNotRunning, (req, res) => {
+router.post('/admin/team-questions', verifySirToken, ensureWebsiteNotLocked, ensureContestNotRunning, (req, res) => {
   try {
     const { teamId, questionIds } = req.body;
     const result = store.setTeamQuestionsDirect(teamId, questionIds);
@@ -1008,7 +1008,7 @@ router.post('/admin/team-questions', verifySirToken, ensureContestNotRunning, (r
  * POST /api/admin/team-questions/preset
  * Sir auto-assigns 1E + 1M + 1H in the team's registered language
  */
-router.post('/admin/team-questions/preset', verifySirToken, ensureContestNotRunning, (req, res) => {
+router.post('/admin/team-questions/preset', verifySirToken, ensureWebsiteNotLocked, ensureContestNotRunning, (req, res) => {
   try {
     const { teamId, presetName = 'standard' } = req.body;
     const result = store.autoAssignTeamPreset(teamId, presetName);
@@ -1040,7 +1040,7 @@ router.post('/admin/team-questions/preset', verifySirToken, ensureContestNotRunn
  * POST /api/admin/assign-team-question
  * Sir assigns a specific question to a specific team (Custom Assignment)
  */
-router.post('/admin/assign-team-question', verifySirToken, ensureContestNotRunning, (req, res) => {
+router.post('/admin/assign-team-question', verifySirToken, ensureWebsiteNotLocked, ensureContestNotRunning, (req, res) => {
   try {
     const { teamId, slot, questionId } = req.body;
     const current = store.assignTeamQuestion(teamId, slot, Number(questionId));
@@ -1063,7 +1063,7 @@ router.post('/admin/assign-team-question', verifySirToken, ensureContestNotRunni
 /**
  * RESULTS PUBLISHING & GRADING ENDPOINTS (Sir's Control)
  */
-router.post('/admin/publish-results', verifySirToken, (req, res) => {
+router.post('/admin/publish-results', verifySirToken, ensureWebsiteNotLocked, (req, res) => {
   try {
     store.publishResults();
     const fullLeaderboard = store.getLeaderboard(true);
@@ -1089,7 +1089,7 @@ router.post('/admin/publish-results', verifySirToken, (req, res) => {
   }
 });
 
-router.post('/admin/unpublish-results', verifySirToken, (req, res) => {
+router.post('/admin/unpublish-results', verifySirToken, ensureWebsiteNotLocked, (req, res) => {
   try {
     store.unpublishResults();
     const io = req.app.get('io');
@@ -1110,7 +1110,7 @@ router.post('/admin/unpublish-results', verifySirToken, (req, res) => {
   }
 });
 
-router.post('/admin/grade-submission', verifySirToken, (req, res) => {
+router.post('/admin/grade-submission', verifySirToken, ensureWebsiteNotLocked, (req, res) => {
   try {
     const { submissionId, marks, judgeNotes } = req.body;
     const result = store.gradeSubmission({ submissionId, marks, judgeNotes });
@@ -1148,7 +1148,7 @@ router.post('/admin/grade-submission', verifySirToken, (req, res) => {
  * POST /api/submissions/bonus
  * Judge awards bonus marks
  */
-router.post('/submissions/bonus', verifySirToken, validateBonus, (req, res) => {
+router.post('/submissions/bonus', verifySirToken, ensureWebsiteNotLocked, validateBonus, (req, res) => {
   try {
     const { submissionId, bonus = 10 } = req.body;
     const result = store.awardBonus(submissionId, bonus);

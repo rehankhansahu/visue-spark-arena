@@ -112,6 +112,11 @@ function applyWebsiteLockState(isLocked) {
       submitCodeBtn.removeAttribute('title');
     }
   }
+
+  // Update Sir's Desk lock UI if available
+  if (typeof window.applySirLockState === 'function') {
+    window.applySirLockState(window.isWebsiteLocked);
+  }
 }
 window.applyWebsiteLockState = applyWebsiteLockState;
 

@@ -40,6 +40,91 @@ function updateSirHeaderProfile(judge) {
 }
 window.updateSirHeaderProfile = updateSirHeaderProfile;
 
+/**
+ * Check if the platform is currently locked in Read-Only Mode.
+ * Blocks Sir/Teacher from modifying contests, questions, timer, or grades.
+ */
+function checkWebsiteLockForSir() {
+  if (window.isWebsiteLocked) {
+    if (typeof showToast === 'function') {
+      showToast('Action Blocked 🔒', 'Website is locked by Super Admin in Read-Only Mode. All editing, timer controls, and contest mutations are paused.', 'warning');
+    } else {
+      alert('🔒 Website is in Read-Only Mode (Locked by Super Admin). Editing and contest modifications are paused.');
+    }
+    return true;
+  }
+  return false;
+}
+window.checkWebsiteLockForSir = checkWebsiteLockForSir;
+
+/**
+ * Visually update Sir's Desk UI when Read-Only lock is toggled.
+ */
+function applySirLockState(isLocked) {
+  const isL = Boolean(isLocked);
+
+  // 1. Notice banner in Sir's Desk
+  let banner = document.getElementById('sirLockWarningBanner');
+  const sirDashboard = document.getElementById('sirDashboard');
+  if (sirDashboard) {
+    if (isL) {
+      if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'sirLockWarningBanner';
+        banner.className = 'p-3.5 rounded-2xl bg-rose-950/70 border border-rose-500/50 text-rose-300 text-xs font-mono font-bold flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg';
+        banner.innerHTML = `
+          <div class="flex items-center gap-2.5">
+            <span class="text-xl">🔒</span>
+            <div>
+              <span class="text-white uppercase tracking-wider block font-black text-xs">Read-Only Safety Lock Active</span>
+              <span class="text-rose-200/80 text-[11px] font-normal">Website is currently locked by Super Admin in Read-Only Mode. You can inspect questions, submissions, and export reports, but question editing, timer actions, grading, and mutations are paused.</span>
+            </div>
+          </div>
+          <span class="px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[10px] uppercase font-bold shrink-0">Read-Only</span>
+        `;
+        sirDashboard.prepend(banner);
+      } else {
+        banner.classList.remove('hidden');
+      }
+    } else {
+      if (banner) banner.remove();
+    }
+  }
+
+  // 2. Visually dim mutation buttons on Sir's Desk
+  const mutationButtonSelectors = [
+    '#sirDashboard button[onclick*="startContestTimer"]',
+    '#sirDashboard button[onclick*="pauseContestTimer"]',
+    '#sirDashboard button[onclick*="resetContestTimer"]',
+    '#sirDashboard button[onclick*="fullResetContestWipeAll"]',
+    '#sirDashboard button[onclick*="toggleEditTimerModal"]',
+    '#sirDashboard button[onclick*="openNewQuestionModal"]',
+    '#sirDashboard button[onclick*="excelQuestionFileInput"]',
+    '#sirDashboard button[onclick*="publishOfficialResults"]',
+    '#sirDashboard button[onclick*="unpublishOfficialResults"]'
+  ];
+
+  mutationButtonSelectors.forEach(sel => {
+    document.querySelectorAll(sel).forEach(btn => {
+      if (isL) {
+        btn.setAttribute('data-lock-disabled', 'true');
+        btn.classList.add('opacity-40', 'cursor-not-allowed');
+        btn.setAttribute('title', 'Disabled: Website is in Read-Only mode');
+      } else {
+        btn.removeAttribute('data-lock-disabled');
+        btn.classList.remove('opacity-40', 'cursor-not-allowed');
+        btn.removeAttribute('title');
+      }
+    });
+  });
+
+  // Re-render Question Bank table to disable action buttons if loaded
+  if (Array.isArray(questionBank) && questionBank.length > 0) {
+    renderQuestionBankTable(questionBank, activeQuestionIds);
+  }
+}
+window.applySirLockState = applySirLockState;
+
 // 1. Check Sir Authentication
 async function checkSirAuth() {
   const token = sessionStorage.getItem('sirToken');
@@ -310,6 +395,7 @@ async function handleSaveTimerDuration(event) {
 }
 
 async function submitTimerDuration(mins) {
+  if (checkWebsiteLockForSir()) return;
   const token = sessionStorage.getItem('sirToken');
   if (!token) return;
 
@@ -339,6 +425,7 @@ async function submitTimerDuration(mins) {
 }
 
 async function startContestTimer() {
+  if (checkWebsiteLockForSir()) return;
   const token = sessionStorage.getItem('sirToken');
   if (!token) return;
   try {
@@ -361,6 +448,7 @@ async function startContestTimer() {
 }
 
 async function pauseContestTimer() {
+  if (checkWebsiteLockForSir()) return;
   const token = sessionStorage.getItem('sirToken');
   if (!token) return;
   try {
@@ -379,6 +467,7 @@ async function pauseContestTimer() {
 }
 
 async function resetContestTimer() {
+  if (checkWebsiteLockForSir()) return;
   const token = sessionStorage.getItem('sirToken');
   if (!token) return;
   const minsDisplay = document.getElementById('sirTimerMinsDisplay');
@@ -415,6 +504,7 @@ async function resetContestTimer() {
 }
 
 async function fullResetContestWipeAll() {
+  if (checkWebsiteLockForSir()) return;
   const token = sessionStorage.getItem('sirToken');
   if (!token) return;
 
@@ -569,6 +659,7 @@ function renderPendingRequests(teamsList) {
 }
 
 async function approveTeamRequest(teamId) {
+  if (checkWebsiteLockForSir()) return;
   const token = sessionStorage.getItem('sirToken');
   if (!token) return;
 
@@ -596,6 +687,7 @@ async function approveTeamRequest(teamId) {
 }
 
 async function rejectTeamRequest(teamId) {
+  if (checkWebsiteLockForSir()) return;
   const token = sessionStorage.getItem('sirToken');
   if (!token) return;
 
@@ -774,6 +866,7 @@ function renderApprovedTeams(teamsList) {
 }
 
 function openAssignQuestionsForTeam(teamId) {
+  if (checkWebsiteLockForSir()) return;
   if (currentContestTimer && currentContestTimer.status === 'running') {
     alert('Competition is currently running! Question assignments and modifications are locked.');
     return;
@@ -784,6 +877,7 @@ function openAssignQuestionsForTeam(teamId) {
 }
 
 async function kickoutTeam(teamId, teamName) {
+  if (checkWebsiteLockForSir()) return;
   const token = sessionStorage.getItem('sirToken');
   if (!token) return;
 
@@ -993,10 +1087,12 @@ function updateModeToggleButtons() {
 }
 
 function setQuestionDistributionMode(mode) {
+  if (checkWebsiteLockForSir()) return;
   handleQuestionModeChange(mode);
 }
 
 async function toggleContestQuestion(questionId, forceAddOrRemove = null) {
+  if (checkWebsiteLockForSir()) return;
   if (currentContestTimer && currentContestTimer.status === 'running') {
     alert('Competition is currently running! Question modifications are locked.');
     return;
@@ -1027,6 +1123,7 @@ async function toggleContestQuestion(questionId, forceAddOrRemove = null) {
 }
 
 async function handleApplyContestPreset(presetName) {
+  if (checkWebsiteLockForSir()) return;
   if (currentContestTimer && currentContestTimer.status === 'running') {
     alert('Competition is currently running! Question modifications are locked.');
     return;
@@ -1186,15 +1283,15 @@ function renderQuestionBankTable(bank, activeIds = []) {
           <button 
             type="button"
             onclick="openEditQuestionModal(${q.id})" 
-            title="Edit question details or duplicate as new" 
-            class="px-2.5 py-1 text-xs text-cyan-400 hover:text-cyan-200 hover:bg-cyan-950/60 rounded-lg border border-cyan-500/30 transition shadow-sm font-mono inline-flex items-center gap-1">
+            title="${window.isWebsiteLocked ? 'Disabled: Read-Only Mode Active' : 'Edit question details or duplicate as new'}" 
+            class="px-2.5 py-1 text-xs ${window.isWebsiteLocked ? 'opacity-40 cursor-not-allowed text-slate-500' : 'text-cyan-400 hover:text-cyan-200 hover:bg-cyan-950/60'} rounded-lg border border-cyan-500/30 transition shadow-sm font-mono inline-flex items-center gap-1">
             <span>✏️</span> <span>Edit</span>
           </button>
           <button 
             type="button"
             onclick="deleteQuestionFromBank(${q.id})" 
-            title="Delete this question permanently from bank" 
-            class="px-2.5 py-1 text-xs text-rose-400 hover:text-rose-200 hover:bg-rose-950/60 rounded-lg border border-rose-500/30 transition shadow-sm font-mono inline-flex items-center gap-1">
+            title="${window.isWebsiteLocked ? 'Disabled: Read-Only Mode Active' : 'Delete this question permanently from bank'}" 
+            class="px-2.5 py-1 text-xs ${window.isWebsiteLocked ? 'opacity-40 cursor-not-allowed text-slate-500' : 'text-rose-400 hover:text-rose-200 hover:bg-rose-950/60'} rounded-lg border border-rose-500/30 transition shadow-sm font-mono inline-flex items-center gap-1">
             <span>🗑️</span> <span>Delete</span>
           </button>
         </div>
@@ -1205,6 +1302,7 @@ function renderQuestionBankTable(bank, activeIds = []) {
 }
 
 async function assignQuestionToTeamDirectly(questionId) {
+  if (checkWebsiteLockForSir()) return;
   if (currentContestTimer && currentContestTimer.status === 'running') {
     alert('Competition is currently running! Question assignments are locked.');
     return;
@@ -1252,6 +1350,7 @@ async function assignQuestionToTeamDirectly(questionId) {
 }
 
 async function quickAssignSlot(slot, questionId) {
+  if (checkWebsiteLockForSir()) return;
   if (currentContestTimer && currentContestTimer.status === 'running') {
     alert('Competition is currently running! Question assignments are locked.');
     return;
@@ -1280,6 +1379,7 @@ async function quickAssignSlot(slot, questionId) {
 }
 
 async function handleApplySlotAssignments() {
+  if (checkWebsiteLockForSir()) return;
   if (currentContestTimer && currentContestTimer.status === 'running') {
     alert('Competition is currently running! Question assignments are locked.');
     return;
@@ -1307,6 +1407,7 @@ function doesQuestionSupportAllLanguages(q) {
 }
 
 async function handleQuestionModeChange(mode) {
+  if (checkWebsiteLockForSir()) return;
   if (currentContestTimer && currentContestTimer.status === 'running') {
     alert('Competition is currently running! Cannot change distribution mode while contest is active.');
     updateModeToggleButtons();
@@ -1366,6 +1467,7 @@ async function handleQuestionModeChange(mode) {
 }
 
 function openSameModeQuestionSelectModal({ easyList, medList, hardList }) {
+  if (checkWebsiteLockForSir()) return;
   const modal = document.getElementById('chooseSameModeQuestionsModal');
   const container = document.getElementById('chooseSameModalBody');
   if (!modal || !container) return;
@@ -1529,6 +1631,7 @@ function closeSameModeQuestionSelectModal() {
 }
 
 async function confirmSameModeQuestionSelection() {
+  if (checkWebsiteLockForSir()) return;
   const selectedEasyEl = document.querySelector('input[name="sameModeSelectedEasy"]:checked') || document.querySelector('input[name="sameModeSelectedEasy"]');
   const selectedMedEl = document.querySelector('input[name="sameModeSelectedMed"]:checked') || document.querySelector('input[name="sameModeSelectedMed"]');
   const selectedHardEl = document.querySelector('input[name="sameModeSelectedHard"]:checked') || document.querySelector('input[name="sameModeSelectedHard"]');
@@ -1547,6 +1650,7 @@ async function confirmSameModeQuestionSelection() {
 }
 
 async function applySameModeAssignment(targetIds) {
+  if (checkWebsiteLockForSir()) return;
   const token = sessionStorage.getItem('sirToken');
   if (!token) return;
 
@@ -1588,6 +1692,7 @@ async function applySameModeAssignment(targetIds) {
 }
 
 async function deleteQuestionFromBank(id) {
+  if (checkWebsiteLockForSir()) return;
   if (currentContestTimer && currentContestTimer.status === 'running') {
     alert('Competition is currently running! Question modifications are locked.');
     return;
@@ -1613,6 +1718,7 @@ async function deleteQuestionFromBank(id) {
 }
 
 async function handleAddNewQuestion(e) {
+  if (checkWebsiteLockForSir()) return;
   if (e) e.preventDefault();
   if (currentContestTimer && currentContestTimer.status === 'running') {
     alert('Competition is currently running! Question modifications are locked.');
@@ -1670,6 +1776,7 @@ async function handleAddNewQuestion(e) {
 }
 
 function openNewQuestionModal() {
+  if (checkWebsiteLockForSir()) return;
   const modal = document.getElementById('newQuestionModal');
   if (!modal) return;
 
@@ -1705,6 +1812,7 @@ function openNewQuestionModal() {
 }
 
 function openEditQuestionModal(qId) {
+  if (checkWebsiteLockForSir()) return;
   const numId = parseInt(qId, 10);
   const q = (questionBank || []).find(item => item.id === numId);
   if (!q) {
@@ -1769,12 +1877,14 @@ function openEditQuestionModal(qId) {
 }
 
 function handleQuestionRowSelect(checkbox, qId) {
+  if (checkWebsiteLockForSir()) { if (checkbox) checkbox.checked = false; return; }
   if (checkbox && checkbox.checked) {
     openEditQuestionModal(qId);
   }
 }
 
 async function handleUpdateQuestion(e) {
+  if (checkWebsiteLockForSir()) return;
   if (e) e.preventDefault();
   if (currentContestTimer && currentContestTimer.status === 'running') {
     alert('Competition is currently running! Question modifications are locked.');
@@ -1880,6 +1990,7 @@ function downloadQuestionExcelTemplate() {
 
 // Import Questions from Excel File (.xlsx, .xls, .csv)
 async function handleExcelQuestionImport(event) {
+  if (checkWebsiteLockForSir()) return;
   const file = event.target.files && event.target.files[0];
   if (!file) return;
 
@@ -1999,6 +2110,7 @@ function toggleNewQuestionModal(open = true) {
 // 8. RESULTS PUBLISHING & PODIUM CONTROL
 // =========================================================================
 async function publishOfficialResults() {
+  if (checkWebsiteLockForSir()) return;
   const token = sessionStorage.getItem('sirToken');
   if (!token) return;
 
@@ -2025,6 +2137,7 @@ async function publishOfficialResults() {
 }
 
 async function unpublishOfficialResults() {
+  if (checkWebsiteLockForSir()) return;
   const token = sessionStorage.getItem('sirToken');
   if (!token) return;
 
@@ -2426,6 +2539,7 @@ function triggerFileDownload(filename, content, mimeType) {
 
 // Prompt to adjust marks / grade
 async function promptGradeSubmission(submissionId) {
+  if (checkWebsiteLockForSir()) return;
   const sub = allSubmissions.find(s => s.id === submissionId);
   if (!sub) return;
 
@@ -2477,6 +2591,7 @@ async function promptGradeSubmission(submissionId) {
 
 // Award Bonus
 async function awardBonusPoints(submissionId, bonusAmount = 10) {
+  if (checkWebsiteLockForSir()) return;
   const token = sessionStorage.getItem('sirToken');
   if (!token) return;
 
@@ -3128,6 +3243,7 @@ function getDifficultyBadgeClass(diff) {
 }
 
 function openSpecifyQuestionsModal() {
+  if (checkWebsiteLockForSir()) return;
   const modal = document.getElementById('specifyQuestionsModal');
   if (!modal) return;
   modal.classList.remove('hidden');
@@ -3368,6 +3484,7 @@ function renderTeamAssignmentView(data) {
 }
 
 async function toggleTeamQuestionAssignment(teamId, questionId, shouldAssign) {
+  if (checkWebsiteLockForSir()) return;
   if (currentContestTimer && currentContestTimer.status === 'running') {
     alert('Competition is currently running! Question assignments and modifications are locked.');
     return;
@@ -3408,6 +3525,7 @@ async function toggleTeamQuestionAssignment(teamId, questionId, shouldAssign) {
 }
 
 async function handleApplyTeamPreset(presetName = 'standard') {
+  if (checkWebsiteLockForSir()) return;
   if (currentContestTimer && currentContestTimer.status === 'running') {
     alert('Competition is currently running! Question assignments and modifications are locked.');
     return;
