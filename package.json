@@ -1,7 +1,7 @@
 {
   "name": "visue-spark-arena",
   "version": "1.0.0",
-  "description": "VISUE SPARK 2026 - Real-Time Programming Arena for Advanced Web Technologies",
+  "description": "V Spark 2026 - Real-Time Programming Arena for Advanced Web Technologies",
   "main": "server.js",
   "type": "commonjs",
   "scripts": {

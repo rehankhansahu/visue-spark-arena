@@ -1,5 +1,5 @@
 // ============================================================================
-// VISUE SPARK 2026 - Sir / Judge Desk Controller
+// V Spark 2026 - Sir / Judge Desk Controller
 // Secure Admin Portal: Team Approvals, Question Bank, Kickout Control,
 // Controlled Timer, 3-Option Code Downloads, & Official Results Publishing
 // ============================================================================
@@ -1861,7 +1861,7 @@ function downloadQuestionExcelTemplate() {
     { wch: 30 }  // Sample Output
   ];
 
-  XLSX.writeFile(wb, 'VISUE_SPARK_Question_Template.xlsx');
+  XLSX.writeFile(wb, 'V_SPARK_Question_Template.xlsx');
   showToast('Template Downloaded! 📥', 'Excel template downloaded with "Write your question here" format. Edit and click Import.', 'success');
 }
 
@@ -2359,7 +2359,7 @@ function downloadSubmissionTxt(submissionId) {
 
   const report = [
     '================================================================================',
-    '  VISUE SPARK 2026 - SUBMISSION AUDIT REPORT',
+    '  V SPARK 2026 - SUBMISSION AUDIT REPORT',
     '  Advanced Web Technologies (CS-302)',
     '================================================================================',
     `Submission ID : ${sub.id}`,
@@ -2528,7 +2528,7 @@ function exportResultsTxt() {
 
   let txt = '';
   txt += '================================================================================\n';
-  txt += '  VISUE SPARK 2026 - INTER-UNIVERSITY PROGRAMMING ARENA\n';
+  txt += '  V SPARK 2026 - INTER-UNIVERSITY PROGRAMMING ARENA\n';
   txt += '  OFFICIAL CONTEST AUDIT & RESULTS REPORT\n';
   txt += `  Generated: ${generatedAt}\n`;
   txt += '================================================================================\n\n';
@@ -2599,7 +2599,7 @@ function exportResultsTxt() {
   txt += 'Portfolio: https://rehankhansahu.github.io/muhammad-rehan-portfolio/\n';
   txt += '================================================================================\n';
 
-  triggerFileDownload(`VISUE_SPARK_2026_Contest_Audit_Report_${new Date().toISOString().slice(0, 10)}.txt`, txt, 'text/plain;charset=utf-8;');
+  triggerFileDownload(`V_SPARK_2026_Contest_Audit_Report_${new Date().toISOString().slice(0, 10)}.txt`, txt, 'text/plain;charset=utf-8;');
   showToast('Audit Report Exported!', 'Contest audit report (.txt) downloaded with developer portfolio credit.', 'success');
 }
 
@@ -2669,7 +2669,7 @@ function exportResultsExcel() {
 
   // Sheet 3: Developer & Contest Metadata
   const metaData = [
-    { 'Key': 'Contest Title', 'Value': 'VISUE SPARK 2026 - Inter-University Programming Arena' },
+    { 'Key': 'Contest Title', 'Value': 'V Spark 2026 - Inter-University Programming Arena' },
     { 'Key': 'Export Timestamp', 'Value': new Date().toLocaleString() },
     { 'Key': 'Total Approved Teams', 'Value': teamsList.length },
     { 'Key': 'Total Code Submissions', 'Value': submissionsList.length },
@@ -2689,7 +2689,7 @@ function exportResultsExcel() {
   const wsMeta = XLSX.utils.json_to_sheet(metaData);
   XLSX.utils.book_append_sheet(wb, wsMeta, 'Contest Info');
 
-  const fileName = `VISUE_SPARK_2026_Student_Results_${new Date().toISOString().slice(0, 10)}.xlsx`;
+  const fileName = `V_SPARK_2026_Student_Results_${new Date().toISOString().slice(0, 10)}.xlsx`;
   XLSX.writeFile(wb, fileName);
   showToast('Excel Exported! 📊', `Student results exported successfully to ${fileName}`, 'success');
 }
@@ -2722,7 +2722,7 @@ function exportResultsPDF() {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(18);
   doc.setTextColor(255, 255, 255);
-  doc.text('VISUE SPARK 2026 - INTER-UNIVERSITY PROGRAMMING ARENA', 40, 35);
+  doc.text('V SPARK 2026 - INTER-UNIVERSITY PROGRAMMING ARENA', 40, 35);
 
   doc.setFontSize(11);
   doc.setFont('helvetica', 'normal');
@@ -2794,7 +2794,7 @@ function exportResultsPDF() {
   doc.setTextColor(14, 165, 233);
   doc.text('Portfolio: https://rehankhansahu.github.io/muhammad-rehan-portfolio/', 340, pageHeight - 20);
 
-  const fileName = `VISUE_SPARK_2026_Student_Results_${new Date().toISOString().slice(0, 10)}.pdf`;
+  const fileName = `V_SPARK_2026_Student_Results_${new Date().toISOString().slice(0, 10)}.pdf`;
   doc.save(fileName);
   showToast('PDF Exported! 📕', `Official results downloaded to ${fileName}`, 'success');
 }

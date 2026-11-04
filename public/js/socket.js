@@ -1,5 +1,5 @@
 // ============================================================================
-// VISUE SPARK 2026 - Socket.IO Client Module
+// V Spark 2026 - Socket.IO Client Module
 // Real-Time Event Engine: Leaderboard Sync, Live Approvals, Timer, & Results
 // ============================================================================
 

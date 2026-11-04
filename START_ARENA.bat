@@ -1,11 +1,11 @@
 @echo off
-title VISUE SPARK 2026 - Inter-University Programming Arena
+title V Spark 2026 - Inter-University Programming Arena
 color 0A
 cls
 
 echo ============================================================================
 echo   ========================================================================
-echo     ⚡ VISUE SPARK 2026 - INTER-UNIVERSITY PROGRAMMING ARENA
+echo     ⚡ V SPARK 2026 - INTER-UNIVERSITY PROGRAMMING ARENA
 echo     CS-302: Advanced Web Technologies
 echo   ========================================================================
 echo ============================================================================

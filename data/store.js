@@ -1,5 +1,5 @@
 // ============================================================================
-// VISUE SPARK 2026 - Data Store Module
+// V Spark 2026 - Data Store Module
 // Topics: REST APIs (L5), Socket.IO (L7), Timer State Machine, Sir Question Bank,
 // Team Kickout, Results Publication, and Multi-Format Downloads
 // ============================================================================
@@ -294,7 +294,7 @@ const store = {
       const dateFormatted = new Date().toLocaleString();
       const compId = `COMP-${Date.now()}`;
       const compNum = competitionHistory.length + 1;
-      const title = customTitle || `VISUE SPARK Competition #${compNum}`;
+      const title = customTitle || `V Spark Competition #${compNum}`;
 
       // Snapshot all questions included in this competition (Question Bank + Active + Team Specific)
       const includedQuestionsMap = new Map();

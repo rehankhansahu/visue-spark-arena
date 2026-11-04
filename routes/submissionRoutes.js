@@ -1,5 +1,5 @@
 // ============================================================================
-// VISUE SPARK 2026 - Submission & Admin Management Routes
+// V Spark 2026 - Submission & Admin Management Routes
 // REST APIs (L5) & Real-Time Event Synchronization (L7)
 // ============================================================================
 

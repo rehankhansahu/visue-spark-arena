@@ -1,4 +1,4 @@
-# ⚡ VISUE SPARK 2026 — Inter-University Programming Arena
+# ⚡ V Spark 2026 — Inter-University Programming Arena
 ### 🏛️ COMSATS University Islamabad, Vehari Campus • Department of Computer Science
 > **Flagship Semester Project** developed for **"Advanced Web Technologies"** (CS-302)  
 > **Lead Developer & Creator:** **Muhammad Rehan** (BS Software Engineering, COMSATS Vehari Campus)
@@ -23,8 +23,8 @@ Traditional inter-university hackathons, lab assessments, and coding competition
 3. **Clunky Onboarding:** Complicated registration procedures waste valuable competition time.
 4. **Poor Judge Oversight:** Judges lack an interactive administrative cockpit to monitor student progress, inspect live submissions, grant bonus points, or pause/resume/reset competition timers globally.
 
-### 🎯 The Solution: VISUE SPARK 2026
-**VISUE SPARK 2026** is a **full-stack, real-time, interactive competitive programming arena** created to digitize and elevate programming contests. Engineered specifically for university environments, it brings a competitive esports-style coding experience right to students' web browsers while giving faculty judges 100% control through a secure real-time command center.
+### 🎯 The Solution: V Spark 2026
+**V Spark 2026** is a **full-stack, real-time, interactive competitive programming arena** created to digitize and elevate programming contests. Engineered specifically for university environments, it brings a competitive esports-style coding experience right to students' web browsers while giving faculty judges 100% control through a secure real-time command center.
 
 ---
 
@@ -99,7 +99,7 @@ Traditional inter-university hackathons, lab assessments, and coding competition
 
 This platform serves as a practical, comprehensive capstone implementation of the Advanced Web Technologies curriculum:
 
-| Lecture Reference | Curriculum Topic | Implementation in VISUE SPARK Arena |
+| Lecture Reference | Curriculum Topic | Implementation in V Spark Arena |
 | :--- | :--- | :--- |
 | **Lecture 5** | **Express RESTful APIs** | Clean REST design with dedicated routers (`routes/studentRoutes.js`, `routes/authRoutes.js`, `routes/submissionRoutes.js`) utilizing proper HTTP methods (`GET`, `POST`, `PUT`, `DELETE`) and standard status codes (`200`, `201`, `400`, `401`, `403`, `500`). |
 | **Lecture 7** | **Real-Time WebSockets (Socket.IO)** | Bi-directional communication channel (`public/js/socket.js`, `server.js`) broadcasting `timerSync`, `leaderboardUpdate`, `teamApproved`, `codeSubmitted`, and `resultsPublished` events to all clients instantly. |

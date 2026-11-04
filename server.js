@@ -1,5 +1,5 @@
 // ============================================================================
-// VISUE SPARK 2026 - Main Server Entry Point
+// V Spark 2026 - Main Server Entry Point
 // Inter-University Programming Arena (90-Minute Contest)
 // Topics: Node.js, Express, REST APIs (L5), Socket.IO (L7), JWT Auth (L9), Validation (L11-12)
 // ============================================================================
@@ -118,7 +118,7 @@ io.on('connection', (socket) => {
 // Start Server
 server.listen(PORT, () => {
   console.log('\n' + '='.repeat(74));
-  console.log('  ⚡ VISUE SPARK 2026 - Inter-University Programming Arena');
+  console.log('  ⚡ V Spark 2026 - Inter-University Programming Arena');
   console.log('  🏆 Questions: Easy (10pts), Medium (20pts), Hard (30pts) = 60 Pts Total');
   console.log('  💻 Languages: C, C++, Java, Python (VS Code / External IDEs Supported)');
   console.log('  👥 Teams: Solo or Duo (Max 2 Members) from Any University');

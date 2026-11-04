@@ -1,5 +1,5 @@
 // ============================================================================
-// VISUE SPARK 2026 - Input Validation Middleware
+// V Spark 2026 - Input Validation Middleware
 // Lectures 11 & 12: API Security, Input Sanitization & Validation (express-validator)
 // Supports Multi-University, Solo/Duo Teams, and Judge Credentials
 // ============================================================================

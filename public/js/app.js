@@ -1,5 +1,5 @@
 // ============================================================================
-// VISUE SPARK 2026 - Main Application Controller
+// V Spark 2026 - Main Application Controller
 // Topics: REST (L5), Socket.IO (L7), Multi-University Teams, 90-Min Timer,
 // Masked / Published Official Podium, and Holographic Pass Engine
 // ============================================================================
@@ -18,7 +18,7 @@ let timerData = {
 
 // 1. App Initialization
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('⚡ Initializing VISUE SPARK 2026 Programming Arena...');
+  console.log('⚡ Initializing V Spark 2026 Programming Arena...');
 
   // Initialize Dark / Light Theme
   initTheme();
@@ -760,7 +760,7 @@ function renderContestPassView() {
       <div class="flex items-center justify-between pb-4 border-b border-white/10">
         <div>
           <span class="text-[10px] font-mono tracking-widest text-cyan-300 uppercase">OFFICIAL CONTEST PASS</span>
-          <h3 class="text-lg font-black tracking-tight text-white mt-0.5">VISUE SPARK 2026</h3>
+          <h3 class="text-lg font-black tracking-tight text-white mt-0.5">V Spark 2026</h3>
           <div class="text-[11px] font-mono text-slate-300">${currentTeam.university}</div>
         </div>
         <div class="text-right">

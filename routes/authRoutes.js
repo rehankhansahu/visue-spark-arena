@@ -1,5 +1,5 @@
 // ============================================================================
-// VISUE SPARK 2026 - Judge Authentication Routes
+// V Spark 2026 - Judge Authentication Routes
 // Lecture 9: Lightweight Auth & RBAC (POST /api/login)
 // Secure Username & Password credentials (Never exposed on client UI)
 // ============================================================================

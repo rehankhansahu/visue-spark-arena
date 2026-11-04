@@ -1,5 +1,5 @@
 // ============================================================================
-// VISUE SPARK 2026 - JWT Authentication Middleware
+// V Spark 2026 - JWT Authentication Middleware
 // Lecture 9: Lightweight Auth & Role-Based Access Control (RBAC)
 // ============================================================================
 

@@ -1,5 +1,5 @@
 // ============================================================================
-// VISUE SPARK 2026 - Speed Arena Engine
+// V Spark 2026 - Speed Arena Engine
 // Welcome Screen, 4 Languages (C, C++, Java, Python), Solved Ticks,
 // All 3 Completed Banner, & Live Results Navigation
 // ============================================================================
