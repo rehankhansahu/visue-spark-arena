@@ -313,7 +313,9 @@ const store = {
         language: (team.language || 'cpp').toUpperCase(),
         points: pts,
         isReady: isReady,
-        problemCount: problems.length
+        problemCount: problems.length,
+        pcLockStatus: team.pcLockStatus || 'unlocked',
+        isPCLocked: team.pcLockStatus === 'locked'
       });
     }
 
@@ -322,13 +324,18 @@ const store = {
       : 0;
 
     const isAllReady = (readyTeamsCount === totalApproved && totalApproved > 0);
+    const lockedTeamsCount = approved.filter(t => t.pcLockStatus === 'locked').length;
+    const isAllPCLocked = (lockedTeamsCount === totalApproved && totalApproved > 0);
 
     let statusText = '';
     let statusType = 'incomplete';
 
-    if (isAllReady) {
+    if (isAllReady && isAllPCLocked) {
       statusType = 'ready';
-      statusText = `All Teams Ready (${readyTeamsCount}/${totalApproved} Teams • ${totalAssignedPoints}/${totalTargetPoints} pts)`;
+      statusText = `All Teams Ready & PC Locked (${readyTeamsCount}/${totalApproved} Ready • ${lockedTeamsCount}/${totalApproved} Locked)`;
+    } else if (isAllReady && !isAllPCLocked) {
+      statusType = 'partial';
+      statusText = `Questions Ready (60/60 pts) • Awaiting PC Lock (${lockedTeamsCount}/${totalApproved} Locked)`;
     } else if (readyTeamsCount > 0) {
       statusType = 'partial';
       const needLangs = unreadyLangList.join(', ');
@@ -347,6 +354,8 @@ const store = {
       totalAssignedPoints,
       totalTargetPoints,
       isAllReady,
+      lockedTeamsCount,
+      isAllPCLocked,
       displayPoints: `${readyTeamsCount} / ${totalApproved} Teams Ready (${totalAssignedPoints} / ${totalTargetPoints} pts)`,
       statusText,
       statusType,
@@ -354,10 +363,34 @@ const store = {
     };
   },
 
+  checkAllApprovedTeamsPCLocked() {
+    const approved = this.getApprovedTeams().filter(t => !t.leftEarly && t.status === 'approved');
+    if (approved.length === 0) {
+      return { ready: true, unlockedTeams: [] };
+    }
+    const unlockedTeams = approved.filter(t => t.pcLockStatus !== 'locked');
+    if (unlockedTeams.length > 0) {
+      const namesList = unlockedTeams.map((t, i) => `${i + 1}. "${t.teamName}" (${t.university}) - Leader: ${t.leaderName} [PIN: ${t.secretKey || t.passKey}]`).join('\n');
+      return {
+        ready: false,
+        unlockedCount: unlockedTeams.length,
+        totalApproved: approved.length,
+        unlockedTeams: unlockedTeams.map(t => ({ id: t.id, name: t.teamName, university: t.university })),
+        message: `⚠️ CANNOT START ARENA COMPETITION!\n\nAll participating teams must execute the Internet Exam-Lock tool first!\n\nThe following ${unlockedTeams.length} approved team(s) have NOT locked their PCs yet:\n\n${namesList}\n\nPlease instruct all students to download and run their personalized Exam-Lock script (.bat) as Administrator before starting the contest!`
+      };
+    }
+    return { ready: true, unlockedTeams: [] };
+  },
+
   startTimer() {
     const readyCheck = this.checkAllApprovedTeamsHaveAssignedQuestions();
     if (!readyCheck.ready) {
       throw new Error(readyCheck.message);
+    }
+
+    const pcLockCheck = this.checkAllApprovedTeamsPCLocked();
+    if (!pcLockCheck.ready) {
+      throw new Error(pcLockCheck.message);
     }
 
     if (timerStatus === 'running') return this.getContestTimer();

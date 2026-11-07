@@ -1085,10 +1085,13 @@
               <div id="sirTimerDurationHeader" class="text-[10px] font-mono uppercase text-slate-400 font-bold tracking-wider">
                 Contest Timer (<span id="sirTimerMinsDisplay" class="timer-duration-mins text-amber-400 font-bold">90</span>m)
               </div>
-              <div class="flex items-center gap-2 mt-0.5">
+              <div class="flex items-center gap-2 mt-0.5 flex-wrap">
                 <span id="sirTimerCountdownDisplay" class="text-xl sm:text-2xl font-mono font-black text-amber-400">90:00</span>
                 <span id="sirTimerStatusBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-slate-800 text-slate-400 border border-slate-700">
                   ○ NOT STARTED
+                </span>
+                <span id="sirTimerPCLockBadge" class="hidden px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                  🛡️ 0/0 PCs Locked
                 </span>
               </div>
             </div>

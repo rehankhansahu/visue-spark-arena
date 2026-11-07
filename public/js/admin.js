@@ -429,6 +429,19 @@ async function startContestTimer() {
   if (checkWebsiteLockForSir()) return;
   const token = sessionStorage.getItem('sirToken');
   if (!token) return;
+
+  // 1. Client-Side Pre-Check: Ensure all participating approved teams have executed PC Exam-Lock!
+  const activeTeams = (approvedTeams || []).filter(t => !t.leftEarly && t.status === 'approved');
+  if (activeTeams.length > 0) {
+    const unlockedTeams = activeTeams.filter(t => t.pcLockStatus !== 'locked');
+    if (unlockedTeams.length > 0) {
+      const namesList = unlockedTeams.map((t, idx) => `${idx + 1}. "${t.teamName}" (${t.university}) - Leader: ${t.leaderName} [PIN: ${t.secretKey || t.passKey}]`).join('\n');
+      alert(`⚠️ CANNOT START ARENA COMPETITION!\n\nTamam approved students ka internet limit script run karna lazmi hai taake sab imandari se contest dein!\n\nIn ${unlockedTeams.length} team(s) ne abhi tak Exam-Lock run nahi kiya:\n\n${namesList}\n\nPehle tamam students se unka personalized Exam-Lock (.bat) script run karwayein, phir Start button dabayein!`);
+      showToast('Exam-Lock Required 🛡️', `${unlockedTeams.length} team(s) haven't locked their PCs yet.`, 'warning');
+      return;
+    }
+  }
+
   try {
     const res = await fetch('/api/admin/timer/start', {
       method: 'POST',
@@ -440,7 +453,7 @@ async function startContestTimer() {
       updateAdminTimerBadge(data.timer);
       loadApprovedTeams();
     } else {
-      alert(`Cannot Start Competition:\n\n${data.message || 'Please ensure all approved teams have 60-point challenges assigned in their language.'}`);
+      alert(data.message || 'Cannot start competition. Please ensure all requirements are met.');
       showToast('Notice', data.message || 'Cannot start competition.', 'warning');
     }
   } catch (e) {
@@ -750,6 +763,25 @@ function renderPCLockBadge(t) {
 }
 
 function renderApprovedTeams(teamsList) {
+  // Update Live PC Lock Status Badge near Timer
+  const pcLockBadge = document.getElementById('sirTimerPCLockBadge');
+  if (pcLockBadge) {
+    const active = teamsList.filter(t => !t.leftEarly && t.status === 'approved');
+    if (active.length > 0) {
+      const locked = active.filter(t => t.pcLockStatus === 'locked').length;
+      pcLockBadge.classList.remove('hidden');
+      if (locked === active.length) {
+        pcLockBadge.className = 'inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm';
+        pcLockBadge.innerHTML = `<span>🛡️</span><span>All PCs Locked (${locked}/${active.length})</span>`;
+      } else {
+        pcLockBadge.className = 'inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm animate-pulse';
+        pcLockBadge.innerHTML = `<span>⚠️</span><span>Exam-Lock Pending: ${locked}/${active.length} PCs Locked</span>`;
+      }
+    } else {
+      pcLockBadge.classList.add('hidden');
+    }
+  }
+
   const tbody = document.getElementById('approvedTeamsTableBody');
   if (!tbody) return;
 
