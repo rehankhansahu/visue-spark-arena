@@ -256,14 +256,19 @@ router.get('/team/exam-lock-script/:passKey', (req, res) => {
     const cleanPassKey = team.secretKey || team.passKey || passKey;
     const cleanUniversity = (team.university || 'University').replace(/[^a-zA-Z0-9 _-]/g, '');
 
+    const arenaInfo = (store.getArenaInfo ? store.getArenaInfo() : null) || {};
+    const arenaName = arenaInfo.name || 'V Spark 2026';
+    const cleanArenaFilePrefix = arenaName.replace(/[^a-zA-Z0-9_-]/g, '_').replace(/_+/g, '_').slice(0, 24);
+
     const batContent = generateExamLockScript({
       passKey: cleanPassKey,
       teamName: cleanTeamName,
       university: cleanUniversity,
-      serverUrl
+      serverUrl,
+      arenaName: arenaName
     });
 
-    const filename = `V-Spark-Exam-Lock-${cleanTeamName.replace(/\s+/g, '_')}.bat`;
+    const filename = `${cleanArenaFilePrefix}-ExamLock-${cleanTeamName.replace(/\s+/g, '_')}.bat`;
 
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     res.setHeader('Content-Type', 'text/plain; charset=utf-8');

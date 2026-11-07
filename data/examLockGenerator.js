@@ -3,19 +3,20 @@
 // Generates self-elevating, self-cleaning, network-locking .bat script for student PCs
 // ============================================================================
 
-function generateExamLockScript({ passKey, teamName, university, serverUrl }) {
+function generateExamLockScript({ passKey, teamName, university, serverUrl, arenaName }) {
   const cleanTeamName = (teamName || 'Team').replace(/[^a-zA-Z0-9 _-]/g, '');
   const cleanPassKey = (passKey || '').replace(/[^a-zA-Z0-9_-]/g, '');
   const cleanUniversity = (university || 'University').replace(/[^a-zA-Z0-9 _-]/g, '');
   const cleanServerUrl = serverUrl.replace(/\/+$/, '');
+  const cleanArenaName = (arenaName || 'V Spark 2026').replace(/[^a-zA-Z0-9 _-]/g, '');
 
   const batTemplate = [
     '@echo off',
     'setlocal EnableDelayedExpansion',
-    'title V Spark 2026 - Exam Mode Security Tool',
+    'title ' + cleanArenaName + ' - Exam Mode Security Tool',
     '',
     ':: =========================================================================',
-    ':: V SPARK 2026 - ARENA EXAM MODE NETWORK LOCK',
+    ':: ' + cleanArenaName.toUpperCase() + ' - ARENA EXAM MODE NETWORK LOCK',
     ':: Team: ' + cleanTeamName,
     ':: University: ' + cleanUniversity,
     ':: =========================================================================',
@@ -72,7 +73,7 @@ function generateExamLockScript({ passKey, teamName, university, serverUrl }) {
     'timeout /t 2 >nul 2>&1',
     '',
     ':: 5. Launch Background Watchdog and Exit Visible Console',
-    'powershell -WindowStyle Hidden -NoProfile -ExecutionPolicy Bypass -Command "& { Add-Type -AssemblyName System.Windows.Forms; $pKey = \'' + cleanPassKey + '\'; $sUrl = \'' + cleanServerUrl + '\'; $self = \'%~f0\'; $running = $true; $reason = \'Contest Finished\'; while ($running) { Start-Sleep -Seconds 4; try { $body = @{ passKey = $pKey } | ConvertTo-Json; $res = Invoke-RestMethod -Uri \\"$sUrl/api/team/pc-heartbeat\\" -Method Post -Body $body -ContentType \'application/json\' -TimeoutSec 6; if ($res.success) { if ($res.contestStatus -eq \'ended\' -or ($res.remainingSeconds -ne $null -and $res.remainingSeconds -le 0)) { $reason = \'Contest Time Up (Timer Ended)\'; $running = $false; }; if ($res.leftArena -eq $true -or $res.teamStatus -eq \'left_early\') { $reason = \'You Left the Contest (Session Closed)\'; $running = $false; } } } catch {} }; [System.Windows.Forms.MessageBox]::Show(\\"🎉 V Spark 2026: $reason`n`nInternet wapis bahaal karne aur exam lock tool PC se remove karne ke liye OK dabayein.\\", \'V Spark Arena Exam Mode\', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information); netsh advfirewall firewall delete rule name=\'VSpark_Allow_DNS\' | Out-Null; netsh advfirewall firewall delete rule name=\'VSpark_Allow_Arena\' | Out-Null; netsh advfirewall firewall delete rule name=\'VSpark_Block_Outbound\' | Out-Null; try { $unBody = @{ passKey = $pKey; status = \'unlocked\' } | ConvertTo-Json; Invoke-RestMethod -Uri \\"$sUrl/api/team/pc-lock\\" -Method Post -Body $unBody -ContentType \'application/json\' -TimeoutSec 6 | Out-Null; } catch {}; try { Remove-Item \\"$env:LOCALAPPDATA\\VSpark\\Emergency_Unlock.bat\\" -Force -ErrorAction SilentlyContinue; Remove-Item \\"$env:LOCALAPPDATA\\VSpark\\" -Force -Recurse -ErrorAction SilentlyContinue; Remove-Item $self -Force -ErrorAction SilentlyContinue; } catch {} }"',
+    'powershell -WindowStyle Hidden -NoProfile -ExecutionPolicy Bypass -Command "& { Add-Type -AssemblyName System.Windows.Forms; $pKey = \'' + cleanPassKey + '\'; $sUrl = \'' + cleanServerUrl + '\'; $self = \'%~f0\'; $running = $true; $reason = \'Contest Finished\'; while ($running) { Start-Sleep -Seconds 4; try { $body = @{ passKey = $pKey } | ConvertTo-Json; $res = Invoke-RestMethod -Uri \\"$sUrl/api/team/pc-heartbeat\\" -Method Post -Body $body -ContentType \'application/json\' -TimeoutSec 6; if ($res.success) { if ($res.contestStatus -eq \'ended\' -or ($res.remainingSeconds -ne $null -and $res.remainingSeconds -le 0)) { $reason = \'Contest Time Up (Timer Ended)\'; $running = $false; }; if ($res.leftArena -eq $true -or $res.teamStatus -eq \'left_early\') { $reason = \'You Left the Contest (Session Closed)\'; $running = $false; } } } catch {} }; [System.Windows.Forms.MessageBox]::Show(\\"🎉 ' + cleanArenaName + ': $reason`n`nInternet wapis bahaal karne aur exam lock tool PC se remove karne ke liye OK dabayein.\\", \'' + cleanArenaName + ' Exam Mode\', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information); netsh advfirewall firewall delete rule name=\'VSpark_Allow_DNS\' | Out-Null; netsh advfirewall firewall delete rule name=\'VSpark_Allow_Arena\' | Out-Null; netsh advfirewall firewall delete rule name=\'VSpark_Block_Outbound\' | Out-Null; try { $unBody = @{ passKey = $pKey; status = \'unlocked\' } | ConvertTo-Json; Invoke-RestMethod -Uri \\"$sUrl/api/team/pc-lock\\" -Method Post -Body $unBody -ContentType \'application/json\' -TimeoutSec 6 | Out-Null; } catch {}; try { Remove-Item \\"$env:LOCALAPPDATA\\VSpark\\Emergency_Unlock.bat\\" -Force -ErrorAction SilentlyContinue; Remove-Item \\"$env:LOCALAPPDATA\\VSpark\\" -Force -Recurse -ErrorAction SilentlyContinue; Remove-Item $self -Force -ErrorAction SilentlyContinue; } catch {} }"',
     '',
     'exit /b'
   ];

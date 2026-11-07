@@ -2673,12 +2673,20 @@ function updateJudgeMetrics() {
 function exportResultsTxt() {
   const teamsList = approvedTeams || [];
   const generatedAt = new Date().toLocaleString();
+  const arenaTitle = (currentArenaInfo && currentArenaInfo.name) ? currentArenaInfo.name : 'V Spark 2026 Inter-University Programming Arena';
+  const arenaDesc = (currentArenaInfo && currentArenaInfo.description) ? currentArenaInfo.description : '';
+  const arenaDate = (currentArenaInfo && currentArenaInfo.dateFormatted) ? currentArenaInfo.dateFormatted : generatedAt;
+  const safeFilenameTitle = arenaTitle.replace(/[^a-zA-Z0-9_-]/g, '_').replace(/_+/g, '_').slice(0, 36);
 
   let txt = '';
   txt += '================================================================================\n';
-  txt += '  V SPARK 2026 - INTER-UNIVERSITY PROGRAMMING ARENA\n';
+  txt += `  ${arenaTitle.toUpperCase()}\n`;
+  if (arenaDesc) {
+    txt += `  Description: ${arenaDesc}\n`;
+  }
+  txt += `  Contest Session Date & Time: ${arenaDate}\n`;
   txt += '  OFFICIAL CONTEST AUDIT & RESULTS REPORT\n';
-  txt += `  Generated: ${generatedAt}\n`;
+  txt += `  Report Generated: ${generatedAt}\n`;
   txt += '================================================================================\n\n';
 
   txt += '--------------------------------------------------------------------------------\n';
@@ -2747,8 +2755,8 @@ function exportResultsTxt() {
   txt += 'Portfolio: https://rehankhansahu.github.io/muhammad-rehan-portfolio/\n';
   txt += '================================================================================\n';
 
-  triggerFileDownload(`V_SPARK_2026_Contest_Audit_Report_${new Date().toISOString().slice(0, 10)}.txt`, txt, 'text/plain;charset=utf-8;');
-  showToast('Audit Report Exported!', 'Contest audit report (.txt) downloaded with developer portfolio credit.', 'success');
+  triggerFileDownload(`${safeFilenameTitle}_Contest_Audit_Report_${new Date().toISOString().slice(0, 10)}.txt`, txt, 'text/plain;charset=utf-8;');
+  showToast('Audit Report Exported!', `Contest audit report downloaded as ${safeFilenameTitle}_...`, 'success');
 }
 
 // Backwards compatibility alias
@@ -2815,9 +2823,16 @@ function exportResultsExcel() {
     };
   });
 
+  const arenaTitle = (currentArenaInfo && currentArenaInfo.name) ? currentArenaInfo.name : 'V Spark 2026 - Inter-University Programming Arena';
+  const arenaDesc = (currentArenaInfo && currentArenaInfo.description) ? currentArenaInfo.description : '';
+  const arenaDate = (currentArenaInfo && currentArenaInfo.dateFormatted) ? currentArenaInfo.dateFormatted : new Date().toLocaleString();
+  const safeFilenameTitle = arenaTitle.replace(/[^a-zA-Z0-9_-]/g, '_').replace(/_+/g, '_').slice(0, 36);
+
   // Sheet 3: Developer & Contest Metadata
   const metaData = [
-    { 'Key': 'Contest Title', 'Value': 'V Spark 2026 - Inter-University Programming Arena' },
+    { 'Key': 'Contest Title / Arena Name', 'Value': arenaTitle },
+    { 'Key': 'Contest Description', 'Value': arenaDesc || 'N/A' },
+    { 'Key': 'Arena Session Date & Time', 'Value': arenaDate },
     { 'Key': 'Export Timestamp', 'Value': new Date().toLocaleString() },
     { 'Key': 'Total Approved Teams', 'Value': teamsList.length },
     { 'Key': 'Total Code Submissions', 'Value': submissionsList.length },
@@ -2837,7 +2852,7 @@ function exportResultsExcel() {
   const wsMeta = XLSX.utils.json_to_sheet(metaData);
   XLSX.utils.book_append_sheet(wb, wsMeta, 'Contest Info');
 
-  const fileName = `V_SPARK_2026_Student_Results_${new Date().toISOString().slice(0, 10)}.xlsx`;
+  const fileName = `${safeFilenameTitle}_Student_Results_${new Date().toISOString().slice(0, 10)}.xlsx`;
   XLSX.writeFile(wb, fileName);
   showToast('Excel Exported! 📊', `Student results exported successfully to ${fileName}`, 'success');
 }
@@ -2858,6 +2873,10 @@ function exportResultsPDF() {
 
   const teamsList = approvedTeams || [];
   const generatedAt = new Date().toLocaleString();
+  const arenaTitle = (currentArenaInfo && currentArenaInfo.name) ? currentArenaInfo.name : 'V SPARK 2026 - INTER-UNIVERSITY PROGRAMMING ARENA';
+  const arenaDesc = (currentArenaInfo && currentArenaInfo.description) ? currentArenaInfo.description : '';
+  const arenaDate = (currentArenaInfo && currentArenaInfo.dateFormatted) ? currentArenaInfo.dateFormatted : generatedAt;
+  const safeFilenameTitle = arenaTitle.replace(/[^a-zA-Z0-9_-]/g, '_').replace(/_+/g, '_').slice(0, 36);
 
   // Header Branded Banner
   doc.setFillColor(10, 13, 22);
@@ -2868,18 +2887,18 @@ function exportResultsPDF() {
   doc.rect(0, 85, doc.internal.pageSize.getWidth(), 3, 'F');
 
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(18);
+  doc.setFontSize(16);
   doc.setTextColor(255, 255, 255);
-  doc.text('V SPARK 2026 - INTER-UNIVERSITY PROGRAMMING ARENA', 40, 35);
+  doc.text(arenaTitle.toUpperCase().slice(0, 52), 40, 32);
 
-  doc.setFontSize(11);
+  doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(16, 185, 129);
-  doc.text('OFFICIAL CONTEST RESULTS & STUDENT PERFORMANCE AUDIT', 40, 52);
+  doc.text(arenaDesc ? arenaDesc.slice(0, 78) : 'OFFICIAL CONTEST RESULTS & STUDENT PERFORMANCE AUDIT', 40, 48);
 
-  doc.setFontSize(9);
+  doc.setFontSize(8.5);
   doc.setTextColor(148, 163, 184);
-  doc.text(`Generated: ${generatedAt}  |  Chief Judge: Dr. Rashid Jahangir  |  Target Budget: 60 pts`, 40, 68);
+  doc.text(`Arena Date & Time: ${arenaDate}  |  Generated: ${generatedAt}  |  Chief Judge: Dr. Rashid Jahangir`, 40, 66);
 
   // Table Body Rows
   const tableRows = teamsList.map((t, idx) => {
@@ -2942,7 +2961,7 @@ function exportResultsPDF() {
   doc.setTextColor(14, 165, 233);
   doc.text('Portfolio: https://rehankhansahu.github.io/muhammad-rehan-portfolio/', 340, pageHeight - 20);
 
-  const fileName = `V_SPARK_2026_Student_Results_${new Date().toISOString().slice(0, 10)}.pdf`;
+  const fileName = `${safeFilenameTitle}_Official_Results_${new Date().toISOString().slice(0, 10)}.pdf`;
   doc.save(fileName);
   showToast('PDF Exported! 📕', `Official results downloaded to ${fileName}`, 'success');
 }

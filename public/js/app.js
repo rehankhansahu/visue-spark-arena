@@ -844,10 +844,11 @@ function renderContestPassView() {
     }">
       <!-- Header -->
       <div class="flex items-center justify-between pb-4 border-b border-white/10">
-        <div>
+        <div class="min-w-0 flex-1 pr-2">
           <span class="text-[10px] font-mono tracking-widest text-cyan-300 uppercase">OFFICIAL CONTEST PASS</span>
-          <h3 class="text-lg font-black tracking-tight text-white mt-0.5">V Spark 2026</h3>
-          <div class="text-[11px] font-mono text-slate-300">${currentTeam.university}</div>
+          <h3 class="text-base sm:text-lg font-black tracking-tight text-white mt-0.5 truncate max-w-[280px]" title="${(currentArenaInfo && currentArenaInfo.name) ? currentArenaInfo.name : 'V Spark 2026'}">${(currentArenaInfo && currentArenaInfo.name) ? currentArenaInfo.name : 'V Spark 2026'}</h3>
+          ${(currentArenaInfo && currentArenaInfo.description) ? `<div class="text-[10px] font-mono text-cyan-300/80 truncate max-w-[260px]">${currentArenaInfo.description}</div>` : ''}
+          <div class="text-[11px] font-mono text-slate-300 mt-0.5">${currentTeam.university}</div>
         </div>
         <div class="text-right">
           <span class="px-2.5 py-0.5 rounded text-[11px] font-mono font-bold ${
@@ -1353,6 +1354,8 @@ function showToast(title, message, type = 'info') {
   }, 4200);
 }
 
+let currentArenaInfo = null;
+
 async function fetchInitialArenaInfo() {
   try {
     const res = await fetch('/api/arena/info');
@@ -1368,11 +1371,39 @@ async function fetchInitialArenaInfo() {
 
 function handleArenaInfoUpdate(info) {
   if (!info) return;
+  currentArenaInfo = info;
+
+  // 1. Top Navbar
   const navTitle = document.getElementById('navArenaSessionName');
   if (navTitle && info.name) {
     navTitle.textContent = `• ${info.name}`;
     navTitle.classList.remove('hidden');
     navTitle.setAttribute('title', info.name + (info.description ? ` - ${info.description}` : ''));
+  }
+
+  // 2. Student Welcome Hero
+  const heroBadge = document.getElementById('heroArenaNameBadge');
+  if (heroBadge && info.name) {
+    heroBadge.textContent = `${info.name.toUpperCase()} • LIVE ARENA`;
+  }
+  const heroDesc = document.getElementById('heroArenaDescDisplay');
+  if (heroDesc && info.description) {
+    heroDesc.textContent = info.description;
+  }
+
+  // 3. Leaderboard / Hall of Fame Header
+  const lBoardBadge = document.getElementById('leaderboardArenaBadge');
+  if (lBoardBadge && info.name) {
+    lBoardBadge.textContent = `${info.name.toUpperCase()} • OFFICIAL STANDINGS`;
+  }
+  const lBoardDesc = document.getElementById('leaderboardArenaDesc');
+  if (lBoardDesc && info.description) {
+    lBoardDesc.textContent = `${info.description} • Official verified results certified by Chief Judge.`;
+  }
+
+  // 4. Update Team Pass if rendered
+  if (currentTeam) {
+    renderContestPassView();
   }
 }
 
