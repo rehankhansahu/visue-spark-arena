@@ -2882,3 +2882,71 @@ html:not(.dark) .exam-lock-dialog .border-white\/10,
 html.light .exam-lock-dialog .border-white\/10 {
   border-color: #e2e8f0 !important;
 }
+
+
+/* ============================================================================
+   ARENA SESSION BANNER & MODAL STYLES (LIGHT & DARK THEMES)
+   ============================================================================ */
+
+/* Light mode for #sirArenaInfoBanner */
+html:not(.dark) #sirArenaInfoBanner,
+html.light #sirArenaInfoBanner {
+  background: linear-gradient(135deg, rgba(254, 243, 199, 0.7), rgba(255, 255, 255, 0.95)) !important;
+  border-color: rgba(245, 158, 11, 0.4) !important;
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.08) !important;
+}
+
+html:not(.dark) #sirArenaInfoBanner #sirArenaNameDisplay,
+html.light #sirArenaInfoBanner #sirArenaNameDisplay {
+  color: #0f172a !important;
+}
+
+html:not(.dark) #sirArenaInfoBanner #sirArenaDescDisplay,
+html.light #sirArenaInfoBanner #sirArenaDescDisplay {
+  color: #475569 !important;
+}
+
+html:not(.dark) #sirArenaDateTimeBadge,
+html.light #sirArenaDateTimeBadge {
+  background-color: #f1f5f9 !important;
+  color: #334155 !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Light mode for #arenaNameModal */
+html:not(.dark) .arena-name-dialog,
+html.light .arena-name-dialog {
+  background-color: #ffffff !important;
+  border-color: #f59e0b !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15) !important;
+}
+
+html:not(.dark) .arena-name-dialog h3,
+html.light .arena-name-dialog h3 {
+  color: #0f172a !important;
+}
+
+html:not(.dark) .arena-name-dialog label,
+html.light .arena-name-dialog label {
+  color: #475569 !important;
+}
+
+html:not(.dark) .arena-name-dialog input,
+html.light .arena-name-dialog input,
+html:not(.dark) .arena-name-dialog textarea,
+html.light .arena-name-dialog textarea {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html:not(.dark) .arena-name-dialog .bg-slate-950\/70,
+html.light .arena-name-dialog .bg-slate-950\/70 {
+  background-color: #fef3c7 !important;
+  border-color: #fde68a !important;
+}
+
+html:not(.dark) #modalArenaAutoDatePreview,
+html.light #modalArenaAutoDatePreview {
+  color: #92400e !important;
+}

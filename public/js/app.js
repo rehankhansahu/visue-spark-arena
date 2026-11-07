@@ -65,6 +65,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Sync Global Website Lock Status from Backend
   syncInitialLockState();
 
+  // Sync Initial Arena Metadata (Name, Description, Timestamp)
+  fetchInitialArenaInfo();
+
   // Default view
   switchView('arena');
 });
@@ -1350,6 +1353,29 @@ function showToast(title, message, type = 'info') {
   }, 4200);
 }
 
+async function fetchInitialArenaInfo() {
+  try {
+    const res = await fetch('/api/arena/info');
+    const data = await res.json();
+    if (data.success && data.arenaInfo) {
+      handleArenaInfoUpdate(data.arenaInfo);
+      if (window.updateArenaInfoUI) {
+        window.updateArenaInfoUI(data.arenaInfo);
+      }
+    }
+  } catch (e) {}
+}
+
+function handleArenaInfoUpdate(info) {
+  if (!info) return;
+  const navTitle = document.getElementById('navArenaSessionName');
+  if (navTitle && info.name) {
+    navTitle.textContent = `• ${info.name}`;
+    navTitle.classList.remove('hidden');
+    navTitle.setAttribute('title', info.name + (info.description ? ` - ${info.description}` : ''));
+  }
+}
+
 // Window bindings
 window.switchView = switchView;
 window.setParticipationMode = setParticipationMode;
@@ -1365,5 +1391,7 @@ window.handleLeaderboardSearch = handleLeaderboardSearch;
 window.handlePassKeyRestore = handlePassKeyRestore;
 window.handleUnlinkTeam = handleUnlinkTeam;
 window.updateStudentPCLockBadge = updateStudentPCLockBadge;
+window.handleArenaInfoUpdate = handleArenaInfoUpdate;
+window.fetchInitialArenaInfo = fetchInitialArenaInfo;
 window.toggleTheme = toggleTheme;
 window.showToast = showToast;

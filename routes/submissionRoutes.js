@@ -853,8 +853,8 @@ router.get('/admin/competitions/:id', verifySirToken, (req, res) => {
 
 router.post('/admin/competitions/snapshot', verifySirToken, ensureWebsiteNotLocked, (req, res) => {
   try {
-    const { title } = req.body;
-    const snapshot = store.saveCurrentCompetitionSnapshot(title);
+    const { title, description } = req.body || {};
+    const snapshot = store.saveCurrentCompetitionSnapshot(title, description);
     if (!snapshot) {
       return res.status(400).json({
         success: false,
@@ -868,6 +868,51 @@ router.post('/admin/competitions/snapshot', verifySirToken, ensureWebsiteNotLock
     });
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+router.put('/admin/competitions/:id', verifySirToken, ensureWebsiteNotLocked, (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, description } = req.body || {};
+    const comp = store.updateCompetitionHistoryItem(id, { title, description });
+    return res.status(200).json({
+      success: true,
+      message: `Competition details updated successfully.`,
+      competition: comp
+    });
+  } catch (err) {
+    return res.status(400).json({ success: false, message: err.message });
+  }
+});
+
+/**
+ * Public & Sir: Arena Session Metadata (Custom Name, Description, Date & Time)
+ */
+router.get('/arena/info', (req, res) => {
+  try {
+    const arenaInfo = store.getArenaInfo();
+    return res.status(200).json({ success: true, arenaInfo });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+router.post('/admin/arena/info', verifySirToken, ensureWebsiteNotLocked, (req, res) => {
+  try {
+    const { name, description } = req.body || {};
+    const updated = store.setArenaInfo({ name, description });
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('arenaInfoUpdated', { arenaInfo: updated });
+    }
+    return res.status(200).json({
+      success: true,
+      message: `Arena name and details saved successfully!`,
+      arenaInfo: updated
+    });
+  } catch (err) {
+    return res.status(400).json({ success: false, message: err.message });
   }
 });
 

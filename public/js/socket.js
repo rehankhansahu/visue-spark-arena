@@ -466,6 +466,17 @@ function initSocketClient() {
       }
     });
 
+    // Arena Session Metadata Updated (Name, Description, Date & Time)
+    socket.on('arenaInfoUpdated', (data) => {
+      console.log('[Socket.IO] Arena info updated:', data);
+      if (window.updateArenaInfoUI) {
+        window.updateArenaInfoUI(data.arenaInfo);
+      }
+      if (window.handleArenaInfoUpdate) {
+        window.handleArenaInfoUpdate(data.arenaInfo);
+      }
+    });
+
   } catch (err) {
     console.error('[Socket.IO Init Failed]', err);
   }

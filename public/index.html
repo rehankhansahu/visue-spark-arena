@@ -1014,6 +1014,45 @@
           </div>
         </div>
 
+        <!-- Active Arena Session Name, Description & Live Date Bar -->
+        <div id="sirArenaInfoBanner" class="glass-panel rounded-2xl p-4 sm:p-4.5 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 border border-amber-500/30 bg-gradient-to-r from-amber-950/20 via-slate-900/60 to-purple-950/20 shadow-lg">
+          <div class="space-y-1 min-w-0 flex-1">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono font-black uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                ⚡ Active Arena Session
+              </span>
+              <span id="sirArenaDateTimeBadge" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-800 text-slate-300 border border-white/10 flex items-center gap-1">
+                <span>📅</span>
+                <span id="sirArenaDateDisplay">Nov 7, 2026</span>
+              </span>
+            </div>
+            <h3 id="sirArenaNameDisplay" class="text-base sm:text-lg font-black text-white tracking-tight truncate">
+              V Spark 2026 Inter-University Programming Arena
+            </h3>
+            <p id="sirArenaDescDisplay" class="text-xs text-slate-300 font-mono">
+              Inter-University Programming Arena • Speed Coding Championship
+            </p>
+          </div>
+          <div class="flex items-center gap-2 shrink-0 w-full md:w-auto justify-end flex-wrap">
+            <button 
+              type="button" 
+              onclick="openArenaNameModal()" 
+              class="btn-cyber px-3.5 py-2 rounded-xl text-xs font-bold text-amber-300 bg-amber-950/60 hover:bg-amber-900/60 border border-amber-500/50 glow-amber transition flex items-center gap-1.5 shadow-md"
+              title="Edit Arena Name, Description & update session timestamp">
+              <span>🏷️</span>
+              <span>Edit Arena Name & Description</span>
+            </button>
+            <button 
+              type="button" 
+              onclick="promptSaveCompetitionSnapshot()" 
+              class="btn-cyber px-3 py-2 rounded-xl text-xs font-bold text-purple-300 bg-purple-950/60 hover:bg-purple-900/60 border border-purple-500/40 transition flex items-center gap-1.5 shadow-md"
+              title="Save current contest snapshot permanently to History with this Arena Name & Description">
+              <span>📸</span>
+              <span>Save to History</span>
+            </button>
+          </div>
+        </div>
+
         <!-- Metrics Bar -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
           <div class="glass-panel rounded-xl p-3.5 sm:p-4 border-l-4 border-amber-500">
@@ -2297,6 +2336,86 @@
           <span>Got It</span>
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       Arena Session Name & Description Modal (Sir / Judge)
+       ========================================================================= -->
+  <div id="arenaNameModal" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5">
+    <div class="arena-name-dialog bg-slate-900 border border-amber-500/40 rounded-2xl max-w-lg w-full flex flex-col shadow-2xl overflow-hidden">
+      <!-- Modal Header -->
+      <div class="p-4 sm:p-5 border-b border-white/10 flex items-center justify-between bg-gradient-to-r from-slate-950 via-amber-950/30 to-slate-950">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xl shadow-md">
+            🏷️
+          </div>
+          <div>
+            <h3 class="text-base sm:text-lg font-black text-white">Set Arena Name & Description</h3>
+            <p class="text-xs text-amber-400 font-mono">Custom Competition Title, Notes & Auto Timestamp</p>
+          </div>
+        </div>
+        <button onclick="closeArenaNameModal()" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition text-lg font-bold" title="Close (Esc)">
+          &times;
+        </button>
+      </div>
+
+      <!-- Modal Form -->
+      <form id="arenaNameForm" onsubmit="handleSaveArenaInfo(event); return false;" class="p-4 sm:p-5 space-y-4 text-xs font-mono">
+        <div>
+          <label class="block text-slate-300 uppercase text-[10px] font-bold tracking-wider mb-1.5">
+            Arena / Competition Name *
+          </label>
+          <input 
+            type="text" 
+            id="modalArenaNameInput" 
+            required 
+            maxlength="120"
+            placeholder="e.g. V Spark 2026 - Speed Round 1 (Morning Session)"
+            class="w-full bg-slate-950 border border-white/10 rounded-xl px-3.5 py-2.5 text-white font-bold focus:outline-none focus:border-amber-500 transition shadow-inner">
+          <p class="text-[10px] text-slate-400 mt-1">This name identifies the contest and is permanently archived in history.</p>
+        </div>
+
+        <div>
+          <label class="block text-slate-300 uppercase text-[10px] font-bold tracking-wider mb-1.5">
+            Contest Description & Purpose (Optional)
+          </label>
+          <textarea 
+            id="modalArenaDescInput" 
+            rows="3" 
+            maxlength="400"
+            placeholder="e.g. Speed programming round for university teams. 3 problems: Easy (10pts), Medium (20pts), Hard (30pts)."
+            class="w-full bg-slate-950 border border-white/10 rounded-xl p-3 text-slate-200 focus:outline-none focus:border-amber-500 transition shadow-inner resize-none"></textarea>
+        </div>
+
+        <!-- Automatic Date & Time Info Box -->
+        <div class="p-3 rounded-xl bg-slate-950/70 border border-amber-500/20 space-y-1">
+          <div class="text-[10px] uppercase font-bold text-amber-300 flex items-center gap-1.5">
+            <span>📅</span>
+            <span>Date & Time (Automatically Attached)</span>
+          </div>
+          <div id="modalArenaAutoDatePreview" class="text-[11px] font-bold text-white font-mono">
+            Loading...
+          </div>
+          <p class="text-[10px] text-slate-400">The current date and time will be automatically recorded and saved with this arena session.</p>
+        </div>
+
+        <!-- Actions -->
+        <div class="pt-3 border-t border-white/10 flex items-center justify-end gap-2">
+          <button 
+            type="button" 
+            onclick="closeArenaNameModal()" 
+            class="px-4 py-2 rounded-xl text-xs font-mono font-bold bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+            Cancel
+          </button>
+          <button 
+            type="submit" 
+            class="btn-cyber px-5 py-2 rounded-xl text-xs font-mono font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 transition flex items-center gap-1.5 shadow-lg">
+            <span>💾</span>
+            <span>Save Arena Details</span>
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 

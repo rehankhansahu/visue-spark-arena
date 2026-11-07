@@ -130,6 +130,48 @@ function saveSettingsToFile(settings) {
 
 let systemSettings = loadSettingsFromFile();
 
+// Arena Session Metadata Persistence (Custom Arena Name, Description, Date & Time)
+const ARENA_INFO_FILE = path.join(__dirname, 'arena_info.json');
+
+const DEFAULT_ARENA_INFO = {
+  name: 'V Spark 2026 Inter-University Programming Arena',
+  description: 'Inter-University Programming Arena • Speed Coding Championship',
+  createdAt: new Date().toISOString(),
+  dateFormatted: new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }),
+  updatedAt: new Date().toISOString()
+};
+
+function loadArenaInfoFromFile() {
+  try {
+    if (fs.existsSync(ARENA_INFO_FILE)) {
+      const raw = fs.readFileSync(ARENA_INFO_FILE, 'utf-8');
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object') {
+        return {
+          name: parsed.name || DEFAULT_ARENA_INFO.name,
+          description: parsed.description !== undefined ? parsed.description : DEFAULT_ARENA_INFO.description,
+          createdAt: parsed.createdAt || DEFAULT_ARENA_INFO.createdAt,
+          dateFormatted: parsed.dateFormatted || DEFAULT_ARENA_INFO.dateFormatted,
+          updatedAt: parsed.updatedAt || DEFAULT_ARENA_INFO.updatedAt
+        };
+      }
+    }
+  } catch (err) {
+    console.error('[Store] Error loading arena_info.json:', err);
+  }
+  return { ...DEFAULT_ARENA_INFO };
+}
+
+function saveArenaInfoToFile(info) {
+  try {
+    fs.writeFileSync(ARENA_INFO_FILE, JSON.stringify(info, null, 2), 'utf-8');
+  } catch (err) {
+    console.error('[Store] Error saving arena_info.json:', err);
+  }
+}
+
+let arenaInfo = loadArenaInfoFromFile();
+
 // In-Memory Database Collections (Clean initial state - No default dummy teams)
 const teams = new Map();
 let submissions = [];
@@ -340,7 +382,7 @@ const store = {
     return this.getContestTimer();
   },
 
-  saveCurrentCompetitionSnapshot(customTitle = null) {
+  saveCurrentCompetitionSnapshot(customTitle = null, customDescription = null) {
     try {
       const currentLeaderboard = this.getLeaderboard(true);
       const teamsList = currentLeaderboard.leaderboard || [];
@@ -350,11 +392,15 @@ const store = {
         return null;
       }
 
-      const timestamp = new Date().toISOString();
-      const dateFormatted = new Date().toLocaleString();
+      const now = new Date();
+      const timestamp = now.toISOString();
+      const dateFormatted = now.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
       const compId = `COMP-${Date.now()}`;
       const compNum = competitionHistory.length + 1;
-      const title = customTitle || `V Spark Competition #${compNum}`;
+      const title = (customTitle && customTitle.trim()) || arenaInfo.name || `V Spark Competition #${compNum}`;
+      const desc = (customDescription !== null && customDescription !== undefined) 
+        ? customDescription.trim() 
+        : (arenaInfo.description || '');
 
       // Snapshot all questions included in this competition (Question Bank + Active + Team Specific)
       const includedQuestionsMap = new Map();
@@ -385,6 +431,8 @@ const store = {
       const snapshot = {
         id: compId,
         title: title,
+        arenaName: title,
+        description: desc,
         timestamp: timestamp,
         dateFormatted: dateFormatted,
         durationMinutes: contestDurationMinutes,
@@ -418,6 +466,45 @@ const store = {
 
   getCompetitionById(id) {
     return competitionHistory.find(c => c.id === id) || null;
+  },
+
+  updateCompetitionHistoryItem(id, { title, description }) {
+    const comp = competitionHistory.find(c => c.id === id);
+    if (!comp) throw new Error(`Competition "${id}" not found.`);
+    if (title && title.trim()) {
+      comp.title = title.trim();
+      comp.arenaName = title.trim();
+    }
+    if (description !== undefined) {
+      comp.description = (description || '').trim();
+    }
+    comp.updatedAt = new Date().toISOString();
+    saveCompetitionHistoryToFile(competitionHistory);
+    return comp;
+  },
+
+  // =========================================================================
+  // ARENA SESSION METADATA (CUSTOM NAME & DESCRIPTION WITH AUTO DATE/TIME)
+  // =========================================================================
+  getArenaInfo() {
+    return { ...arenaInfo };
+  },
+
+  setArenaInfo({ name, description }) {
+    const trimmedName = (name || '').trim();
+    if (!trimmedName) {
+      throw new Error('Arena name cannot be empty.');
+    }
+    const now = new Date();
+    arenaInfo.name = trimmedName;
+    arenaInfo.description = (description !== undefined ? description : arenaInfo.description || '').trim();
+    arenaInfo.updatedAt = now.toISOString();
+    arenaInfo.dateFormatted = now.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+    if (!arenaInfo.createdAt) {
+      arenaInfo.createdAt = now.toISOString();
+    }
+    saveArenaInfoToFile(arenaInfo);
+    return { ...arenaInfo };
   },
 
   resetContestFull() {

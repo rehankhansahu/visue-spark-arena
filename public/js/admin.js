@@ -153,6 +153,7 @@ async function checkSirAuth() {
       loadJudgeSubmissions();
       loadQuestionBank();
       checkTimerStatus();
+      loadArenaInfo();
       return true;
     } else {
       sessionStorage.removeItem('sirToken');
@@ -3024,6 +3025,12 @@ async function loadCompetitionHistory() {
                 📅 ${comp.dateFormatted || new Date(comp.timestamp).toLocaleString()}
               </div>
             </div>
+            ${comp.description ? `
+              <div class="p-2.5 rounded-lg bg-slate-950/60 border border-white/5 text-[11px] text-slate-300 font-mono flex items-start gap-2">
+                <span class="text-amber-400 shrink-0">📝</span>
+                <span class="leading-relaxed">${comp.description}</span>
+              </div>
+            ` : ''}
 
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono">
               <div class="bg-slate-950/50 p-2 rounded-lg border border-white/5">
@@ -3048,13 +3055,23 @@ async function loadCompetitionHistory() {
               <div class="text-[11px] text-slate-400">
                 ${winner ? `🏆 Winner: <strong>${winner.teamName}</strong> (${winner.university || 'COMSATS'}) - ${winner.score}/60 pts` : 'Podium archived'}
               </div>
-              <button 
-                type="button" 
-                onclick="viewCompetitionSnapshot('${comp.id}')"
-                class="btn-cyber px-3.5 py-1.5 rounded-lg text-xs font-bold text-purple-300 bg-purple-950/60 border border-purple-500/40 hover:bg-purple-900/50 transition flex items-center gap-1.5 shadow-sm">
-                <span>🔍</span>
-                <span>View Details & Questions</span>
-              </button>
+              <div class="flex items-center gap-1.5">
+                <button 
+                  type="button" 
+                  onclick="promptEditHistoryItem('${comp.id}')"
+                  class="btn-cyber px-2.5 py-1.5 rounded-lg text-xs font-bold text-amber-300 bg-amber-950/50 border border-amber-500/30 hover:bg-amber-900/50 transition flex items-center gap-1 shadow-sm"
+                  title="Edit title & notes for this past competition">
+                  <span>✏️</span>
+                  <span>Edit</span>
+                </button>
+                <button 
+                  type="button" 
+                  onclick="viewCompetitionSnapshot('${comp.id}')"
+                  class="btn-cyber px-3.5 py-1.5 rounded-lg text-xs font-bold text-purple-300 bg-purple-950/60 border border-purple-500/40 hover:bg-purple-900/50 transition flex items-center gap-1.5 shadow-sm">
+                  <span>🔍</span>
+                  <span>View Details</span>
+                </button>
+              </div>
             </div>
           </div>
         `;
@@ -3604,6 +3621,173 @@ function copyEmergencyUnlockPath() {
   });
 }
 
+
+// =========================================================================
+// ARENA SESSION METADATA & HISTORY CONTROLLERS (Sir Portal)
+// =========================================================================
+let currentArenaInfo = {
+  name: 'V Spark 2026 Inter-University Programming Arena',
+  description: 'Inter-University Programming Arena • Speed Coding Championship',
+  dateFormatted: ''
+};
+
+async function loadArenaInfo() {
+  try {
+    const res = await fetch('/api/arena/info');
+    const data = await res.json();
+    if (data.success && data.arenaInfo) {
+      updateArenaInfoUI(data.arenaInfo);
+    }
+  } catch (err) {
+    console.error('Failed to load arena info:', err);
+  }
+}
+
+function updateArenaInfoUI(info) {
+  if (!info) return;
+  currentArenaInfo = info;
+  const nameEl = document.getElementById('sirArenaNameDisplay');
+  const descEl = document.getElementById('sirArenaDescDisplay');
+  const dateEl = document.getElementById('sirArenaDateDisplay');
+
+  if (nameEl) nameEl.textContent = info.name || 'V Spark 2026 Programming Arena';
+  if (descEl) descEl.textContent = info.description || 'Inter-University Programming Arena • Speed Coding Championship';
+  if (dateEl) dateEl.textContent = info.dateFormatted || new Date().toLocaleString();
+}
+
+function openArenaNameModal() {
+  const modal = document.getElementById('arenaNameModal');
+  if (!modal) return;
+
+  const nameInput = document.getElementById('modalArenaNameInput');
+  const descInput = document.getElementById('modalArenaDescInput');
+  const datePreview = document.getElementById('modalArenaAutoDatePreview');
+
+  if (nameInput) nameInput.value = currentArenaInfo.name || '';
+  if (descInput) descInput.value = currentArenaInfo.description || '';
+  if (datePreview) {
+    const nowStr = new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+    datePreview.textContent = nowStr;
+  }
+
+  modal.classList.remove('hidden');
+  if (nameInput) nameInput.focus();
+}
+
+function closeArenaNameModal() {
+  const modal = document.getElementById('arenaNameModal');
+  if (modal) modal.classList.add('hidden');
+}
+
+async function handleSaveArenaInfo(event) {
+  if (event) event.preventDefault();
+  if (typeof checkWebsiteLockForSir === 'function' && checkWebsiteLockForSir()) return;
+
+  const token = sessionStorage.getItem('sirToken');
+  if (!token) return;
+
+  const nameInput = document.getElementById('modalArenaNameInput');
+  const descInput = document.getElementById('modalArenaDescInput');
+
+  const name = nameInput ? nameInput.value.trim() : '';
+  const description = descInput ? descInput.value.trim() : '';
+
+  if (!name) {
+    showToast('Name Required', 'Please enter a valid Arena / Contest name.', 'warning');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/admin/arena/info', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ name, description })
+    });
+    const data = await res.json();
+    if (data.success) {
+      updateArenaInfoUI(data.arenaInfo);
+      closeArenaNameModal();
+      showToast('Arena Saved! 🏷️', `Arena name set to "${data.arenaInfo.name}" with auto-timestamp.`, 'success');
+    } else {
+      showToast('Error', data.message || 'Failed to save arena info.', 'error');
+    }
+  } catch (err) {
+    showToast('Network Error', 'Could not save arena details.', 'error');
+  }
+}
+
+async function promptSaveCompetitionSnapshot() {
+  if (typeof checkWebsiteLockForSir === 'function' && checkWebsiteLockForSir()) return;
+  const token = sessionStorage.getItem('sirToken');
+  if (!token) return;
+
+  const title = currentArenaInfo.name || 'V Spark Competition';
+  const desc = currentArenaInfo.description || '';
+
+  const confirmMsg = `Save current active contest permanently to History as:\n\n🏷️ Name: "${title}"\n📝 Description: "${desc || 'None'}"\n📅 Date & Time: ${new Date().toLocaleString()}\n\nProceed?`;
+  if (!confirm(confirmMsg)) return;
+
+  try {
+    const res = await fetch('/api/admin/competitions/snapshot', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ title, description: desc })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Snapshot Saved! 📸', data.message, 'success');
+      const histModal = document.getElementById('competitionHistoryModal');
+      if (histModal && !histModal.classList.contains('hidden')) {
+        loadCompetitionHistory();
+      }
+    } else {
+      showToast('Notice', data.message || 'Could not save snapshot.', 'warning');
+    }
+  } catch (err) {
+    showToast('Network Error', 'Failed to save snapshot to history.', 'error');
+  }
+}
+
+async function promptEditHistoryItem(id) {
+  if (typeof checkWebsiteLockForSir === 'function' && checkWebsiteLockForSir()) return;
+  const token = sessionStorage.getItem('sirToken');
+  if (!token) return;
+
+  const comp = competitionHistoryCache.find(c => c.id === id);
+  if (!comp) return;
+
+  const newTitle = prompt('Enter new Title / Name for this Competition:', comp.title || comp.arenaName || '');
+  if (newTitle === null) return;
+  const newDesc = prompt('Enter Description / Notes for this Competition:', comp.description || '');
+  if (newDesc === null) return;
+
+  try {
+    const res = await fetch(`/api/admin/competitions/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ title: newTitle.trim(), description: newDesc.trim() })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Updated! 📝', 'Competition details updated successfully.', 'success');
+      loadCompetitionHistory();
+    } else {
+      showToast('Error', data.message || 'Could not update competition.', 'error');
+    }
+  } catch (err) {
+    showToast('Network Error', 'Failed to update competition.', 'error');
+  }
+}
+
 // Window bindings
 window.checkSirAuth = checkSirAuth;
 window.handleSirLogin = handleSirLogin;
@@ -3677,3 +3861,11 @@ window.backToHistoryList = backToHistoryList;
 window.openExamLockInfoModal = openExamLockInfoModal;
 window.closeExamLockInfoModal = closeExamLockInfoModal;
 window.copyEmergencyUnlockPath = copyEmergencyUnlockPath;
+
+window.openArenaNameModal = openArenaNameModal;
+window.closeArenaNameModal = closeArenaNameModal;
+window.handleSaveArenaInfo = handleSaveArenaInfo;
+window.promptSaveCompetitionSnapshot = promptSaveCompetitionSnapshot;
+window.loadArenaInfo = loadArenaInfo;
+window.updateArenaInfoUI = updateArenaInfoUI;
+window.promptEditHistoryItem = promptEditHistoryItem;
