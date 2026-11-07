@@ -725,8 +725,23 @@ function updateTeamProfile(team) {
     localStorage.removeItem('visue_team');
   }
   updateNavbarStudentBadge();
+  updateStudentPCLockBadge();
   renderContestPassView();
   if (window.refreshArenaState) window.refreshArenaState();
+}
+
+function updateStudentPCLockBadge(status) {
+  const badge = document.getElementById('studentPCLockBadge');
+  if (!badge) return;
+
+  const currentStatus = status || (currentTeam ? currentTeam.pcLockStatus : null);
+  if (currentStatus === 'locked') {
+    badge.classList.remove('hidden');
+    badge.classList.add('inline-flex');
+  } else {
+    badge.classList.remove('inline-flex');
+    badge.classList.add('hidden');
+  }
 }
 
 function setCurrentTeam(team) {
@@ -931,6 +946,21 @@ function renderContestPassView() {
             <span>Awaiting Sir's Approval to Unlock Arena...</span>
           </div>
         `))}
+
+        <!-- Download Windows Exam-Lock Script (.bat) -->
+        <div class="w-full pt-2">
+          <a 
+            href="/api/team/exam-lock-script/${encodeURIComponent(currentTeam.secretKey || currentTeam.passKey || currentTeam.id)}" 
+            download
+            class="btn-cyber w-full py-2.5 rounded-xl text-xs font-mono font-bold text-cyan-200 bg-cyan-950/70 hover:bg-cyan-900/80 border border-cyan-500/50 transition flex items-center justify-center gap-2 shadow-md">
+            <span>🛡️</span>
+            <span>Download Exam-Lock Tool (.bat)</span>
+            <span class="text-[10px] bg-cyan-500/20 text-cyan-300 px-1.5 py-0.5 rounded border border-cyan-500/40">Windows</span>
+          </a>
+          <p class="text-[10px] text-slate-400 text-center mt-1 leading-snug">
+            Locks Windows internet to V Spark Arena during exam. Automatically restores & deletes upon contest completion.
+          </p>
+        </div>
 
         <!-- Multi-Team Quick Actions (Allows multiple teams across tabs/browsers) -->
         <div class="w-full pt-2 border-t border-white/10 flex items-center justify-between text-xs font-mono">
@@ -1334,5 +1364,6 @@ window.renderLeaderboard = renderLeaderboard;
 window.handleLeaderboardSearch = handleLeaderboardSearch;
 window.handlePassKeyRestore = handlePassKeyRestore;
 window.handleUnlinkTeam = handleUnlinkTeam;
+window.updateStudentPCLockBadge = updateStudentPCLockBadge;
 window.toggleTheme = toggleTheme;
 window.showToast = showToast;

@@ -117,6 +117,34 @@ io.on('connection', (socket) => {
   });
 });
 
+// Periodic PC Exam-Lock Tamper Watchdog (every 6 seconds)
+setInterval(() => {
+  try {
+    const tamperedTeams = store.checkTeamTamperStatus();
+    if (tamperedTeams && tamperedTeams.length > 0) {
+      tamperedTeams.forEach((team) => {
+        io.emit('teamTamperAlert', {
+          teamId: team.id,
+          teamName: team.teamName,
+          leaderName: team.leaderName,
+          university: team.university,
+          message: `⚠️ Alert: Team "${team.teamName}" PC lock script heartbeat stopped or closed!`
+        });
+        io.emit('teamLockStatusChanged', {
+          teamId: team.id,
+          teamName: team.teamName,
+          leaderName: team.leaderName,
+          pcLockStatus: team.pcLockStatus,
+          pcLockedAt: team.pcLockedAt,
+          pcTamperAlert: true
+        });
+      });
+    }
+  } catch (e) {
+    console.error('[Watchdog Error]:', e.message);
+  }
+}, 6000);
+
 // Start Server
 server.listen(PORT, () => {
   console.log('\n' + '='.repeat(74));

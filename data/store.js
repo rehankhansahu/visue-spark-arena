@@ -1233,7 +1233,11 @@ const store = {
       registeredAt: new Date().toISOString(),
       approvedAt: null,
       passKey: passKey,
-      secretKey: passKey
+      secretKey: passKey,
+      pcLockStatus: 'unlocked', // 'unlocked' | 'locked' | 'left'
+      pcLockedAt: null,
+      pcLastHeartbeat: null,
+      pcTamperAlert: false
     };
 
     teams.set(teamId, newTeam);
@@ -1910,6 +1914,57 @@ const store = {
     systemSettings.lockedBy = Boolean(locked) ? user : null;
     saveSettingsToFile(systemSettings);
     return { ...systemSettings };
+  },
+
+  // =========================================================================
+  // 9. PC EXAM-LOCK & TAMPER MONITORING
+  // =========================================================================
+  setTeamPCLock(passKeyOrId, status = 'locked') {
+    const team = this.getTeamByPassKey(passKeyOrId) || this.getTeamById(passKeyOrId) || this.getTeamByRoll(passKeyOrId);
+    if (!team) throw new Error('Team record not found for PC Exam-Lock.');
+
+    team.pcLockStatus = status; // 'locked' | 'unlocked' | 'left'
+    if (status === 'locked') {
+      team.pcLockedAt = new Date().toISOString();
+      team.pcLastHeartbeat = Date.now();
+      team.pcTamperAlert = false;
+    } else {
+      team.pcLastHeartbeat = Date.now();
+      team.pcTamperAlert = false;
+    }
+    return team;
+  },
+
+  recordTeamHeartbeat(passKeyOrId) {
+    const team = this.getTeamByPassKey(passKeyOrId) || this.getTeamById(passKeyOrId) || this.getTeamByRoll(passKeyOrId);
+    if (!team) return null;
+
+    team.pcLastHeartbeat = Date.now();
+    // If it was marked tamper earlier, clear the alert once script resumes heartbeat
+    if (team.pcTamperAlert) {
+      team.pcTamperAlert = false;
+    }
+    return team;
+  },
+
+  checkTeamTamperStatus() {
+    const timer = this.getContestTimer();
+    const isRunning = (timer && timer.status === 'running');
+    const now = Date.now();
+    const alerts = [];
+
+    for (const team of teams.values()) {
+      if (team.status === 'approved' && !team.leftEarly && team.pcLockStatus === 'locked') {
+        // If contest is actively running and heartbeat has stopped for more than 20 seconds:
+        if (isRunning && team.pcLastHeartbeat && (now - team.pcLastHeartbeat > 20000)) {
+          if (!team.pcTamperAlert) {
+            team.pcTamperAlert = true;
+            alerts.push(team);
+          }
+        }
+      }
+    }
+    return alerts;
   }
 };
 

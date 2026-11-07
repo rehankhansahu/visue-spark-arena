@@ -7,6 +7,7 @@ const express = require('express');
 const router = express.Router();
 const store = require('../data/store');
 const { validateRegister } = require('../middleware/validator');
+const { generateExamLockScript } = require('../data/examLockGenerator');
 
 /**
  * POST /api/register
@@ -164,6 +165,112 @@ router.get('/system-status', (req, res) => {
     success: true,
     locked: store.isWebsiteLocked()
   });
+});
+
+
+/**
+ * POST /api/team/pc-lock
+ * Update Team PC Exam-Lock Status ('locked' | 'unlocked' | 'left')
+ */
+router.post('/team/pc-lock', (req, res) => {
+  try {
+    const { passKey, status = 'locked' } = req.body || {};
+    if (!passKey) {
+      return res.status(400).json({ success: false, message: 'PassKey or Team ID required' });
+    }
+
+    const team = store.setTeamPCLock(passKey, status);
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('teamLockStatusChanged', {
+        teamId: team.id,
+        teamName: team.teamName,
+        leaderName: team.leaderName,
+        pcLockStatus: team.pcLockStatus,
+        pcLockedAt: team.pcLockedAt,
+        pcTamperAlert: team.pcTamperAlert
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `PC Exam-Lock updated to ${status}.`,
+      team: {
+        id: team.id,
+        teamName: team.teamName,
+        pcLockStatus: team.pcLockStatus
+      }
+    });
+  } catch (err) {
+    return res.status(400).json({ success: false, message: err.message });
+  }
+});
+
+/**
+ * POST /api/team/pc-heartbeat
+ * Keep-alive ping sent by background exam lock script every 4-5 seconds
+ */
+router.post('/team/pc-heartbeat', (req, res) => {
+  try {
+    const { passKey } = req.body || {};
+    if (!passKey) {
+      return res.status(400).json({ success: false, message: 'PassKey is required' });
+    }
+
+    const team = store.recordTeamHeartbeat(passKey);
+    if (!team) {
+      return res.status(404).json({ success: false, message: 'Team not found' });
+    }
+
+    const timer = store.getContestTimer();
+
+    return res.status(200).json({
+      success: true,
+      contestStatus: timer ? timer.status : 'not_started',
+      remainingSeconds: timer ? timer.remainingSeconds : null,
+      leftArena: Boolean(team.leftEarly || team.status === 'left_early'),
+      teamStatus: team.status
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+/**
+ * GET /api/team/exam-lock-script/:passKey
+ * Download personalized 1-Click Windows Exam-Lock (.bat) script for the team
+ */
+router.get('/team/exam-lock-script/:passKey', (req, res) => {
+  try {
+    const passKey = (req.params.passKey || '').trim();
+    const team = store.getTeamByPassKey(passKey) || store.getTeamById(passKey) || store.getTeamByRoll(passKey);
+
+    if (!team) {
+      return res.status(404).send('Error: Team record not found. Please register first.');
+    }
+
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
+    const host = req.get('host') || 'visue-spark-arena.onrender.com';
+    const serverUrl = `${protocol}://${host}`;
+    const cleanTeamName = (team.teamName || 'Team').replace(/[^a-zA-Z0-9 _-]/g, '');
+    const cleanPassKey = team.secretKey || team.passKey || passKey;
+    const cleanUniversity = (team.university || 'University').replace(/[^a-zA-Z0-9 _-]/g, '');
+
+    const batContent = generateExamLockScript({
+      passKey: cleanPassKey,
+      teamName: cleanTeamName,
+      university: cleanUniversity,
+      serverUrl
+    });
+
+    const filename = `V-Spark-Exam-Lock-${cleanTeamName.replace(/\s+/g, '_')}.bat`;
+
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    return res.send(batContent);
+  } catch (err) {
+    return res.status(500).send('Error generating exam lock script: ' + err.message);
+  }
 });
 
 module.exports = router;

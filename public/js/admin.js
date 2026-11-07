@@ -738,6 +738,16 @@ async function loadApprovedTeams() {
   }
 }
 
+function renderPCLockBadge(t) {
+  if (t.pcTamperAlert) {
+    return `<span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-rose-500/30 text-rose-200 border border-rose-500 animate-pulse" title="Tamper Alert: Lock script heartbeat stopped or process was closed!">⚠️ SCRIPT CLOSED</span>`;
+  }
+  if (t.pcLockStatus === 'locked') {
+    return `<span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40" title="PC network is locked to Arena only (Heartbeat active)">🛡️ PC LOCKED</span>`;
+  }
+  return `<span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-slate-800 text-slate-400 border border-slate-700" title="Exam lock tool has not been run on student PC yet">○ PC UNLOCKED</span>`;
+}
+
 function renderApprovedTeams(teamsList) {
   const tbody = document.getElementById('approvedTeamsTableBody');
   if (!tbody) return;
@@ -786,6 +796,7 @@ function renderApprovedTeams(teamsList) {
               <span class="px-2 py-0.5 rounded text-[10px] font-mono font-black ${getLangBadgeClass(t.language)}" title="Team registered language: ${teamLang}">${teamLang}</span>
               ${isLeftEarly ? `<span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">🚪 Left Early</span>` : ''}
               ${isCompleted ? `<span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">🏆 Finished</span>` : ''}
+              ${renderPCLockBadge(t)}
             </div>
             <div class="text-[11px] font-mono text-cyan-400 flex items-center gap-1.5 flex-wrap mt-0.5">
               <span>${t.university}</span>
@@ -839,6 +850,14 @@ function renderApprovedTeams(teamsList) {
       </td>
       <td class="px-4 py-3 text-right whitespace-nowrap">
         <div class="inline-flex items-center gap-1.5 justify-end">
+          <a 
+            href="/api/team/exam-lock-script/${encodeURIComponent(t.secretKey || t.passKey || t.id)}"
+            download
+            class="px-2 py-1 text-xs font-mono font-bold text-cyan-300 hover:text-cyan-100 bg-cyan-950/60 hover:bg-cyan-900/60 rounded border border-cyan-500/40 transition inline-flex items-center gap-1 shadow-sm"
+            title="Download personalized 1-Click Exam-Lock script (.bat) for ${t.teamName}">
+            <span>🛡️</span>
+            <span>Script</span>
+          </a>
           <button 
             onclick="openAssignQuestionsForTeam('${t.id}')"
             ${isContestRunning ? 'disabled' : ''}
@@ -3557,6 +3576,34 @@ async function handleApplyTeamPreset(presetName = 'standard') {
   }
 }
 
+
+// =========================================================================
+// PC EXAM-LOCK MODAL & EMERGENCY UNLOCK CONTROLS (Sir Portal)
+// =========================================================================
+function openExamLockInfoModal() {
+  const modal = document.getElementById('examLockInfoModal');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeExamLockInfoModal() {
+  const modal = document.getElementById('examLockInfoModal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function copyEmergencyUnlockPath() {
+  const unlockPath = '%LOCALAPPDATA%\\VSpark\\Emergency_Unlock.bat';
+  navigator.clipboard.writeText(unlockPath).then(() => {
+    const lbl = document.getElementById('copyEmergencyBtnLabel');
+    if (lbl) {
+      lbl.textContent = 'Copied!';
+      setTimeout(() => { lbl.textContent = 'Copy'; }, 2000);
+    }
+    if (window.showToast) window.showToast('Copied to Clipboard', 'Emergency unlock path copied.', 'success');
+  }).catch(() => {
+    prompt('Emergency Unlock Path (copy with Ctrl+C):', unlockPath);
+  });
+}
+
 // Window bindings
 window.checkSirAuth = checkSirAuth;
 window.handleSirLogin = handleSirLogin;
@@ -3627,3 +3674,6 @@ window.closeCompetitionHistoryModal = closeCompetitionHistoryModal;
 window.loadCompetitionHistory = loadCompetitionHistory;
 window.viewCompetitionSnapshot = viewCompetitionSnapshot;
 window.backToHistoryList = backToHistoryList;
+window.openExamLockInfoModal = openExamLockInfoModal;
+window.closeExamLockInfoModal = closeExamLockInfoModal;
+window.copyEmergencyUnlockPath = copyEmergencyUnlockPath;

@@ -435,6 +435,37 @@ function initSocketClient() {
       if (errEl) errEl.innerHTML = '';
     });
 
+    // PC Exam-Lock Status Changed (Locked / Unlocked / Tamper)
+    socket.on('teamLockStatusChanged', (data) => {
+      console.log('[Socket.IO] PC Lock status changed:', data);
+      const curTeam = window.getCurrentTeam ? window.getCurrentTeam() : null;
+      if (curTeam && (curTeam.id === data.teamId || curTeam.passKey === data.passKey || curTeam.secretKey === data.passKey)) {
+        curTeam.pcLockStatus = data.pcLockStatus;
+        if (window.updateStudentPCLockBadge) {
+          window.updateStudentPCLockBadge(data.pcLockStatus);
+        }
+      }
+      if (window.loadApprovedTeams) {
+        window.loadApprovedTeams();
+      }
+    });
+
+    // PC Exam-Lock Tamper Alert (Script stopped / terminated during active contest)
+    socket.on('teamTamperAlert', (data) => {
+      console.warn('[Socket.IO] PC Exam-Lock Tamper Alert:', data);
+      const sirToken = sessionStorage.getItem('sirToken');
+      if (sirToken) {
+        showToast(
+          '⚠️ Exam Lock Tamper Alert!',
+          data.message || `Team "${data.teamName}" PC lock script stopped or closed!`,
+          'error'
+        );
+      }
+      if (window.loadApprovedTeams) {
+        window.loadApprovedTeams();
+      }
+    });
+
   } catch (err) {
     console.error('[Socket.IO Init Failed]', err);
   }

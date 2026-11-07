@@ -2813,3 +2813,72 @@ html:not(.dark) #superAdminLockToggleBtn.is-locked:hover span,
 html.light #superAdminLockToggleBtn.is-locked:hover span {
   color: #065f46 !important;
 }
+
+
+/* ============================================================================
+   PC EXAM-LOCK & ANTI-CHEAT BADGE / MODAL STYLES (LIGHT & DARK THEMES)
+   ============================================================================ */
+
+/* Student In-Arena Lock Badge */
+#studentPCLockBadge {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html:not(.dark) #studentPCLockBadge,
+html.light #studentPCLockBadge {
+  background-color: #ecfdf5 !important;
+  color: #047857 !important;
+  border-color: #6ee7b7 !important;
+  box-shadow: 0 1px 3px rgba(5, 150, 105, 0.15) !important;
+}
+
+html:not(.dark) #studentPCLockBadge span:first-child,
+html.light #studentPCLockBadge span:first-child {
+  background-color: #10b981 !important;
+}
+
+/* Exam Lock Info Modal Dialog in Light Mode */
+html:not(.dark) .exam-lock-dialog,
+html.light .exam-lock-dialog {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}
+
+html:not(.dark) .exam-lock-dialog .bg-slate-950\/60,
+html.light .exam-lock-dialog .bg-slate-950\/60,
+html:not(.dark) .exam-lock-dialog .bg-slate-900,
+html.light .exam-lock-dialog .bg-slate-900 {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #1e293b !important;
+}
+
+html:not(.dark) .exam-lock-dialog h3,
+html.light .exam-lock-dialog h3 {
+  color: #0f172a !important;
+}
+
+html:not(.dark) .exam-lock-dialog ol li,
+html.light .exam-lock-dialog ol li,
+html:not(.dark) .exam-lock-dialog p,
+html.light .exam-lock-dialog p {
+  color: #334155 !important;
+}
+
+html:not(.dark) .exam-lock-dialog code,
+html.light .exam-lock-dialog code {
+  color: #0369a1 !important;
+  background-color: #e0f2fe !important;
+}
+
+html:not(.dark) #emergencyUnlockPathText,
+html.light #emergencyUnlockPathText {
+  color: #b45309 !important;
+  background-color: transparent !important;
+}
+
+html:not(.dark) .exam-lock-dialog .border-white\/10,
+html.light .exam-lock-dialog .border-white\/10 {
+  border-color: #e2e8f0 !important;
+}
