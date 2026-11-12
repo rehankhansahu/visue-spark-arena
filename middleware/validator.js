@@ -50,10 +50,33 @@ const validateRegister = [
     .optional()
     .isIn(['solo', 'duo']).withMessage('Team type must be Solo or Duo.'),
 
-  body('secretKey')
+  body('username')
     .optional({ checkFalsy: true })
     .trim()
-    .matches(/^\d{6}$/).withMessage('Secret Key must be exactly 6 digits (e.g. 123456).'),
+    .isLength({ min: 3, max: 30 }).withMessage('Username must be between 3 and 30 characters.')
+    .matches(/^[a-zA-Z0-9_.-]+$/).withMessage('Username can only contain letters, numbers, underscores, dashes, and dots.'),
+
+  body('password')
+    .optional({ checkFalsy: true })
+    .trim()
+    .isLength({ min: 4, max: 50 }).withMessage('Password must be at least 4 characters long.'),
+
+  body('secretKey')
+    .optional({ checkFalsy: true })
+    .trim(),
+
+  handleValidationErrors
+];
+
+// Validation for Student / Team Login
+const validateStudentLogin = [
+  body('username')
+    .trim()
+    .notEmpty().withMessage('Team Username or Roll Number is required.'),
+
+  body('password')
+    .trim()
+    .notEmpty().withMessage('Password is required.'),
 
   handleValidationErrors
 ];
@@ -103,6 +126,7 @@ const validateBonus = [
 
 module.exports = {
   validateRegister,
+  validateStudentLogin,
   validateSubmit,
   validateLogin,
   validateBonus,

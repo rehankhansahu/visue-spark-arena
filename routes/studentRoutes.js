@@ -6,12 +6,12 @@
 const express = require('express');
 const router = express.Router();
 const store = require('../data/store');
-const { validateRegister } = require('../middleware/validator');
+const { validateRegister, validateStudentLogin } = require('../middleware/validator');
 const { generateExamLockScript } = require('../data/examLockGenerator');
 
 /**
  * POST /api/register
- * Register Solo or Duo Team from any University
+ * Register Solo or Duo Team from any University with Username & Password
  * Created in 'pending' status waiting for Sir's approval
  */
 router.post('/register', validateRegister, (req, res) => {
@@ -41,6 +41,8 @@ router.post('/register', validateRegister, (req, res) => {
       member2Roll,
       university,
       language,
+      username,
+      password,
       secretKey,
       profilePic
     } = req.body;
@@ -54,6 +56,8 @@ router.post('/register', validateRegister, (req, res) => {
       member2Roll,
       university,
       language,
+      username,
+      password,
       secretKey,
       profilePic
     });
@@ -71,7 +75,7 @@ router.post('/register', validateRegister, (req, res) => {
 
     return res.status(201).json({
       success: true,
-      message: `Registration submitted! Secret Key: ${team.secretKey}. Request sent to Sir/Judge for approval.`,
+      message: `Registration submitted for @${team.username}! Request sent to Sir/Judge for approval.`,
       isNew: true,
       team: team
     });
@@ -80,6 +84,44 @@ router.post('/register', validateRegister, (req, res) => {
     return res.status(400).json({
       success: false,
       message: err.message || 'Registration failed. Please check your details.'
+    });
+  }
+});
+
+/**
+ * POST /api/student/login
+ * Student / Team login using Username (or Roll No) and Password
+ */
+router.post('/student/login', validateStudentLogin, (req, res) => {
+  try {
+    const { username, rollNo, password } = req.body || {};
+    const identifier = (username || rollNo || '').trim();
+
+    if (!identifier || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Team Username (or Roll Number) and Password are required.'
+      });
+    }
+
+    const team = store.authenticateStudent(identifier, password);
+    if (!team) {
+      return res.status(401).json({
+        success: false,
+        message: `No team found with identifier "${identifier}". Please verify your credentials or register.`
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Welcome back, ${team.teamName}! Contest session active.`,
+      team: team,
+      resultsPublished: store.isResultsPublished()
+    });
+  } catch (err) {
+    return res.status(401).json({
+      success: false,
+      message: err.message || 'Authentication failed. Please check your credentials.'
     });
   }
 });
@@ -136,7 +178,10 @@ router.get('/timer', (req, res) => {
 router.get('/team-status/:passKey', (req, res) => {
   try {
     const query = (req.params.passKey || '').trim();
-    let team = store.getTeamByPassKey(query);
+    let team = store.getTeamByUsername(query);
+    if (!team) {
+      team = store.getTeamByPassKey(query);
+    }
     if (!team) {
       team = store.getTeamByRoll(query);
     }
@@ -144,7 +189,7 @@ router.get('/team-status/:passKey', (req, res) => {
       team = store.getTeamById(query);
     }
     if (!team) {
-      return res.status(404).json({ success: false, message: `No team found with Secret Key or Roll Number "${query}". Please check your 6-digit key or register.` });
+      return res.status(404).json({ success: false, message: `No team found with Username, PIN, or Roll Number "${query}". Please check your credentials or register.` });
     }
     return res.status(200).json({
       success: true,
@@ -243,7 +288,7 @@ router.post('/team/pc-heartbeat', (req, res) => {
 router.get('/team/exam-lock-script/:passKey', (req, res) => {
   try {
     const passKey = (req.params.passKey || '').trim();
-    const team = store.getTeamByPassKey(passKey) || store.getTeamById(passKey) || store.getTeamByRoll(passKey);
+    const team = store.getTeamByUsername(passKey) || store.getTeamByPassKey(passKey) || store.getTeamById(passKey) || store.getTeamByRoll(passKey);
 
     if (!team) {
       return res.status(404).send('Error: Team record not found. Please register first.');

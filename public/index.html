@@ -797,27 +797,56 @@
             </div>
           </div>
 
-          <!-- 6-Digit Secret Key / PIN -->
-          <div>
-            <div class="flex items-center justify-between mb-0.5">
-              <label class="block text-[10px] font-mono text-amber-400 uppercase font-bold flex items-center gap-1">
-                <span>🔑</span>
-                <span>Team Secret Key / PIN (6 Digits)</span>
-              </label>
-              <span class="text-[9px] font-mono text-slate-400">Remember this to re-login!</span>
+          <!-- Team Username & Password -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div>
+              <div class="flex items-center justify-between mb-0.5">
+                <label class="block text-[10px] font-mono text-cyan-400 uppercase font-bold flex items-center gap-1">
+                  <span>👤</span>
+                  <span>Team Username</span>
+                </label>
+                <span class="text-[9px] font-mono text-slate-400">Unique ID</span>
+              </div>
+              <input 
+                type="text" 
+                id="regUsername" 
+                required
+                minlength="3"
+                maxlength="30"
+                placeholder="e.g. cyber_knights" 
+                class="w-full bg-slate-900 border border-cyan-500/40 text-cyan-300 text-xs font-mono font-bold rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-cyan-400 transition placeholder:text-slate-600 placeholder:font-normal">
             </div>
-            <input 
-              type="text" 
-              id="regSecretKey" 
-              required
-              maxlength="6"
-              pattern="\d{6}"
-              placeholder="e.g. 123456" 
-              class="w-full bg-slate-900 border border-amber-500/40 text-amber-300 text-xs font-mono font-bold tracking-widest rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-amber-400 transition placeholder:text-slate-600 placeholder:tracking-normal placeholder:font-normal">
-            <span class="text-[9px] text-slate-400 font-mono mt-0.5 block">
-              💡 Use this 6-digit key to resume your session on any device if disconnected.
-            </span>
+
+            <div>
+              <div class="flex items-center justify-between mb-0.5">
+                <label class="block text-[10px] font-mono text-amber-400 uppercase font-bold flex items-center gap-1">
+                  <span>🔒</span>
+                  <span>Team Password</span>
+                </label>
+                <span class="text-[9px] font-mono text-slate-400">Min 4 chars</span>
+              </div>
+              <div class="relative">
+                <input 
+                  type="password" 
+                  id="regPassword" 
+                  required
+                  minlength="4"
+                  maxlength="50"
+                  placeholder="••••••••" 
+                  class="w-full bg-slate-900 border border-amber-500/40 text-amber-300 text-xs font-mono font-bold rounded-lg px-2.5 py-1.5 pr-8 focus:outline-none focus:border-amber-400 transition placeholder:text-slate-600 placeholder:font-normal">
+                <button 
+                  type="button" 
+                  onclick="togglePasswordVisibility('regPassword', this)" 
+                  class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-amber-300 text-xs" 
+                  title="Toggle Password">
+                  👁️
+                </button>
+              </div>
+            </div>
           </div>
+          <span class="text-[9px] text-slate-400 font-mono -mt-1 block">
+            💡 Use your Username and Password to log in or resume your session on any laptop.
+          </span>
 
           <div id="regErrorMsg" class="text-xs font-mono text-rose-400"></div>
 
@@ -833,31 +862,48 @@
           🔒 Requests must be accepted by Sir / Judge before you can enter Speed Arena.
         </div>
 
-        <!-- Session Recovery Box: Login with 6-Digit Secret Key -->
+        <!-- Session Recovery Box: Login with Username & Password -->
         <div class="mt-2 pt-2 border-t border-white/10 space-y-1.5">
           <div class="flex items-center justify-between text-[11px] font-mono">
             <span class="text-slate-300 font-bold uppercase flex items-center gap-1.5">
               <span>🔑</span>
-              <span>Already Registered? Enter 6-Digit Secret Key</span>
+              <span>Already Registered? Log In to Arena</span>
             </span>
-            <span class="text-[10px] text-amber-400 font-semibold">Resume Session</span>
+            <span class="text-[10px] text-cyan-400 font-semibold">Resume Session</span>
           </div>
-          <form onsubmit="handlePassKeyRestore(event)" class="flex items-center gap-1.5">
-            <input 
-              type="text" 
-              id="restorePassKeyInput" 
-              required
-              maxlength="6"
-              pattern="\d{6}"
-              placeholder="6-Digit Secret Key (e.g. 123456)" 
-              class="flex-1 bg-slate-900 border border-amber-500/40 text-amber-300 text-xs font-mono font-bold tracking-widest rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-amber-400 placeholder:text-slate-600 placeholder:tracking-normal placeholder:font-normal">
-            <button 
-              type="submit" 
-              class="btn-cyber px-4 py-1.5 rounded-lg text-xs font-bold text-slate-950 bg-gradient-to-r from-amber-400 to-yellow-300 hover:from-amber-300 hover:to-yellow-200 transition whitespace-nowrap shadow">
-              Unlock ⚡
-            </button>
+          <form onsubmit="handleStudentLogin(event)" class="space-y-1.5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+              <input 
+                type="text" 
+                id="loginUsernameInput" 
+                required
+                placeholder="Username or Roll No" 
+                class="bg-slate-900 border border-cyan-500/40 text-cyan-300 text-xs font-mono font-bold rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-cyan-400 placeholder:text-slate-600 placeholder:font-normal">
+              <div class="relative">
+                <input 
+                  type="password" 
+                  id="loginPasswordInput" 
+                  required
+                  placeholder="Team Password" 
+                  class="w-full bg-slate-900 border border-amber-500/40 text-amber-300 text-xs font-mono font-bold rounded-lg px-2.5 py-1.5 pr-8 focus:outline-none focus:border-amber-400 placeholder:text-slate-600 placeholder:font-normal">
+                <button 
+                  type="button" 
+                  onclick="togglePasswordVisibility('loginPasswordInput', this)" 
+                  class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-amber-300 text-xs" 
+                  title="Toggle Password">
+                  👁️
+                </button>
+              </div>
+            </div>
+            <div class="flex items-center justify-between gap-2">
+              <div id="loginStudentError" class="text-[11px] font-mono text-rose-400 truncate"></div>
+              <button 
+                type="submit" 
+                class="btn-cyber ml-auto px-4 py-1.5 rounded-lg text-xs font-bold text-slate-950 bg-gradient-to-r from-cyan-400 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 transition whitespace-nowrap shadow">
+                Log In 🚀
+              </button>
+            </div>
           </form>
-          <div id="restorePassError" class="text-[11px] font-mono text-rose-400"></div>
         </div>
       </div>
 

@@ -32,7 +32,7 @@ router.get('/problems', (req, res) => {
 
   let teamLang = null;
   if (teamId) {
-    const t = store.getTeamById(teamId) || store.getTeamByPassKey(teamId) || store.getTeamByRoll(teamId);
+    const t = store.getTeamById(teamId) || store.getTeamByUsername(teamId) || store.getTeamByPassKey(teamId) || store.getTeamByRoll(teamId);
     if (t) teamLang = t.language;
   }
 
@@ -53,10 +53,10 @@ router.get('/problems', (req, res) => {
  */
 router.post('/submit', ensureWebsiteNotLocked, validateSubmit, (req, res) => {
   try {
-    const { teamId, rollNo, passKey, problemId, code, language } = req.body;
+    const { teamId, rollNo, passKey, username, problemId, code, language } = req.body;
 
-    const identifier = teamId || passKey || rollNo;
-    let team = store.getTeamById(identifier) || store.getTeamByPassKey(identifier) || store.getTeamByRoll(identifier);
+    const identifier = teamId || username || passKey || rollNo;
+    let team = store.getTeamById(identifier) || store.getTeamByUsername(identifier) || store.getTeamByPassKey(identifier) || store.getTeamByRoll(identifier);
 
     if (!team) {
       return res.status(400).json({
@@ -181,9 +181,9 @@ router.post('/submit', ensureWebsiteNotLocked, validateSubmit, (req, res) => {
  */
 router.post('/leave-contest', ensureWebsiteNotLocked, (req, res) => {
   try {
-    const { teamId, passKey, draftCodeMap = {}, language, isTimeUp } = req.body;
-    const identifier = teamId || passKey;
-    const team = store.getTeamById(identifier) || store.getTeamByPassKey(identifier) || store.getTeamByRoll(identifier);
+    const { teamId, passKey, username, draftCodeMap = {}, language, isTimeUp } = req.body;
+    const identifier = teamId || username || passKey;
+    const team = store.getTeamById(identifier) || store.getTeamByUsername(identifier) || store.getTeamByPassKey(identifier) || store.getTeamByRoll(identifier);
 
     if (!team) {
       return res.status(404).json({ success: false, message: 'Team record not found.' });

@@ -435,7 +435,7 @@ async function startContestTimer() {
   if (activeTeams.length > 0) {
     const unlockedTeams = activeTeams.filter(t => t.pcLockStatus !== 'locked');
     if (unlockedTeams.length > 0) {
-      const namesList = unlockedTeams.map((t, idx) => `${idx + 1}. "${t.teamName}" (${t.university}) - Leader: ${t.leaderName} [PIN: ${t.secretKey || t.passKey}]`).join('\n');
+      const namesList = unlockedTeams.map((t, idx) => `${idx + 1}. "${t.teamName}" (${t.university}) - Leader: ${t.leaderName} [User: @${t.username || t.teamName}]`).join('\n');
       alert(`⚠️ CANNOT START ARENA COMPETITION!\n\nTamam approved students ka internet limit script run karna lazmi hai taake sab imandari se contest dein!\n\nIn ${unlockedTeams.length} team(s) ne abhi tak Exam-Lock run nahi kiya:\n\n${namesList}\n\nPehle tamam students se unka personalized Exam-Lock (.bat) script run karwayein, phir Start button dabayein!`);
       showToast('Exam-Lock Required 🛡️', `${unlockedTeams.length} team(s) haven't locked their PCs yet.`, 'warning');
       return;
@@ -629,7 +629,7 @@ function renderPendingRequests(teamsList) {
           <div>
             <div class="font-bold text-slate-200 text-sm">${t.teamName}</div>
             <div class="text-[10px] font-mono text-cyan-400">${t.university}</div>
-            <div class="text-[10px] font-mono text-amber-400 font-bold">🔑 PIN: ${t.secretKey || t.passKey}</div>
+            <div class="text-[10px] font-mono text-cyan-300 font-bold">👤 User: @${t.username || t.teamName}</div>
           </div>
         </div>
       </td>
@@ -836,7 +836,7 @@ function renderApprovedTeams(teamsList) {
               <span class="text-slate-600">•</span>
               <span class="text-amber-300 font-bold">Language: ${teamLang}</span>
             </div>
-            <div class="text-[10px] font-mono text-amber-400 font-bold">PIN: ${t.secretKey || t.passKey}</div>
+            <div class="text-[10px] font-mono text-cyan-300 font-bold">👤 User: @${t.username || t.teamName}</div>
             ${questionChipsHtml ? `<div class="mt-1 flex items-center gap-1.5 flex-wrap text-[10px] font-mono">${questionChipsHtml}</div>` : ''}
           </div>
         </div>
@@ -2737,6 +2737,7 @@ function exportResultsTxt() {
 
       txt += `\n[RANK #${rank}] ${title}\n`;
       txt += `  • Team Name:        ${t.teamName} (${(t.teamType || 'solo').toUpperCase()})\n`;
+      txt += `  • Username:         @${t.username || t.teamName}\n`;
       txt += `  • University:       ${t.university}\n`;
       txt += `  • Primary Language: ${langUpper}\n`;
       txt += `  • Total Score:      ${t.score} / 60 points\n`;
@@ -2818,6 +2819,7 @@ function exportResultsExcel() {
       'Rank': rank,
       'Standing / Award': award,
       'Team Name': t.teamName,
+      'Team Username': t.username ? `@${t.username}` : (t.teamName || 'N/A'),
       'Team Type': (t.teamType || 'solo').toUpperCase(),
       'University / College': t.university,
       'Primary Language': (t.language || 'cpp').toUpperCase(),
@@ -2943,6 +2945,7 @@ function exportResultsPDF() {
     return [
       `#${rank}`,
       t.teamName || 'Solo',
+      t.username ? `@${t.username}` : (t.teamName || 'N/A'),
       `${t.leaderName} (${t.leaderRoll || t.rollNo || ''})`,
       t.university || 'COMSATS',
       (t.language || 'cpp').toUpperCase(),
@@ -2954,14 +2957,14 @@ function exportResultsPDF() {
   });
 
   if (tableRows.length === 0) {
-    tableRows.push(['-', 'No Teams', 'N/A', 'N/A', 'N/A', '0/3', 'N/A', '0 / 60', 'No Records']);
+    tableRows.push(['-', 'No Teams', 'N/A', 'N/A', 'N/A', 'N/A', '0/3', 'N/A', '0 / 60', 'No Records']);
   }
 
   // Render Table via AutoTable
   if (typeof doc.autoTable === 'function') {
     doc.autoTable({
       startY: 105,
-      head: [['Rank', 'Team Name', 'Leader (Roll #)', 'University', 'Lang', 'Solved', 'Time', 'Score (%)', 'Award']],
+      head: [['Rank', 'Team Name', 'Username', 'Leader (Roll #)', 'University', 'Lang', 'Solved', 'Time', 'Score (%)', 'Award']],
       body: tableRows,
       theme: 'grid',
       styles: {
@@ -3497,7 +3500,7 @@ function renderTeamAssignmentView(data) {
     teamLangEl.textContent = langUpper;
     teamLangEl.className = `px-2.5 py-0.5 rounded text-[11px] font-mono font-black uppercase shadow-sm ${getLangBadgeClass(team.language)}`;
   }
-  if (teamUnivEl) teamUnivEl.textContent = `${team.university} • Key: ${team.passKey || '******'}`;
+  if (teamUnivEl) teamUnivEl.textContent = `${team.university} • User: @${team.username || team.teamName}`;
   
   if (pointsEl) {
     const isReady = (totalPoints === 60);

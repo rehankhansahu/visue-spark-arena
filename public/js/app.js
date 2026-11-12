@@ -552,7 +552,8 @@ async function handleTeamRegister(e) {
   const member2NameInput = document.getElementById('regMember2Name');
   const member2RollInput = document.getElementById('regMember2Roll');
   const langInput = document.getElementById('regLanguage');
-  const secretKeyInput = document.getElementById('regSecretKey');
+  const usernameInput = document.getElementById('regUsername');
+  const passwordInput = document.getElementById('regPassword');
   const errorEl = document.getElementById('regErrorMsg');
 
   const teamName = teamNameInput ? teamNameInput.value.trim() : '';
@@ -562,7 +563,8 @@ async function handleTeamRegister(e) {
   const member2Name = (selectedTeamType === 'duo' && member2NameInput) ? member2NameInput.value.trim() : '';
   const member2Roll = (selectedTeamType === 'duo' && member2RollInput) ? member2RollInput.value.trim() : '';
   const language = langInput ? langInput.value : 'cpp';
-  const secretKey = secretKeyInput ? secretKeyInput.value.trim() : '';
+  const username = usernameInput ? usernameInput.value.trim().toLowerCase() : '';
+  const password = passwordInput ? passwordInput.value.trim() : '';
 
   if (errorEl) errorEl.textContent = '';
 
@@ -583,8 +585,18 @@ async function handleTeamRegister(e) {
     return;
   }
 
-  if (secretKey && !/^\d{6}$/.test(secretKey)) {
-    if (errorEl) errorEl.textContent = 'Secret Key must be exactly 6 digits (e.g. 123456).';
+  if (!username) {
+    if (errorEl) errorEl.textContent = 'Please choose a unique Team Username (e.g. cyber_knights).';
+    return;
+  }
+
+  if (!/^[a-zA-Z0-9_.-]{3,30}$/.test(username)) {
+    if (errorEl) errorEl.textContent = 'Username must be 3-30 characters (letters, numbers, _, -, .).';
+    return;
+  }
+
+  if (!password || password.length < 4) {
+    if (errorEl) errorEl.textContent = 'Password must be at least 4 characters long.';
     return;
   }
 
@@ -598,7 +610,8 @@ async function handleTeamRegister(e) {
       member2Name,
       member2Roll,
       language,
-      secretKey,
+      username,
+      password,
       profilePic: currentSelectedProfilePic || null
     };
 
@@ -635,64 +648,93 @@ async function handleTeamRegister(e) {
   }
 }
 
-// Quick 6-Digit Secret Key / PIN / Roll No Session Restore
-async function handlePassKeyRestore(e) {
+// Student / Team Login with Username & Password
+async function handleStudentLogin(e) {
   if (e) e.preventDefault();
-  const input = document.getElementById('restorePassKeyInput');
-  const errorEl = document.getElementById('restorePassError');
-  const query = input ? input.value.trim() : '';
+  const userInput = document.getElementById('loginUsernameInput');
+  const passInput = document.getElementById('loginPasswordInput');
+  const errorEl = document.getElementById('loginStudentError');
 
-  if (!query) {
-    if (errorEl) errorEl.textContent = 'Please enter your 6-digit Secret Key (e.g. 123456) or Roll Number.';
+  const username = userInput ? userInput.value.trim() : '';
+  const password = passInput ? passInput.value.trim() : '';
+
+  if (!username || !password) {
+    if (errorEl) errorEl.textContent = 'Please enter both Username and Password.';
     return;
   }
 
   try {
-    const res = await fetch(`/api/team-status/${encodeURIComponent(query)}`);
+    const res = await fetch('/api/student/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
     const data = await res.json();
 
     if (data.success && data.team) {
       updateTeamProfile(data.team);
       if (window.loadProblems) window.loadProblems();
-      showToast('Session Restored! 🔑', `Welcome back ${data.team.teamName}! Your contest session is active.`, 'success');
+      showToast('Login Successful! 🚀', `Welcome back ${data.team.teamName}! Your contest session is active.`, 'success');
       if (errorEl) errorEl.textContent = '';
-      if (input) input.value = '';
+      if (passInput) passInput.value = '';
       if (data.team.status === 'approved') {
         setTimeout(() => switchView('arena'), 500);
       } else {
         switchView('pass');
       }
     } else {
-      if (errorEl) errorEl.textContent = data.message || 'No team found with this 6-digit Secret Key. Please verify with Sir.';
-      showToast('Invalid Key', 'Secret Key does not match any registered team.', 'error');
+      if (errorEl) errorEl.textContent = data.message || 'Invalid Username or Password.';
+      showToast('Login Failed', data.message || 'Invalid credentials.', 'error');
     }
   } catch (err) {
-    if (errorEl) errorEl.textContent = 'Server connection error.';
+    if (errorEl) errorEl.textContent = 'Server connection error during login.';
+  }
+}
+
+// Backwards-compatibility alias for legacy calls
+function handlePassKeyRestore(e) {
+  return handleStudentLogin(e);
+}
+
+// Toggle password visibility
+function togglePasswordVisibility(inputId, btnEl) {
+  const el = document.getElementById(inputId);
+  if (!el) return;
+  if (el.type === 'password') {
+    el.type = 'text';
+    if (btnEl) btnEl.textContent = '🙈';
+  } else {
+    el.type = 'password';
+    if (btnEl) btnEl.textContent = '👁️';
   }
 }
 
 // Unlink current pass on this browser / tab
 function handleUnlinkTeam(promptConfirm = true) {
-  if (promptConfirm && !confirm('Switch team or register a new team on this browser tab? You can restore this pass anytime with your 6-digit Secret Key.')) return;
+  if (promptConfirm && !confirm('Switch team or register a new team on this browser tab? You can log in anytime with your Team Username and Password.')) return;
   currentTeam = null;
   sessionStorage.removeItem('visue_team');
   localStorage.removeItem('visue_team');
   updateNavbarStudentBadge();
   renderContestPassView();
-  showToast('Session Cleared', 'Ready for new team registration or Secret Key login.', 'info');
+  showToast('Session Cleared', 'Ready for new team registration or login.', 'info');
   switchView('pass');
 }
 
-// Focus the Secret Key restore input
-function promptSecretKeyLogin() {
+// Focus the Student Login input
+function promptStudentLogin() {
   handleUnlinkTeam(false);
   setTimeout(() => {
-    const input = document.getElementById('restorePassKeyInput');
+    const input = document.getElementById('loginUsernameInput');
     if (input) {
       input.focus();
       input.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }, 150);
+}
+
+function promptSecretKeyLogin() {
+  return promptStudentLogin();
 }
 
 // Check live team approval & kickout status
@@ -898,8 +940,8 @@ function renderContestPassView() {
             <span class="font-mono font-bold text-cyan-300 uppercase">${currentTeam.language}</span>
           </div>
           <div class="text-right">
-            <span class="text-slate-400 font-mono text-[11px]">🔑 Secret PIN: </span>
-            <span class="font-mono font-black text-amber-400 text-sm tracking-widest">${currentTeam.secretKey || currentTeam.passKey}</span>
+            <span class="text-slate-400 font-mono text-[11px]">👤 Username: </span>
+            <span class="font-mono font-black text-cyan-300 text-xs tracking-wider">@${currentTeam.username || currentTeam.teamName}</span>
           </div>
         </div>
       </div>
@@ -977,10 +1019,10 @@ function renderContestPassView() {
           </button>
           <button 
             type="button" 
-            onclick="promptSecretKeyLogin()" 
+            onclick="promptStudentLogin()" 
             class="text-[11px] text-amber-400 hover:text-amber-300 transition flex items-center gap-1">
             <span>🔑</span>
-            <span>Switch Team (Enter PIN)</span>
+            <span>Switch Team (Log In)</span>
           </button>
         </div>
       </div>
@@ -1420,6 +1462,10 @@ window.isResultsPublishedGlobally = isResultsPublishedGlobally;
 window.renderLeaderboard = renderLeaderboard;
 window.handleLeaderboardSearch = handleLeaderboardSearch;
 window.handlePassKeyRestore = handlePassKeyRestore;
+window.handleStudentLogin = handleStudentLogin;
+window.promptStudentLogin = promptStudentLogin;
+window.promptSecretKeyLogin = promptSecretKeyLogin;
+window.togglePasswordVisibility = togglePasswordVisibility;
 window.handleUnlinkTeam = handleUnlinkTeam;
 window.updateStudentPCLockBadge = updateStudentPCLockBadge;
 window.handleArenaInfoUpdate = handleArenaInfoUpdate;

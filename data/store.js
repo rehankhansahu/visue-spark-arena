@@ -370,7 +370,7 @@ const store = {
     }
     const unlockedTeams = approved.filter(t => t.pcLockStatus !== 'locked');
     if (unlockedTeams.length > 0) {
-      const namesList = unlockedTeams.map((t, i) => `${i + 1}. "${t.teamName}" (${t.university}) - Leader: ${t.leaderName} [PIN: ${t.secretKey || t.passKey}]`).join('\n');
+      const namesList = unlockedTeams.map((t, i) => `${i + 1}. "${t.teamName}" (${t.university}) - Leader: ${t.leaderName} [User: @${t.username || t.teamName}]`).join('\n');
       return {
         ready: false,
         unlockedCount: unlockedTeams.length,
@@ -1272,7 +1272,7 @@ const store = {
   // =========================================================================
   // 3. TEAM REGISTRATION, APPROVAL, AND KICKOUT
   // =========================================================================
-  registerTeam({ teamType, teamName, leaderName, leaderRoll, member2Name, member2Roll, university, language, secretKey, profilePic }) {
+  registerTeam({ teamType, teamName, leaderName, leaderRoll, member2Name, member2Roll, university, language, username, password, secretKey, profilePic }) {
     const timer = this.getContestTimer();
     if (timer && timer.status && timer.status !== 'not_started') {
       throw new Error('Registration Closed: The contest is currently in progress or has ended. Sir / Chief Judge must reset the previous contest before new registrations can be accepted.');
@@ -1281,20 +1281,44 @@ const store = {
     const formattedRoll = (leaderRoll || '').trim();
     const leaderLower = formattedRoll.toLowerCase();
     const member2Lower = (member2Roll || '').trim().toLowerCase();
-    let cleanPin = (secretKey || '').trim();
+    
+    // Clean Username & Password
+    let cleanUser = (username || '').trim().toLowerCase();
+    if (!cleanUser) {
+      // Auto-generate clean username if omitted
+      const seedName = (leaderRoll || leaderName || 'team').toLowerCase().replace(/[^a-z0-9]/g, '');
+      cleanUser = `${seedName.slice(0, 16)}_${Math.floor(100 + Math.random() * 900)}`;
+    } else {
+      if (!/^[a-zA-Z0-9_.-]{3,30}$/.test(cleanUser)) {
+        throw new Error('Username must be 3-30 characters and can only contain letters, numbers, underscores, dashes, or dots.');
+      }
+    }
+
+    let cleanPass = (password || '').trim();
+    if (cleanPass) {
+      if (cleanPass.length < 4) {
+        throw new Error('Password must be at least 4 characters long.');
+      }
+    } else {
+      // Fallback for legacy requests
+      cleanPass = (secretKey || '').trim() || 'spark2026';
+    }
+
+    let cleanPin = (secretKey || cleanUser).trim();
 
     // Check if team with same leader or member roll already exists in ACTIVE teams
     for (const [id, t] of teams.entries()) {
       const isInactive = (t.status === 'rejected' || t.status === 'kicked_out' || t.status === 'disqualified' || t.status === 'deleted');
       if (isInactive) {
-        // Clean up any stale inactive record matching this roll or PIN
+        // Clean up any stale inactive record matching this roll, username, or PIN
         const matchRoll = (t.leaderRoll && t.leaderRoll.toLowerCase() === leaderLower) ||
           (t.member2Roll && t.member2Roll.toLowerCase() === leaderLower) ||
           (member2Lower && t.leaderRoll && t.leaderRoll.toLowerCase() === member2Lower) ||
           (member2Lower && t.member2Roll && t.member2Roll.toLowerCase() === member2Lower);
+        const matchUser = t.username && t.username.toLowerCase() === cleanUser;
         const matchPin = cleanPin && (String(t.passKey).trim() === cleanPin || String(t.secretKey).trim() === cleanPin);
 
-        if (matchRoll || matchPin) {
+        if (matchRoll || matchUser || matchPin) {
           teams.delete(id);
           teamSpecificQuestions.delete(id);
         }
@@ -1306,31 +1330,23 @@ const store = {
 
       if (tLeader === leaderLower || (member2Lower && tLeader === member2Lower) ||
           (tMember2 && tMember2 === leaderLower) || (tMember2 && member2Lower && tMember2 === member2Lower)) {
-        throw new Error(`Roll Number "${formattedRoll}" is already registered (Team: "${t.teamName}"). If this is your team, please enter your 6-digit Secret Key in the "Resume Session" box below to log in.`);
+        throw new Error(`Roll Number "${formattedRoll}" is already registered (Team: "${t.teamName}"). If this is your team, please enter your Username & Password in the Login box below.`);
       }
-    }
 
-    // If no 6-digit pin provided, generate a unique 6-digit random number
-    if (!cleanPin || !/^\d{6}$/.test(cleanPin)) {
-      cleanPin = Math.floor(100000 + Math.random() * 900000).toString();
-    }
-
-    // Check if 6-digit PIN is already taken by another ACTIVE team
-    for (const t of teams.values()) {
-      const isInactive = (t.status === 'rejected' || t.status === 'kicked_out' || t.status === 'disqualified' || t.status === 'deleted');
-      if (isInactive) continue;
-      if (String(t.passKey).trim() === cleanPin || String(t.secretKey).trim() === cleanPin) {
-        throw new Error(`The 6-digit Secret Key "${cleanPin}" is already taken by another active team. Please choose a different 6-digit key (e.g. 654321).`);
+      if (t.username && t.username.toLowerCase() === cleanUser) {
+        throw new Error(`Username "${cleanUser}" is already taken by another team. Please choose a different username.`);
       }
     }
 
     const teamId = `TEAM-${Date.now().toString().slice(-4)}${Math.floor(Math.random() * 90 + 10)}`;
-    const passKey = cleanPin;
+    const passKey = cleanUser;
 
     const newTeam = {
       id: teamId,
       teamType: teamType === 'duo' ? 'duo' : 'solo',
       teamName: (teamName || `${leaderName}'s Team`).trim(),
+      username: cleanUser,
+      password: cleanPass,
       leaderName: leaderName.trim(),
       leaderRoll: formattedRoll,
       member2Name: teamType === 'duo' ? (member2Name || '').trim() : '',
@@ -1413,12 +1429,51 @@ const store = {
     return null;
   },
 
+  getTeamByUsername(username) {
+    if (!username) return null;
+    const clean = String(username).trim().toLowerCase();
+    for (const t of teams.values()) {
+      if (t.status === 'rejected' || t.status === 'kicked_out' || t.status === 'deleted') continue;
+      if (t.username && t.username.toLowerCase() === clean) return t;
+    }
+    return null;
+  },
+
+  authenticateStudent(identifier, password) {
+    if (!identifier || !password) return null;
+    const cleanId = String(identifier).trim().toLowerCase();
+    const cleanPass = String(password).trim();
+
+    for (const t of teams.values()) {
+      if (t.status === 'rejected' || t.status === 'kicked_out' || t.status === 'deleted') continue;
+      const matchUser = (t.username && t.username.toLowerCase() === cleanId);
+      const matchRoll = (t.leaderRoll && t.leaderRoll.toLowerCase() === cleanId) ||
+                        (t.member2Roll && t.member2Roll.toLowerCase() === cleanId);
+      const matchId = (t.id && t.id.toLowerCase() === cleanId);
+      const matchKey = (t.passKey && String(t.passKey).toLowerCase() === cleanId) ||
+                       (t.secretKey && String(t.secretKey).toLowerCase() === cleanId);
+
+      if (matchUser || matchRoll || matchId || matchKey) {
+        if (t.password && t.password === cleanPass) {
+          return t;
+        }
+        // Fallback for legacy passwords
+        if (!t.password && (cleanPass === 'spark2026' || cleanPass === t.passKey || cleanPass === t.secretKey)) {
+          return t;
+        }
+        throw new Error('Incorrect password. Please verify your team password.');
+      }
+    }
+    return null;
+  },
+
   getTeamByPassKey(passKey) {
     if (!passKey) return null;
     const cleanKey = String(passKey).trim().toUpperCase();
     for (const t of teams.values()) {
       if (t.status === 'rejected' || t.status === 'kicked_out' || t.status === 'deleted') continue;
-      if ((t.passKey && String(t.passKey).trim().toUpperCase() === cleanKey) || 
+      if ((t.username && String(t.username).trim().toUpperCase() === cleanKey) ||
+          (t.passKey && String(t.passKey).trim().toUpperCase() === cleanKey) || 
           (t.secretKey && String(t.secretKey).trim().toUpperCase() === cleanKey)) return t;
     }
     return null;
@@ -2040,7 +2095,7 @@ const store = {
   // 9. PC EXAM-LOCK & TAMPER MONITORING
   // =========================================================================
   setTeamPCLock(passKeyOrId, status = 'locked') {
-    const team = this.getTeamByPassKey(passKeyOrId) || this.getTeamById(passKeyOrId) || this.getTeamByRoll(passKeyOrId);
+    const team = this.getTeamByUsername(passKeyOrId) || this.getTeamByPassKey(passKeyOrId) || this.getTeamById(passKeyOrId) || this.getTeamByRoll(passKeyOrId);
     if (!team) throw new Error('Team record not found for PC Exam-Lock.');
 
     team.pcLockStatus = status; // 'locked' | 'unlocked' | 'left'
@@ -2056,7 +2111,7 @@ const store = {
   },
 
   recordTeamHeartbeat(passKeyOrId) {
-    const team = this.getTeamByPassKey(passKeyOrId) || this.getTeamById(passKeyOrId) || this.getTeamByRoll(passKeyOrId);
+    const team = this.getTeamByUsername(passKeyOrId) || this.getTeamByPassKey(passKeyOrId) || this.getTeamById(passKeyOrId) || this.getTeamByRoll(passKeyOrId);
     if (!team) return null;
 
     team.pcLastHeartbeat = Date.now();

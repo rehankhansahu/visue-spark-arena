@@ -1,1 +1,855 @@
-[]
+[
+  {
+    "id": "COMP-1794497033485",
+    "title": "Automated Test Round 1 (Updated)",
+    "arenaName": "Automated Test Round 1 (Updated)",
+    "description": "Updated notes in history",
+    "timestamp": "2026-11-12T15:23:53.484Z",
+    "dateFormatted": "Nov 12, 2026, 8:23 PM",
+    "durationMinutes": 90,
+    "totalPoints": 60,
+    "winner": {
+      "teamName": "Cyber Knights",
+      "leaderName": "Zain Ahmed",
+      "leaderRoll": "FA23-BCS-042",
+      "university": "COMSATS Vehari",
+      "score": 15,
+      "totalPoints": 60
+    },
+    "teams": [
+      {
+        "rank": 1,
+        "titleBadge": "Winner / Champion",
+        "id": "TEAM-340259",
+        "teamType": "duo",
+        "teamName": "Cyber Knights",
+        "username": "cyber_knights",
+        "password": "password123",
+        "leaderName": "Zain Ahmed",
+        "leaderRoll": "FA23-BCS-042",
+        "member2Name": "Bilal Hassan",
+        "member2Roll": "FA23-BCS-055",
+        "university": "COMSATS Vehari",
+        "language": "cpp",
+        "profilePic": null,
+        "status": "approved",
+        "score": 15,
+        "solvedProblems": [
+          1
+        ],
+        "submittedSolutions": {
+          "1": {
+            "problemId": 1,
+            "code": "#include <iostream>\nusing namespace std;\nint main() { cout << \"Hello V Spark\"; return 0; }",
+            "language": "cpp",
+            "difficulty": "Easy",
+            "problemTitle": "Easy Palindrome Check",
+            "points": 10,
+            "submittedAt": "2026-11-12T15:23:53.476Z"
+          }
+        },
+        "isCompleted": false,
+        "finishedAt": null,
+        "timeTakenSeconds": null,
+        "timeTakenFormatted": null,
+        "timeTakenWords": null,
+        "leftEarly": false,
+        "leftAt": null,
+        "bonusMarks": 5,
+        "registeredAt": "2026-11-12T15:23:53.402Z",
+        "approvedAt": "2026-11-12T15:23:53.423Z",
+        "passKey": "cyber_knights",
+        "secretKey": "cyber_knights",
+        "pcLockStatus": "locked",
+        "pcLockedAt": "2026-11-12T15:23:53.460Z",
+        "pcLastHeartbeat": 1794497033462,
+        "pcTamperAlert": false,
+        "totalContestPoints": 60,
+        "assignedProblems": [
+          {
+            "id": 1,
+            "title": "Easy Palindrome Check",
+            "difficulty": "Easy",
+            "points": 10,
+            "timeLimit": "1.5s",
+            "memoryLimit": "256MB",
+            "tags": [
+              "Algorithm",
+              "Logic"
+            ],
+            "description": "Check if string is palindrome",
+            "inputFormat": "Standard Input",
+            "outputFormat": "Standard Output",
+            "constraints": [
+              "1 <= N <= 10^5"
+            ],
+            "optionA": "",
+            "optionB": "",
+            "optionC": "",
+            "optionD": "",
+            "options": {
+              "a": "",
+              "b": "",
+              "c": "",
+              "d": ""
+            },
+            "correctAnswer": "",
+            "sampleCases": [
+              {
+                "input": "Sample input",
+                "expected": "Sample output",
+                "explanation": "Sample demonstration"
+              }
+            ],
+            "starterCode": {
+              "c": "// Write your C code here...\n",
+              "cpp": "// Write your C++ code here...\n",
+              "java": "// Write your Java code here...\n",
+              "python": "# Write your Python code here...\n",
+              "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+              "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+              "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+              "php": "<?php\n// Write your PHP code here...\n"
+            },
+            "languages": [
+              "C",
+              "C++",
+              "Java",
+              "Python",
+              "HTML",
+              "JavaScript",
+              "Dart",
+              "PHP"
+            ],
+            "slotNumber": 1
+          },
+          {
+            "id": 2,
+            "title": "Medium Matrix Spiral",
+            "difficulty": "Medium",
+            "points": 20,
+            "timeLimit": "1.5s",
+            "memoryLimit": "256MB",
+            "tags": [
+              "Algorithm",
+              "Logic"
+            ],
+            "description": "Print matrix in spiral order",
+            "inputFormat": "Standard Input",
+            "outputFormat": "Standard Output",
+            "constraints": [
+              "1 <= N <= 10^5"
+            ],
+            "optionA": "",
+            "optionB": "",
+            "optionC": "",
+            "optionD": "",
+            "options": {
+              "a": "",
+              "b": "",
+              "c": "",
+              "d": ""
+            },
+            "correctAnswer": "",
+            "sampleCases": [
+              {
+                "input": "Sample input",
+                "expected": "Sample output",
+                "explanation": "Sample demonstration"
+              }
+            ],
+            "starterCode": {
+              "c": "// Write your C code here...\n",
+              "cpp": "// Write your C++ code here...\n",
+              "java": "// Write your Java code here...\n",
+              "python": "# Write your Python code here...\n",
+              "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+              "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+              "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+              "php": "<?php\n// Write your PHP code here...\n"
+            },
+            "languages": [
+              "C",
+              "C++",
+              "Java",
+              "Python",
+              "HTML",
+              "JavaScript",
+              "Dart",
+              "PHP"
+            ],
+            "slotNumber": 2
+          },
+          {
+            "id": 3,
+            "title": "Hard Graph Shortest Path",
+            "difficulty": "Hard",
+            "points": 30,
+            "timeLimit": "1.5s",
+            "memoryLimit": "256MB",
+            "tags": [
+              "Algorithm",
+              "Logic"
+            ],
+            "description": "Find shortest path in weighted DAG",
+            "inputFormat": "Standard Input",
+            "outputFormat": "Standard Output",
+            "constraints": [
+              "1 <= N <= 10^5"
+            ],
+            "optionA": "",
+            "optionB": "",
+            "optionC": "",
+            "optionD": "",
+            "options": {
+              "a": "",
+              "b": "",
+              "c": "",
+              "d": ""
+            },
+            "correctAnswer": "",
+            "sampleCases": [
+              {
+                "input": "Sample input",
+                "expected": "Sample output",
+                "explanation": "Sample demonstration"
+              }
+            ],
+            "starterCode": {
+              "c": "// Write your C code here...\n",
+              "cpp": "// Write your C++ code here...\n",
+              "java": "// Write your Java code here...\n",
+              "python": "# Write your Python code here...\n",
+              "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+              "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+              "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+              "php": "<?php\n// Write your PHP code here...\n"
+            },
+            "languages": [
+              "C",
+              "C++",
+              "Java",
+              "Python",
+              "HTML",
+              "JavaScript",
+              "Dart",
+              "PHP"
+            ],
+            "slotNumber": 3
+          }
+        ],
+        "totalAssignedCount": 3,
+        "questionBreakdown": {
+          "1": {
+            "problemId": 1,
+            "problemTitle": "Easy Palindrome Check",
+            "difficulty": "Easy",
+            "scoreAwarded": 10,
+            "bonus": 5,
+            "judgeNotes": ""
+          }
+        },
+        "solvedCount": 1
+      }
+    ],
+    "questions": [
+      {
+        "id": 1,
+        "title": "Easy Palindrome Check",
+        "difficulty": "Easy",
+        "points": 10,
+        "timeLimit": "1.5s",
+        "memoryLimit": "256MB",
+        "tags": [
+          "Algorithm",
+          "Logic"
+        ],
+        "description": "Check if string is palindrome",
+        "inputFormat": "Standard Input",
+        "outputFormat": "Standard Output",
+        "constraints": [
+          "1 <= N <= 10^5"
+        ],
+        "optionA": "",
+        "optionB": "",
+        "optionC": "",
+        "optionD": "",
+        "options": {
+          "a": "",
+          "b": "",
+          "c": "",
+          "d": ""
+        },
+        "correctAnswer": "",
+        "sampleCases": [
+          {
+            "input": "Sample input",
+            "expected": "Sample output",
+            "explanation": "Sample demonstration"
+          }
+        ],
+        "starterCode": {
+          "c": "// Write your C code here...\n",
+          "cpp": "// Write your C++ code here...\n",
+          "java": "// Write your Java code here...\n",
+          "python": "# Write your Python code here...\n",
+          "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+          "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+          "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+          "php": "<?php\n// Write your PHP code here...\n"
+        },
+        "languages": [
+          "C",
+          "C++",
+          "Java",
+          "Python",
+          "HTML",
+          "JavaScript",
+          "Dart",
+          "PHP"
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Medium Matrix Spiral",
+        "difficulty": "Medium",
+        "points": 20,
+        "timeLimit": "1.5s",
+        "memoryLimit": "256MB",
+        "tags": [
+          "Algorithm",
+          "Logic"
+        ],
+        "description": "Print matrix in spiral order",
+        "inputFormat": "Standard Input",
+        "outputFormat": "Standard Output",
+        "constraints": [
+          "1 <= N <= 10^5"
+        ],
+        "optionA": "",
+        "optionB": "",
+        "optionC": "",
+        "optionD": "",
+        "options": {
+          "a": "",
+          "b": "",
+          "c": "",
+          "d": ""
+        },
+        "correctAnswer": "",
+        "sampleCases": [
+          {
+            "input": "Sample input",
+            "expected": "Sample output",
+            "explanation": "Sample demonstration"
+          }
+        ],
+        "starterCode": {
+          "c": "// Write your C code here...\n",
+          "cpp": "// Write your C++ code here...\n",
+          "java": "// Write your Java code here...\n",
+          "python": "# Write your Python code here...\n",
+          "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+          "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+          "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+          "php": "<?php\n// Write your PHP code here...\n"
+        },
+        "languages": [
+          "C",
+          "C++",
+          "Java",
+          "Python",
+          "HTML",
+          "JavaScript",
+          "Dart",
+          "PHP"
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Hard Graph Shortest Path",
+        "difficulty": "Hard",
+        "points": 30,
+        "timeLimit": "1.5s",
+        "memoryLimit": "256MB",
+        "tags": [
+          "Algorithm",
+          "Logic"
+        ],
+        "description": "Find shortest path in weighted DAG",
+        "inputFormat": "Standard Input",
+        "outputFormat": "Standard Output",
+        "constraints": [
+          "1 <= N <= 10^5"
+        ],
+        "optionA": "",
+        "optionB": "",
+        "optionC": "",
+        "optionD": "",
+        "options": {
+          "a": "",
+          "b": "",
+          "c": "",
+          "d": ""
+        },
+        "correctAnswer": "",
+        "sampleCases": [
+          {
+            "input": "Sample input",
+            "expected": "Sample output",
+            "explanation": "Sample demonstration"
+          }
+        ],
+        "starterCode": {
+          "c": "// Write your C code here...\n",
+          "cpp": "// Write your C++ code here...\n",
+          "java": "// Write your Java code here...\n",
+          "python": "# Write your Python code here...\n",
+          "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+          "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+          "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+          "php": "<?php\n// Write your PHP code here...\n"
+        },
+        "languages": [
+          "C",
+          "C++",
+          "Java",
+          "Python",
+          "HTML",
+          "JavaScript",
+          "Dart",
+          "PHP"
+        ]
+      }
+    ],
+    "totalTeams": 1,
+    "totalQuestions": 3,
+    "updatedAt": "2026-11-12T15:23:53.489Z"
+  },
+  {
+    "id": "COMP-1794497033493",
+    "title": "V Spark 2026 - Automated Test Arena",
+    "arenaName": "V Spark 2026 - Automated Test Arena",
+    "description": "Test session description",
+    "timestamp": "2026-11-12T15:23:53.493Z",
+    "dateFormatted": "Nov 12, 2026, 8:23 PM",
+    "durationMinutes": 90,
+    "totalPoints": 60,
+    "winner": {
+      "teamName": "Cyber Knights",
+      "leaderName": "Zain Ahmed",
+      "leaderRoll": "FA23-BCS-042",
+      "university": "COMSATS Vehari",
+      "score": 15,
+      "totalPoints": 60
+    },
+    "teams": [
+      {
+        "rank": 1,
+        "titleBadge": "Winner / Champion",
+        "id": "TEAM-340259",
+        "teamType": "duo",
+        "teamName": "Cyber Knights",
+        "username": "cyber_knights",
+        "password": "password123",
+        "leaderName": "Zain Ahmed",
+        "leaderRoll": "FA23-BCS-042",
+        "member2Name": "Bilal Hassan",
+        "member2Roll": "FA23-BCS-055",
+        "university": "COMSATS Vehari",
+        "language": "cpp",
+        "profilePic": null,
+        "status": "approved",
+        "score": 15,
+        "solvedProblems": [
+          1
+        ],
+        "submittedSolutions": {
+          "1": {
+            "problemId": 1,
+            "code": "#include <iostream>\nusing namespace std;\nint main() { cout << \"Hello V Spark\"; return 0; }",
+            "language": "cpp",
+            "difficulty": "Easy",
+            "problemTitle": "Easy Palindrome Check",
+            "points": 10,
+            "submittedAt": "2026-11-12T15:23:53.476Z"
+          }
+        },
+        "isCompleted": false,
+        "finishedAt": null,
+        "timeTakenSeconds": null,
+        "timeTakenFormatted": null,
+        "timeTakenWords": null,
+        "leftEarly": false,
+        "leftAt": null,
+        "bonusMarks": 5,
+        "registeredAt": "2026-11-12T15:23:53.402Z",
+        "approvedAt": "2026-11-12T15:23:53.423Z",
+        "passKey": "cyber_knights",
+        "secretKey": "cyber_knights",
+        "pcLockStatus": "locked",
+        "pcLockedAt": "2026-11-12T15:23:53.460Z",
+        "pcLastHeartbeat": 1794497033462,
+        "pcTamperAlert": false,
+        "totalContestPoints": 60,
+        "assignedProblems": [
+          {
+            "id": 1,
+            "title": "Easy Palindrome Check",
+            "difficulty": "Easy",
+            "points": 10,
+            "timeLimit": "1.5s",
+            "memoryLimit": "256MB",
+            "tags": [
+              "Algorithm",
+              "Logic"
+            ],
+            "description": "Check if string is palindrome",
+            "inputFormat": "Standard Input",
+            "outputFormat": "Standard Output",
+            "constraints": [
+              "1 <= N <= 10^5"
+            ],
+            "optionA": "",
+            "optionB": "",
+            "optionC": "",
+            "optionD": "",
+            "options": {
+              "a": "",
+              "b": "",
+              "c": "",
+              "d": ""
+            },
+            "correctAnswer": "",
+            "sampleCases": [
+              {
+                "input": "Sample input",
+                "expected": "Sample output",
+                "explanation": "Sample demonstration"
+              }
+            ],
+            "starterCode": {
+              "c": "// Write your C code here...\n",
+              "cpp": "// Write your C++ code here...\n",
+              "java": "// Write your Java code here...\n",
+              "python": "# Write your Python code here...\n",
+              "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+              "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+              "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+              "php": "<?php\n// Write your PHP code here...\n"
+            },
+            "languages": [
+              "C",
+              "C++",
+              "Java",
+              "Python",
+              "HTML",
+              "JavaScript",
+              "Dart",
+              "PHP"
+            ],
+            "slotNumber": 1
+          },
+          {
+            "id": 2,
+            "title": "Medium Matrix Spiral",
+            "difficulty": "Medium",
+            "points": 20,
+            "timeLimit": "1.5s",
+            "memoryLimit": "256MB",
+            "tags": [
+              "Algorithm",
+              "Logic"
+            ],
+            "description": "Print matrix in spiral order",
+            "inputFormat": "Standard Input",
+            "outputFormat": "Standard Output",
+            "constraints": [
+              "1 <= N <= 10^5"
+            ],
+            "optionA": "",
+            "optionB": "",
+            "optionC": "",
+            "optionD": "",
+            "options": {
+              "a": "",
+              "b": "",
+              "c": "",
+              "d": ""
+            },
+            "correctAnswer": "",
+            "sampleCases": [
+              {
+                "input": "Sample input",
+                "expected": "Sample output",
+                "explanation": "Sample demonstration"
+              }
+            ],
+            "starterCode": {
+              "c": "// Write your C code here...\n",
+              "cpp": "// Write your C++ code here...\n",
+              "java": "// Write your Java code here...\n",
+              "python": "# Write your Python code here...\n",
+              "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+              "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+              "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+              "php": "<?php\n// Write your PHP code here...\n"
+            },
+            "languages": [
+              "C",
+              "C++",
+              "Java",
+              "Python",
+              "HTML",
+              "JavaScript",
+              "Dart",
+              "PHP"
+            ],
+            "slotNumber": 2
+          },
+          {
+            "id": 3,
+            "title": "Hard Graph Shortest Path",
+            "difficulty": "Hard",
+            "points": 30,
+            "timeLimit": "1.5s",
+            "memoryLimit": "256MB",
+            "tags": [
+              "Algorithm",
+              "Logic"
+            ],
+            "description": "Find shortest path in weighted DAG",
+            "inputFormat": "Standard Input",
+            "outputFormat": "Standard Output",
+            "constraints": [
+              "1 <= N <= 10^5"
+            ],
+            "optionA": "",
+            "optionB": "",
+            "optionC": "",
+            "optionD": "",
+            "options": {
+              "a": "",
+              "b": "",
+              "c": "",
+              "d": ""
+            },
+            "correctAnswer": "",
+            "sampleCases": [
+              {
+                "input": "Sample input",
+                "expected": "Sample output",
+                "explanation": "Sample demonstration"
+              }
+            ],
+            "starterCode": {
+              "c": "// Write your C code here...\n",
+              "cpp": "// Write your C++ code here...\n",
+              "java": "// Write your Java code here...\n",
+              "python": "# Write your Python code here...\n",
+              "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+              "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+              "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+              "php": "<?php\n// Write your PHP code here...\n"
+            },
+            "languages": [
+              "C",
+              "C++",
+              "Java",
+              "Python",
+              "HTML",
+              "JavaScript",
+              "Dart",
+              "PHP"
+            ],
+            "slotNumber": 3
+          }
+        ],
+        "totalAssignedCount": 3,
+        "questionBreakdown": {
+          "1": {
+            "problemId": 1,
+            "problemTitle": "Easy Palindrome Check",
+            "difficulty": "Easy",
+            "scoreAwarded": 10,
+            "bonus": 5,
+            "judgeNotes": ""
+          }
+        },
+        "solvedCount": 1
+      }
+    ],
+    "questions": [
+      {
+        "id": 1,
+        "title": "Easy Palindrome Check",
+        "difficulty": "Easy",
+        "points": 10,
+        "timeLimit": "1.5s",
+        "memoryLimit": "256MB",
+        "tags": [
+          "Algorithm",
+          "Logic"
+        ],
+        "description": "Check if string is palindrome",
+        "inputFormat": "Standard Input",
+        "outputFormat": "Standard Output",
+        "constraints": [
+          "1 <= N <= 10^5"
+        ],
+        "optionA": "",
+        "optionB": "",
+        "optionC": "",
+        "optionD": "",
+        "options": {
+          "a": "",
+          "b": "",
+          "c": "",
+          "d": ""
+        },
+        "correctAnswer": "",
+        "sampleCases": [
+          {
+            "input": "Sample input",
+            "expected": "Sample output",
+            "explanation": "Sample demonstration"
+          }
+        ],
+        "starterCode": {
+          "c": "// Write your C code here...\n",
+          "cpp": "// Write your C++ code here...\n",
+          "java": "// Write your Java code here...\n",
+          "python": "# Write your Python code here...\n",
+          "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+          "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+          "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+          "php": "<?php\n// Write your PHP code here...\n"
+        },
+        "languages": [
+          "C",
+          "C++",
+          "Java",
+          "Python",
+          "HTML",
+          "JavaScript",
+          "Dart",
+          "PHP"
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Medium Matrix Spiral",
+        "difficulty": "Medium",
+        "points": 20,
+        "timeLimit": "1.5s",
+        "memoryLimit": "256MB",
+        "tags": [
+          "Algorithm",
+          "Logic"
+        ],
+        "description": "Print matrix in spiral order",
+        "inputFormat": "Standard Input",
+        "outputFormat": "Standard Output",
+        "constraints": [
+          "1 <= N <= 10^5"
+        ],
+        "optionA": "",
+        "optionB": "",
+        "optionC": "",
+        "optionD": "",
+        "options": {
+          "a": "",
+          "b": "",
+          "c": "",
+          "d": ""
+        },
+        "correctAnswer": "",
+        "sampleCases": [
+          {
+            "input": "Sample input",
+            "expected": "Sample output",
+            "explanation": "Sample demonstration"
+          }
+        ],
+        "starterCode": {
+          "c": "// Write your C code here...\n",
+          "cpp": "// Write your C++ code here...\n",
+          "java": "// Write your Java code here...\n",
+          "python": "# Write your Python code here...\n",
+          "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+          "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+          "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+          "php": "<?php\n// Write your PHP code here...\n"
+        },
+        "languages": [
+          "C",
+          "C++",
+          "Java",
+          "Python",
+          "HTML",
+          "JavaScript",
+          "Dart",
+          "PHP"
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Hard Graph Shortest Path",
+        "difficulty": "Hard",
+        "points": 30,
+        "timeLimit": "1.5s",
+        "memoryLimit": "256MB",
+        "tags": [
+          "Algorithm",
+          "Logic"
+        ],
+        "description": "Find shortest path in weighted DAG",
+        "inputFormat": "Standard Input",
+        "outputFormat": "Standard Output",
+        "constraints": [
+          "1 <= N <= 10^5"
+        ],
+        "optionA": "",
+        "optionB": "",
+        "optionC": "",
+        "optionD": "",
+        "options": {
+          "a": "",
+          "b": "",
+          "c": "",
+          "d": ""
+        },
+        "correctAnswer": "",
+        "sampleCases": [
+          {
+            "input": "Sample input",
+            "expected": "Sample output",
+            "explanation": "Sample demonstration"
+          }
+        ],
+        "starterCode": {
+          "c": "// Write your C code here...\n",
+          "cpp": "// Write your C++ code here...\n",
+          "java": "// Write your Java code here...\n",
+          "python": "# Write your Python code here...\n",
+          "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+          "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+          "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+          "php": "<?php\n// Write your PHP code here...\n"
+        },
+        "languages": [
+          "C",
+          "C++",
+          "Java",
+          "Python",
+          "HTML",
+          "JavaScript",
+          "Dart",
+          "PHP"
+        ]
+      }
+    ],
+    "totalTeams": 1,
+    "totalQuestions": 3
+  }
+]
