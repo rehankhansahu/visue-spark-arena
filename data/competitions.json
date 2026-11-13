@@ -851,5 +851,2053 @@
     ],
     "totalTeams": 1,
     "totalQuestions": 3
+  },
+  {
+    "id": "COMP-1794543041800",
+    "title": "Spring 2026 Inter-Uni Championship (Official Certified)",
+    "arenaName": "Spring 2026 Inter-Uni Championship (Official Certified)",
+    "description": "Updated notes: Dr. Rashid Jahangir approved all final results.",
+    "timestamp": "2026-11-13T04:10:41.800Z",
+    "dateFormatted": "Nov 13, 2026, 9:10 AM",
+    "durationMinutes": 90,
+    "totalPoints": 60,
+    "winner": {
+      "teamName": "Alpha Coders",
+      "leaderName": "Ali Raza",
+      "leaderRoll": "FA23-BCS-001",
+      "university": "COMSATS Lahore",
+      "score": 20,
+      "totalPoints": 60
+    },
+    "teams": [
+      {
+        "rank": 1,
+        "titleBadge": "Winner / Champion",
+        "id": "TEAM-176926",
+        "teamType": "duo",
+        "teamName": "Alpha Coders",
+        "username": "alpha_coders",
+        "password": "alpha_pass_123",
+        "leaderName": "Ali Raza",
+        "leaderRoll": "FA23-BCS-001",
+        "member2Name": "Usman Ghani",
+        "member2Roll": "FA23-BCS-002",
+        "university": "COMSATS Lahore",
+        "language": "cpp",
+        "profilePic": null,
+        "status": "approved",
+        "score": 20,
+        "solvedProblems": [
+          1
+        ],
+        "submittedSolutions": {
+          "1": {
+            "problemId": 1,
+            "code": "#include <iostream>\nusing namespace std;\nint main() { cout << \"Reversed\"; return 0; }",
+            "language": "cpp",
+            "difficulty": "Easy",
+            "problemTitle": "CSV Easy - Reverse Array",
+            "points": 10,
+            "submittedAt": "2026-11-13T04:10:41.789Z"
+          }
+        },
+        "isCompleted": false,
+        "finishedAt": null,
+        "timeTakenSeconds": null,
+        "timeTakenFormatted": null,
+        "timeTakenWords": null,
+        "leftEarly": false,
+        "leftAt": null,
+        "bonusMarks": 10,
+        "registeredAt": "2026-11-13T04:10:41.769Z",
+        "approvedAt": "2026-11-13T04:10:41.773Z",
+        "passKey": "alpha_coders",
+        "secretKey": "alpha_coders",
+        "pcLockStatus": "locked",
+        "pcLockedAt": "2026-11-13T04:10:41.783Z",
+        "pcLastHeartbeat": 1794543041783,
+        "pcTamperAlert": false,
+        "totalContestPoints": 60,
+        "assignedProblems": [
+          {
+            "id": 1,
+            "title": "CSV Easy - Reverse Array",
+            "difficulty": "Easy",
+            "points": 10,
+            "timeLimit": "1.5s",
+            "memoryLimit": "256MB",
+            "tags": [
+              "Algorithm",
+              "Logic"
+            ],
+            "description": "Given an array of integers, reverse its elements in-place.",
+            "inputFormat": "Standard Input",
+            "outputFormat": "Standard Output",
+            "constraints": [
+              "1 <= N <= 10^5"
+            ],
+            "optionA": "",
+            "optionB": "",
+            "optionC": "",
+            "optionD": "",
+            "options": {
+              "a": "",
+              "b": "",
+              "c": "",
+              "d": ""
+            },
+            "correctAnswer": "",
+            "sampleCases": [
+              {
+                "input": "5\n1 2 3 4 5",
+                "expected": "5 4 3 2 1",
+                "explanation": "Sample demonstration"
+              }
+            ],
+            "starterCode": {
+              "c": "// Write your C code here...\n",
+              "cpp": "// Write your C++ code here...\n",
+              "java": "// Write your Java code here...\n",
+              "python": "# Write your Python code here...\n",
+              "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+              "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+              "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+              "php": "<?php\n// Write your PHP code here...\n"
+            },
+            "languages": [
+              "C",
+              "C++",
+              "Java",
+              "Python"
+            ],
+            "slotNumber": 1
+          },
+          {
+            "id": 2,
+            "title": "CSV Medium - Longest Substring",
+            "difficulty": "Medium",
+            "points": 20,
+            "timeLimit": "1.5s",
+            "memoryLimit": "256MB",
+            "tags": [
+              "Algorithm",
+              "Logic"
+            ],
+            "description": "Find the length of the longest substring without repeating characters.",
+            "inputFormat": "Standard Input",
+            "outputFormat": "Standard Output",
+            "constraints": [
+              "1 <= N <= 10^5"
+            ],
+            "optionA": "",
+            "optionB": "",
+            "optionC": "",
+            "optionD": "",
+            "options": {
+              "a": "",
+              "b": "",
+              "c": "",
+              "d": ""
+            },
+            "correctAnswer": "",
+            "sampleCases": [
+              {
+                "input": "abcabcbb",
+                "expected": "3",
+                "explanation": "Sample demonstration"
+              }
+            ],
+            "starterCode": {
+              "c": "// Write your C code here...\n",
+              "cpp": "// Write your C++ code here...\n",
+              "java": "// Write your Java code here...\n",
+              "python": "# Write your Python code here...\n",
+              "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+              "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+              "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+              "php": "<?php\n// Write your PHP code here...\n"
+            },
+            "languages": [
+              "C++",
+              "Java",
+              "Python"
+            ],
+            "slotNumber": 2
+          },
+          {
+            "id": 3,
+            "title": "CSV Hard - Travelling Salesman DP",
+            "difficulty": "Hard",
+            "points": 30,
+            "timeLimit": "1.5s",
+            "memoryLimit": "256MB",
+            "tags": [
+              "Algorithm",
+              "Logic"
+            ],
+            "description": "Find the minimum cost Hamiltonian cycle in a directed graph.",
+            "inputFormat": "Standard Input",
+            "outputFormat": "Standard Output",
+            "constraints": [
+              "1 <= N <= 10^5"
+            ],
+            "optionA": "",
+            "optionB": "",
+            "optionC": "",
+            "optionD": "",
+            "options": {
+              "a": "",
+              "b": "",
+              "c": "",
+              "d": ""
+            },
+            "correctAnswer": "",
+            "sampleCases": [
+              {
+                "input": "4\n0 10 15 20\n10 0 35 25\n15 35 0 30\n20 25 30 0",
+                "expected": "80",
+                "explanation": "Sample demonstration"
+              }
+            ],
+            "starterCode": {
+              "c": "// Write your C code here...\n",
+              "cpp": "// Write your C++ code here...\n",
+              "java": "// Write your Java code here...\n",
+              "python": "# Write your Python code here...\n",
+              "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+              "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+              "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+              "php": "<?php\n// Write your PHP code here...\n"
+            },
+            "languages": [
+              "C++",
+              "Java",
+              "Python"
+            ],
+            "slotNumber": 3
+          }
+        ],
+        "totalAssignedCount": 3,
+        "questionBreakdown": {
+          "1": {
+            "problemId": 1,
+            "problemTitle": "CSV Easy - Reverse Array",
+            "difficulty": "Easy",
+            "scoreAwarded": 10,
+            "bonus": 10,
+            "judgeNotes": ""
+          }
+        },
+        "solvedCount": 1
+      },
+      {
+        "rank": 2,
+        "titleBadge": "Runner Up",
+        "id": "TEAM-177123",
+        "teamType": "solo",
+        "teamName": "Byte Breakers",
+        "username": "byte_breakers",
+        "password": "byte_pass_123",
+        "leaderName": "Sara Khan",
+        "leaderRoll": "FA23-BCS-010",
+        "member2Name": "",
+        "member2Roll": "",
+        "university": "NUST Islamabad",
+        "language": "python",
+        "profilePic": null,
+        "status": "approved",
+        "score": 0,
+        "solvedProblems": [],
+        "submittedSolutions": {},
+        "isCompleted": false,
+        "finishedAt": null,
+        "timeTakenSeconds": null,
+        "timeTakenFormatted": null,
+        "timeTakenWords": null,
+        "leftEarly": false,
+        "leftAt": null,
+        "bonusMarks": 0,
+        "registeredAt": "2026-11-13T04:10:41.771Z",
+        "approvedAt": "2026-11-13T04:10:41.775Z",
+        "passKey": "byte_breakers",
+        "secretKey": "byte_breakers",
+        "pcLockStatus": "locked",
+        "pcLockedAt": "2026-11-13T04:10:41.784Z",
+        "pcLastHeartbeat": 1794543041784,
+        "pcTamperAlert": false,
+        "totalContestPoints": 60,
+        "assignedProblems": [
+          {
+            "id": 1,
+            "title": "CSV Easy - Reverse Array",
+            "difficulty": "Easy",
+            "points": 10,
+            "timeLimit": "1.5s",
+            "memoryLimit": "256MB",
+            "tags": [
+              "Algorithm",
+              "Logic"
+            ],
+            "description": "Given an array of integers, reverse its elements in-place.",
+            "inputFormat": "Standard Input",
+            "outputFormat": "Standard Output",
+            "constraints": [
+              "1 <= N <= 10^5"
+            ],
+            "optionA": "",
+            "optionB": "",
+            "optionC": "",
+            "optionD": "",
+            "options": {
+              "a": "",
+              "b": "",
+              "c": "",
+              "d": ""
+            },
+            "correctAnswer": "",
+            "sampleCases": [
+              {
+                "input": "5\n1 2 3 4 5",
+                "expected": "5 4 3 2 1",
+                "explanation": "Sample demonstration"
+              }
+            ],
+            "starterCode": {
+              "c": "// Write your C code here...\n",
+              "cpp": "// Write your C++ code here...\n",
+              "java": "// Write your Java code here...\n",
+              "python": "# Write your Python code here...\n",
+              "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+              "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+              "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+              "php": "<?php\n// Write your PHP code here...\n"
+            },
+            "languages": [
+              "C",
+              "C++",
+              "Java",
+              "Python"
+            ],
+            "slotNumber": 1
+          },
+          {
+            "id": 2,
+            "title": "CSV Medium - Longest Substring",
+            "difficulty": "Medium",
+            "points": 20,
+            "timeLimit": "1.5s",
+            "memoryLimit": "256MB",
+            "tags": [
+              "Algorithm",
+              "Logic"
+            ],
+            "description": "Find the length of the longest substring without repeating characters.",
+            "inputFormat": "Standard Input",
+            "outputFormat": "Standard Output",
+            "constraints": [
+              "1 <= N <= 10^5"
+            ],
+            "optionA": "",
+            "optionB": "",
+            "optionC": "",
+            "optionD": "",
+            "options": {
+              "a": "",
+              "b": "",
+              "c": "",
+              "d": ""
+            },
+            "correctAnswer": "",
+            "sampleCases": [
+              {
+                "input": "abcabcbb",
+                "expected": "3",
+                "explanation": "Sample demonstration"
+              }
+            ],
+            "starterCode": {
+              "c": "// Write your C code here...\n",
+              "cpp": "// Write your C++ code here...\n",
+              "java": "// Write your Java code here...\n",
+              "python": "# Write your Python code here...\n",
+              "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+              "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+              "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+              "php": "<?php\n// Write your PHP code here...\n"
+            },
+            "languages": [
+              "C++",
+              "Java",
+              "Python"
+            ],
+            "slotNumber": 2
+          },
+          {
+            "id": 3,
+            "title": "CSV Hard - Travelling Salesman DP",
+            "difficulty": "Hard",
+            "points": 30,
+            "timeLimit": "1.5s",
+            "memoryLimit": "256MB",
+            "tags": [
+              "Algorithm",
+              "Logic"
+            ],
+            "description": "Find the minimum cost Hamiltonian cycle in a directed graph.",
+            "inputFormat": "Standard Input",
+            "outputFormat": "Standard Output",
+            "constraints": [
+              "1 <= N <= 10^5"
+            ],
+            "optionA": "",
+            "optionB": "",
+            "optionC": "",
+            "optionD": "",
+            "options": {
+              "a": "",
+              "b": "",
+              "c": "",
+              "d": ""
+            },
+            "correctAnswer": "",
+            "sampleCases": [
+              {
+                "input": "4\n0 10 15 20\n10 0 35 25\n15 35 0 30\n20 25 30 0",
+                "expected": "80",
+                "explanation": "Sample demonstration"
+              }
+            ],
+            "starterCode": {
+              "c": "// Write your C code here...\n",
+              "cpp": "// Write your C++ code here...\n",
+              "java": "// Write your Java code here...\n",
+              "python": "# Write your Python code here...\n",
+              "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+              "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+              "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+              "php": "<?php\n// Write your PHP code here...\n"
+            },
+            "languages": [
+              "C++",
+              "Java",
+              "Python"
+            ],
+            "slotNumber": 3
+          }
+        ],
+        "totalAssignedCount": 3,
+        "questionBreakdown": {},
+        "solvedCount": 0
+      }
+    ],
+    "questions": [
+      {
+        "id": 1,
+        "title": "CSV Easy - Reverse Array",
+        "difficulty": "Easy",
+        "points": 10,
+        "timeLimit": "1.5s",
+        "memoryLimit": "256MB",
+        "tags": [
+          "Algorithm",
+          "Logic"
+        ],
+        "description": "Given an array of integers, reverse its elements in-place.",
+        "inputFormat": "Standard Input",
+        "outputFormat": "Standard Output",
+        "constraints": [
+          "1 <= N <= 10^5"
+        ],
+        "optionA": "",
+        "optionB": "",
+        "optionC": "",
+        "optionD": "",
+        "options": {
+          "a": "",
+          "b": "",
+          "c": "",
+          "d": ""
+        },
+        "correctAnswer": "",
+        "sampleCases": [
+          {
+            "input": "5\n1 2 3 4 5",
+            "expected": "5 4 3 2 1",
+            "explanation": "Sample demonstration"
+          }
+        ],
+        "starterCode": {
+          "c": "// Write your C code here...\n",
+          "cpp": "// Write your C++ code here...\n",
+          "java": "// Write your Java code here...\n",
+          "python": "# Write your Python code here...\n",
+          "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+          "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+          "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+          "php": "<?php\n// Write your PHP code here...\n"
+        },
+        "languages": [
+          "C",
+          "C++",
+          "Java",
+          "Python"
+        ]
+      },
+      {
+        "id": 2,
+        "title": "CSV Medium - Longest Substring",
+        "difficulty": "Medium",
+        "points": 20,
+        "timeLimit": "1.5s",
+        "memoryLimit": "256MB",
+        "tags": [
+          "Algorithm",
+          "Logic"
+        ],
+        "description": "Find the length of the longest substring without repeating characters.",
+        "inputFormat": "Standard Input",
+        "outputFormat": "Standard Output",
+        "constraints": [
+          "1 <= N <= 10^5"
+        ],
+        "optionA": "",
+        "optionB": "",
+        "optionC": "",
+        "optionD": "",
+        "options": {
+          "a": "",
+          "b": "",
+          "c": "",
+          "d": ""
+        },
+        "correctAnswer": "",
+        "sampleCases": [
+          {
+            "input": "abcabcbb",
+            "expected": "3",
+            "explanation": "Sample demonstration"
+          }
+        ],
+        "starterCode": {
+          "c": "// Write your C code here...\n",
+          "cpp": "// Write your C++ code here...\n",
+          "java": "// Write your Java code here...\n",
+          "python": "# Write your Python code here...\n",
+          "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+          "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+          "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+          "php": "<?php\n// Write your PHP code here...\n"
+        },
+        "languages": [
+          "C++",
+          "Java",
+          "Python"
+        ]
+      },
+      {
+        "id": 3,
+        "title": "CSV Hard - Travelling Salesman DP",
+        "difficulty": "Hard",
+        "points": 30,
+        "timeLimit": "1.5s",
+        "memoryLimit": "256MB",
+        "tags": [
+          "Algorithm",
+          "Logic"
+        ],
+        "description": "Find the minimum cost Hamiltonian cycle in a directed graph.",
+        "inputFormat": "Standard Input",
+        "outputFormat": "Standard Output",
+        "constraints": [
+          "1 <= N <= 10^5"
+        ],
+        "optionA": "",
+        "optionB": "",
+        "optionC": "",
+        "optionD": "",
+        "options": {
+          "a": "",
+          "b": "",
+          "c": "",
+          "d": ""
+        },
+        "correctAnswer": "",
+        "sampleCases": [
+          {
+            "input": "4\n0 10 15 20\n10 0 35 25\n15 35 0 30\n20 25 30 0",
+            "expected": "80",
+            "explanation": "Sample demonstration"
+          }
+        ],
+        "starterCode": {
+          "c": "// Write your C code here...\n",
+          "cpp": "// Write your C++ code here...\n",
+          "java": "// Write your Java code here...\n",
+          "python": "# Write your Python code here...\n",
+          "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+          "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+          "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+          "php": "<?php\n// Write your PHP code here...\n"
+        },
+        "languages": [
+          "C++",
+          "Java",
+          "Python"
+        ]
+      }
+    ],
+    "totalTeams": 2,
+    "totalQuestions": 3,
+    "updatedAt": "2026-11-13T04:10:41.804Z"
+  },
+  {
+    "id": "COMP-1794543041808",
+    "title": "V Spark 2026 - Inter-University Programming Arena",
+    "arenaName": "V Spark 2026 - Inter-University Programming Arena",
+    "description": "Annual Inter-University Speed Coding Arena",
+    "timestamp": "2026-11-13T04:10:41.807Z",
+    "dateFormatted": "Nov 13, 2026, 9:10 AM",
+    "durationMinutes": 90,
+    "totalPoints": 60,
+    "winner": {
+      "teamName": "Alpha Coders",
+      "leaderName": "Ali Raza",
+      "leaderRoll": "FA23-BCS-001",
+      "university": "COMSATS Lahore",
+      "score": 20,
+      "totalPoints": 60
+    },
+    "teams": [
+      {
+        "rank": 1,
+        "titleBadge": "Winner / Champion",
+        "id": "TEAM-176926",
+        "teamType": "duo",
+        "teamName": "Alpha Coders",
+        "username": "alpha_coders",
+        "password": "alpha_pass_123",
+        "leaderName": "Ali Raza",
+        "leaderRoll": "FA23-BCS-001",
+        "member2Name": "Usman Ghani",
+        "member2Roll": "FA23-BCS-002",
+        "university": "COMSATS Lahore",
+        "language": "cpp",
+        "profilePic": null,
+        "status": "approved",
+        "score": 20,
+        "solvedProblems": [
+          1
+        ],
+        "submittedSolutions": {
+          "1": {
+            "problemId": 1,
+            "code": "#include <iostream>\nusing namespace std;\nint main() { cout << \"Reversed\"; return 0; }",
+            "language": "cpp",
+            "difficulty": "Easy",
+            "problemTitle": "CSV Easy - Reverse Array",
+            "points": 10,
+            "submittedAt": "2026-11-13T04:10:41.789Z"
+          }
+        },
+        "isCompleted": false,
+        "finishedAt": null,
+        "timeTakenSeconds": null,
+        "timeTakenFormatted": null,
+        "timeTakenWords": null,
+        "leftEarly": false,
+        "leftAt": null,
+        "bonusMarks": 10,
+        "registeredAt": "2026-11-13T04:10:41.769Z",
+        "approvedAt": "2026-11-13T04:10:41.773Z",
+        "passKey": "alpha_coders",
+        "secretKey": "alpha_coders",
+        "pcLockStatus": "locked",
+        "pcLockedAt": "2026-11-13T04:10:41.783Z",
+        "pcLastHeartbeat": 1794543041783,
+        "pcTamperAlert": false,
+        "totalContestPoints": 60,
+        "assignedProblems": [
+          {
+            "id": 1,
+            "title": "CSV Easy - Reverse Array",
+            "difficulty": "Easy",
+            "points": 10,
+            "timeLimit": "1.5s",
+            "memoryLimit": "256MB",
+            "tags": [
+              "Algorithm",
+              "Logic"
+            ],
+            "description": "Given an array of integers, reverse its elements in-place.",
+            "inputFormat": "Standard Input",
+            "outputFormat": "Standard Output",
+            "constraints": [
+              "1 <= N <= 10^5"
+            ],
+            "optionA": "",
+            "optionB": "",
+            "optionC": "",
+            "optionD": "",
+            "options": {
+              "a": "",
+              "b": "",
+              "c": "",
+              "d": ""
+            },
+            "correctAnswer": "",
+            "sampleCases": [
+              {
+                "input": "5\n1 2 3 4 5",
+                "expected": "5 4 3 2 1",
+                "explanation": "Sample demonstration"
+              }
+            ],
+            "starterCode": {
+              "c": "// Write your C code here...\n",
+              "cpp": "// Write your C++ code here...\n",
+              "java": "// Write your Java code here...\n",
+              "python": "# Write your Python code here...\n",
+              "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+              "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+              "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+              "php": "<?php\n// Write your PHP code here...\n"
+            },
+            "languages": [
+              "C",
+              "C++",
+              "Java",
+              "Python"
+            ],
+            "slotNumber": 1
+          },
+          {
+            "id": 2,
+            "title": "CSV Medium - Longest Substring",
+            "difficulty": "Medium",
+            "points": 20,
+            "timeLimit": "1.5s",
+            "memoryLimit": "256MB",
+            "tags": [
+              "Algorithm",
+              "Logic"
+            ],
+            "description": "Find the length of the longest substring without repeating characters.",
+            "inputFormat": "Standard Input",
+            "outputFormat": "Standard Output",
+            "constraints": [
+              "1 <= N <= 10^5"
+            ],
+            "optionA": "",
+            "optionB": "",
+            "optionC": "",
+            "optionD": "",
+            "options": {
+              "a": "",
+              "b": "",
+              "c": "",
+              "d": ""
+            },
+            "correctAnswer": "",
+            "sampleCases": [
+              {
+                "input": "abcabcbb",
+                "expected": "3",
+                "explanation": "Sample demonstration"
+              }
+            ],
+            "starterCode": {
+              "c": "// Write your C code here...\n",
+              "cpp": "// Write your C++ code here...\n",
+              "java": "// Write your Java code here...\n",
+              "python": "# Write your Python code here...\n",
+              "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+              "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+              "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+              "php": "<?php\n// Write your PHP code here...\n"
+            },
+            "languages": [
+              "C++",
+              "Java",
+              "Python"
+            ],
+            "slotNumber": 2
+          },
+          {
+            "id": 3,
+            "title": "CSV Hard - Travelling Salesman DP",
+            "difficulty": "Hard",
+            "points": 30,
+            "timeLimit": "1.5s",
+            "memoryLimit": "256MB",
+            "tags": [
+              "Algorithm",
+              "Logic"
+            ],
+            "description": "Find the minimum cost Hamiltonian cycle in a directed graph.",
+            "inputFormat": "Standard Input",
+            "outputFormat": "Standard Output",
+            "constraints": [
+              "1 <= N <= 10^5"
+            ],
+            "optionA": "",
+            "optionB": "",
+            "optionC": "",
+            "optionD": "",
+            "options": {
+              "a": "",
+              "b": "",
+              "c": "",
+              "d": ""
+            },
+            "correctAnswer": "",
+            "sampleCases": [
+              {
+                "input": "4\n0 10 15 20\n10 0 35 25\n15 35 0 30\n20 25 30 0",
+                "expected": "80",
+                "explanation": "Sample demonstration"
+              }
+            ],
+            "starterCode": {
+              "c": "// Write your C code here...\n",
+              "cpp": "// Write your C++ code here...\n",
+              "java": "// Write your Java code here...\n",
+              "python": "# Write your Python code here...\n",
+              "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+              "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+              "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+              "php": "<?php\n// Write your PHP code here...\n"
+            },
+            "languages": [
+              "C++",
+              "Java",
+              "Python"
+            ],
+            "slotNumber": 3
+          }
+        ],
+        "totalAssignedCount": 3,
+        "questionBreakdown": {
+          "1": {
+            "problemId": 1,
+            "problemTitle": "CSV Easy - Reverse Array",
+            "difficulty": "Easy",
+            "scoreAwarded": 10,
+            "bonus": 10,
+            "judgeNotes": ""
+          }
+        },
+        "solvedCount": 1
+      },
+      {
+        "rank": 2,
+        "titleBadge": "Runner Up",
+        "id": "TEAM-177123",
+        "teamType": "solo",
+        "teamName": "Byte Breakers",
+        "username": "byte_breakers",
+        "password": "byte_pass_123",
+        "leaderName": "Sara Khan",
+        "leaderRoll": "FA23-BCS-010",
+        "member2Name": "",
+        "member2Roll": "",
+        "university": "NUST Islamabad",
+        "language": "python",
+        "profilePic": null,
+        "status": "approved",
+        "score": 0,
+        "solvedProblems": [],
+        "submittedSolutions": {},
+        "isCompleted": false,
+        "finishedAt": null,
+        "timeTakenSeconds": null,
+        "timeTakenFormatted": null,
+        "timeTakenWords": null,
+        "leftEarly": false,
+        "leftAt": null,
+        "bonusMarks": 0,
+        "registeredAt": "2026-11-13T04:10:41.771Z",
+        "approvedAt": "2026-11-13T04:10:41.775Z",
+        "passKey": "byte_breakers",
+        "secretKey": "byte_breakers",
+        "pcLockStatus": "locked",
+        "pcLockedAt": "2026-11-13T04:10:41.784Z",
+        "pcLastHeartbeat": 1794543041784,
+        "pcTamperAlert": false,
+        "totalContestPoints": 60,
+        "assignedProblems": [
+          {
+            "id": 1,
+            "title": "CSV Easy - Reverse Array",
+            "difficulty": "Easy",
+            "points": 10,
+            "timeLimit": "1.5s",
+            "memoryLimit": "256MB",
+            "tags": [
+              "Algorithm",
+              "Logic"
+            ],
+            "description": "Given an array of integers, reverse its elements in-place.",
+            "inputFormat": "Standard Input",
+            "outputFormat": "Standard Output",
+            "constraints": [
+              "1 <= N <= 10^5"
+            ],
+            "optionA": "",
+            "optionB": "",
+            "optionC": "",
+            "optionD": "",
+            "options": {
+              "a": "",
+              "b": "",
+              "c": "",
+              "d": ""
+            },
+            "correctAnswer": "",
+            "sampleCases": [
+              {
+                "input": "5\n1 2 3 4 5",
+                "expected": "5 4 3 2 1",
+                "explanation": "Sample demonstration"
+              }
+            ],
+            "starterCode": {
+              "c": "// Write your C code here...\n",
+              "cpp": "// Write your C++ code here...\n",
+              "java": "// Write your Java code here...\n",
+              "python": "# Write your Python code here...\n",
+              "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+              "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+              "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+              "php": "<?php\n// Write your PHP code here...\n"
+            },
+            "languages": [
+              "C",
+              "C++",
+              "Java",
+              "Python"
+            ],
+            "slotNumber": 1
+          },
+          {
+            "id": 2,
+            "title": "CSV Medium - Longest Substring",
+            "difficulty": "Medium",
+            "points": 20,
+            "timeLimit": "1.5s",
+            "memoryLimit": "256MB",
+            "tags": [
+              "Algorithm",
+              "Logic"
+            ],
+            "description": "Find the length of the longest substring without repeating characters.",
+            "inputFormat": "Standard Input",
+            "outputFormat": "Standard Output",
+            "constraints": [
+              "1 <= N <= 10^5"
+            ],
+            "optionA": "",
+            "optionB": "",
+            "optionC": "",
+            "optionD": "",
+            "options": {
+              "a": "",
+              "b": "",
+              "c": "",
+              "d": ""
+            },
+            "correctAnswer": "",
+            "sampleCases": [
+              {
+                "input": "abcabcbb",
+                "expected": "3",
+                "explanation": "Sample demonstration"
+              }
+            ],
+            "starterCode": {
+              "c": "// Write your C code here...\n",
+              "cpp": "// Write your C++ code here...\n",
+              "java": "// Write your Java code here...\n",
+              "python": "# Write your Python code here...\n",
+              "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+              "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+              "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+              "php": "<?php\n// Write your PHP code here...\n"
+            },
+            "languages": [
+              "C++",
+              "Java",
+              "Python"
+            ],
+            "slotNumber": 2
+          },
+          {
+            "id": 3,
+            "title": "CSV Hard - Travelling Salesman DP",
+            "difficulty": "Hard",
+            "points": 30,
+            "timeLimit": "1.5s",
+            "memoryLimit": "256MB",
+            "tags": [
+              "Algorithm",
+              "Logic"
+            ],
+            "description": "Find the minimum cost Hamiltonian cycle in a directed graph.",
+            "inputFormat": "Standard Input",
+            "outputFormat": "Standard Output",
+            "constraints": [
+              "1 <= N <= 10^5"
+            ],
+            "optionA": "",
+            "optionB": "",
+            "optionC": "",
+            "optionD": "",
+            "options": {
+              "a": "",
+              "b": "",
+              "c": "",
+              "d": ""
+            },
+            "correctAnswer": "",
+            "sampleCases": [
+              {
+                "input": "4\n0 10 15 20\n10 0 35 25\n15 35 0 30\n20 25 30 0",
+                "expected": "80",
+                "explanation": "Sample demonstration"
+              }
+            ],
+            "starterCode": {
+              "c": "// Write your C code here...\n",
+              "cpp": "// Write your C++ code here...\n",
+              "java": "// Write your Java code here...\n",
+              "python": "# Write your Python code here...\n",
+              "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+              "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+              "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+              "php": "<?php\n// Write your PHP code here...\n"
+            },
+            "languages": [
+              "C++",
+              "Java",
+              "Python"
+            ],
+            "slotNumber": 3
+          }
+        ],
+        "totalAssignedCount": 3,
+        "questionBreakdown": {},
+        "solvedCount": 0
+      }
+    ],
+    "questions": [
+      {
+        "id": 1,
+        "title": "CSV Easy - Reverse Array",
+        "difficulty": "Easy",
+        "points": 10,
+        "timeLimit": "1.5s",
+        "memoryLimit": "256MB",
+        "tags": [
+          "Algorithm",
+          "Logic"
+        ],
+        "description": "Given an array of integers, reverse its elements in-place.",
+        "inputFormat": "Standard Input",
+        "outputFormat": "Standard Output",
+        "constraints": [
+          "1 <= N <= 10^5"
+        ],
+        "optionA": "",
+        "optionB": "",
+        "optionC": "",
+        "optionD": "",
+        "options": {
+          "a": "",
+          "b": "",
+          "c": "",
+          "d": ""
+        },
+        "correctAnswer": "",
+        "sampleCases": [
+          {
+            "input": "5\n1 2 3 4 5",
+            "expected": "5 4 3 2 1",
+            "explanation": "Sample demonstration"
+          }
+        ],
+        "starterCode": {
+          "c": "// Write your C code here...\n",
+          "cpp": "// Write your C++ code here...\n",
+          "java": "// Write your Java code here...\n",
+          "python": "# Write your Python code here...\n",
+          "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+          "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+          "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+          "php": "<?php\n// Write your PHP code here...\n"
+        },
+        "languages": [
+          "C",
+          "C++",
+          "Java",
+          "Python"
+        ]
+      },
+      {
+        "id": 2,
+        "title": "CSV Medium - Longest Substring",
+        "difficulty": "Medium",
+        "points": 20,
+        "timeLimit": "1.5s",
+        "memoryLimit": "256MB",
+        "tags": [
+          "Algorithm",
+          "Logic"
+        ],
+        "description": "Find the length of the longest substring without repeating characters.",
+        "inputFormat": "Standard Input",
+        "outputFormat": "Standard Output",
+        "constraints": [
+          "1 <= N <= 10^5"
+        ],
+        "optionA": "",
+        "optionB": "",
+        "optionC": "",
+        "optionD": "",
+        "options": {
+          "a": "",
+          "b": "",
+          "c": "",
+          "d": ""
+        },
+        "correctAnswer": "",
+        "sampleCases": [
+          {
+            "input": "abcabcbb",
+            "expected": "3",
+            "explanation": "Sample demonstration"
+          }
+        ],
+        "starterCode": {
+          "c": "// Write your C code here...\n",
+          "cpp": "// Write your C++ code here...\n",
+          "java": "// Write your Java code here...\n",
+          "python": "# Write your Python code here...\n",
+          "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+          "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+          "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+          "php": "<?php\n// Write your PHP code here...\n"
+        },
+        "languages": [
+          "C++",
+          "Java",
+          "Python"
+        ]
+      },
+      {
+        "id": 3,
+        "title": "CSV Hard - Travelling Salesman DP",
+        "difficulty": "Hard",
+        "points": 30,
+        "timeLimit": "1.5s",
+        "memoryLimit": "256MB",
+        "tags": [
+          "Algorithm",
+          "Logic"
+        ],
+        "description": "Find the minimum cost Hamiltonian cycle in a directed graph.",
+        "inputFormat": "Standard Input",
+        "outputFormat": "Standard Output",
+        "constraints": [
+          "1 <= N <= 10^5"
+        ],
+        "optionA": "",
+        "optionB": "",
+        "optionC": "",
+        "optionD": "",
+        "options": {
+          "a": "",
+          "b": "",
+          "c": "",
+          "d": ""
+        },
+        "correctAnswer": "",
+        "sampleCases": [
+          {
+            "input": "4\n0 10 15 20\n10 0 35 25\n15 35 0 30\n20 25 30 0",
+            "expected": "80",
+            "explanation": "Sample demonstration"
+          }
+        ],
+        "starterCode": {
+          "c": "// Write your C code here...\n",
+          "cpp": "// Write your C++ code here...\n",
+          "java": "// Write your Java code here...\n",
+          "python": "# Write your Python code here...\n",
+          "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+          "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+          "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+          "php": "<?php\n// Write your PHP code here...\n"
+        },
+        "languages": [
+          "C++",
+          "Java",
+          "Python"
+        ]
+      }
+    ],
+    "totalTeams": 2,
+    "totalQuestions": 3
+  },
+  {
+    "id": "COMP-1794543083154",
+    "title": "Automated Test Round 1 (Updated)",
+    "arenaName": "Automated Test Round 1 (Updated)",
+    "description": "Updated notes in history",
+    "timestamp": "2026-11-13T04:11:23.154Z",
+    "dateFormatted": "Nov 13, 2026, 9:11 AM",
+    "durationMinutes": 90,
+    "totalPoints": 60,
+    "winner": {
+      "teamName": "Cyber Knights",
+      "leaderName": "Zain Ahmed",
+      "leaderRoll": "FA23-BCS-042",
+      "university": "COMSATS Vehari",
+      "score": 15,
+      "totalPoints": 60
+    },
+    "teams": [
+      {
+        "rank": 1,
+        "titleBadge": "Winner / Champion",
+        "id": "TEAM-311084",
+        "teamType": "duo",
+        "teamName": "Cyber Knights",
+        "username": "cyber_knights",
+        "password": "password123",
+        "leaderName": "Zain Ahmed",
+        "leaderRoll": "FA23-BCS-042",
+        "member2Name": "Bilal Hassan",
+        "member2Roll": "FA23-BCS-055",
+        "university": "COMSATS Vehari",
+        "language": "cpp",
+        "profilePic": null,
+        "status": "approved",
+        "score": 15,
+        "solvedProblems": [
+          1
+        ],
+        "submittedSolutions": {
+          "1": {
+            "problemId": 1,
+            "code": "#include <iostream>\nusing namespace std;\nint main() { cout << \"Hello V Spark\"; return 0; }",
+            "language": "cpp",
+            "difficulty": "Easy",
+            "problemTitle": "Easy Palindrome Check",
+            "points": 10,
+            "submittedAt": "2026-11-13T04:11:23.149Z"
+          }
+        },
+        "isCompleted": false,
+        "finishedAt": null,
+        "timeTakenSeconds": null,
+        "timeTakenFormatted": null,
+        "timeTakenWords": null,
+        "leftEarly": false,
+        "leftAt": null,
+        "bonusMarks": 5,
+        "registeredAt": "2026-11-13T04:11:23.110Z",
+        "approvedAt": "2026-11-13T04:11:23.123Z",
+        "passKey": "cyber_knights",
+        "secretKey": "cyber_knights",
+        "pcLockStatus": "locked",
+        "pcLockedAt": "2026-11-13T04:11:23.140Z",
+        "pcLastHeartbeat": 1794543083141,
+        "pcTamperAlert": false,
+        "totalContestPoints": 60,
+        "assignedProblems": [
+          {
+            "id": 1,
+            "title": "Easy Palindrome Check",
+            "difficulty": "Easy",
+            "points": 10,
+            "timeLimit": "1.5s",
+            "memoryLimit": "256MB",
+            "tags": [
+              "Algorithm",
+              "Logic"
+            ],
+            "description": "Check if string is palindrome",
+            "inputFormat": "Standard Input",
+            "outputFormat": "Standard Output",
+            "constraints": [
+              "1 <= N <= 10^5"
+            ],
+            "optionA": "",
+            "optionB": "",
+            "optionC": "",
+            "optionD": "",
+            "options": {
+              "a": "",
+              "b": "",
+              "c": "",
+              "d": ""
+            },
+            "correctAnswer": "",
+            "sampleCases": [
+              {
+                "input": "Sample input",
+                "expected": "Sample output",
+                "explanation": "Sample demonstration"
+              }
+            ],
+            "starterCode": {
+              "c": "// Write your C code here...\n",
+              "cpp": "// Write your C++ code here...\n",
+              "java": "// Write your Java code here...\n",
+              "python": "# Write your Python code here...\n",
+              "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+              "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+              "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+              "php": "<?php\n// Write your PHP code here...\n"
+            },
+            "languages": [
+              "C",
+              "C++",
+              "Java",
+              "Python",
+              "HTML",
+              "JavaScript",
+              "Dart",
+              "PHP"
+            ],
+            "slotNumber": 1
+          },
+          {
+            "id": 2,
+            "title": "Medium Matrix Spiral",
+            "difficulty": "Medium",
+            "points": 20,
+            "timeLimit": "1.5s",
+            "memoryLimit": "256MB",
+            "tags": [
+              "Algorithm",
+              "Logic"
+            ],
+            "description": "Print matrix in spiral order",
+            "inputFormat": "Standard Input",
+            "outputFormat": "Standard Output",
+            "constraints": [
+              "1 <= N <= 10^5"
+            ],
+            "optionA": "",
+            "optionB": "",
+            "optionC": "",
+            "optionD": "",
+            "options": {
+              "a": "",
+              "b": "",
+              "c": "",
+              "d": ""
+            },
+            "correctAnswer": "",
+            "sampleCases": [
+              {
+                "input": "Sample input",
+                "expected": "Sample output",
+                "explanation": "Sample demonstration"
+              }
+            ],
+            "starterCode": {
+              "c": "// Write your C code here...\n",
+              "cpp": "// Write your C++ code here...\n",
+              "java": "// Write your Java code here...\n",
+              "python": "# Write your Python code here...\n",
+              "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+              "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+              "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+              "php": "<?php\n// Write your PHP code here...\n"
+            },
+            "languages": [
+              "C",
+              "C++",
+              "Java",
+              "Python",
+              "HTML",
+              "JavaScript",
+              "Dart",
+              "PHP"
+            ],
+            "slotNumber": 2
+          },
+          {
+            "id": 3,
+            "title": "Hard Graph Shortest Path",
+            "difficulty": "Hard",
+            "points": 30,
+            "timeLimit": "1.5s",
+            "memoryLimit": "256MB",
+            "tags": [
+              "Algorithm",
+              "Logic"
+            ],
+            "description": "Find shortest path in weighted DAG",
+            "inputFormat": "Standard Input",
+            "outputFormat": "Standard Output",
+            "constraints": [
+              "1 <= N <= 10^5"
+            ],
+            "optionA": "",
+            "optionB": "",
+            "optionC": "",
+            "optionD": "",
+            "options": {
+              "a": "",
+              "b": "",
+              "c": "",
+              "d": ""
+            },
+            "correctAnswer": "",
+            "sampleCases": [
+              {
+                "input": "Sample input",
+                "expected": "Sample output",
+                "explanation": "Sample demonstration"
+              }
+            ],
+            "starterCode": {
+              "c": "// Write your C code here...\n",
+              "cpp": "// Write your C++ code here...\n",
+              "java": "// Write your Java code here...\n",
+              "python": "# Write your Python code here...\n",
+              "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+              "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+              "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+              "php": "<?php\n// Write your PHP code here...\n"
+            },
+            "languages": [
+              "C",
+              "C++",
+              "Java",
+              "Python",
+              "HTML",
+              "JavaScript",
+              "Dart",
+              "PHP"
+            ],
+            "slotNumber": 3
+          }
+        ],
+        "totalAssignedCount": 3,
+        "questionBreakdown": {
+          "1": {
+            "problemId": 1,
+            "problemTitle": "Easy Palindrome Check",
+            "difficulty": "Easy",
+            "scoreAwarded": 10,
+            "bonus": 5,
+            "judgeNotes": ""
+          }
+        },
+        "solvedCount": 1
+      }
+    ],
+    "questions": [
+      {
+        "id": 1,
+        "title": "Easy Palindrome Check",
+        "difficulty": "Easy",
+        "points": 10,
+        "timeLimit": "1.5s",
+        "memoryLimit": "256MB",
+        "tags": [
+          "Algorithm",
+          "Logic"
+        ],
+        "description": "Check if string is palindrome",
+        "inputFormat": "Standard Input",
+        "outputFormat": "Standard Output",
+        "constraints": [
+          "1 <= N <= 10^5"
+        ],
+        "optionA": "",
+        "optionB": "",
+        "optionC": "",
+        "optionD": "",
+        "options": {
+          "a": "",
+          "b": "",
+          "c": "",
+          "d": ""
+        },
+        "correctAnswer": "",
+        "sampleCases": [
+          {
+            "input": "Sample input",
+            "expected": "Sample output",
+            "explanation": "Sample demonstration"
+          }
+        ],
+        "starterCode": {
+          "c": "// Write your C code here...\n",
+          "cpp": "// Write your C++ code here...\n",
+          "java": "// Write your Java code here...\n",
+          "python": "# Write your Python code here...\n",
+          "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+          "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+          "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+          "php": "<?php\n// Write your PHP code here...\n"
+        },
+        "languages": [
+          "C",
+          "C++",
+          "Java",
+          "Python",
+          "HTML",
+          "JavaScript",
+          "Dart",
+          "PHP"
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Medium Matrix Spiral",
+        "difficulty": "Medium",
+        "points": 20,
+        "timeLimit": "1.5s",
+        "memoryLimit": "256MB",
+        "tags": [
+          "Algorithm",
+          "Logic"
+        ],
+        "description": "Print matrix in spiral order",
+        "inputFormat": "Standard Input",
+        "outputFormat": "Standard Output",
+        "constraints": [
+          "1 <= N <= 10^5"
+        ],
+        "optionA": "",
+        "optionB": "",
+        "optionC": "",
+        "optionD": "",
+        "options": {
+          "a": "",
+          "b": "",
+          "c": "",
+          "d": ""
+        },
+        "correctAnswer": "",
+        "sampleCases": [
+          {
+            "input": "Sample input",
+            "expected": "Sample output",
+            "explanation": "Sample demonstration"
+          }
+        ],
+        "starterCode": {
+          "c": "// Write your C code here...\n",
+          "cpp": "// Write your C++ code here...\n",
+          "java": "// Write your Java code here...\n",
+          "python": "# Write your Python code here...\n",
+          "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+          "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+          "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+          "php": "<?php\n// Write your PHP code here...\n"
+        },
+        "languages": [
+          "C",
+          "C++",
+          "Java",
+          "Python",
+          "HTML",
+          "JavaScript",
+          "Dart",
+          "PHP"
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Hard Graph Shortest Path",
+        "difficulty": "Hard",
+        "points": 30,
+        "timeLimit": "1.5s",
+        "memoryLimit": "256MB",
+        "tags": [
+          "Algorithm",
+          "Logic"
+        ],
+        "description": "Find shortest path in weighted DAG",
+        "inputFormat": "Standard Input",
+        "outputFormat": "Standard Output",
+        "constraints": [
+          "1 <= N <= 10^5"
+        ],
+        "optionA": "",
+        "optionB": "",
+        "optionC": "",
+        "optionD": "",
+        "options": {
+          "a": "",
+          "b": "",
+          "c": "",
+          "d": ""
+        },
+        "correctAnswer": "",
+        "sampleCases": [
+          {
+            "input": "Sample input",
+            "expected": "Sample output",
+            "explanation": "Sample demonstration"
+          }
+        ],
+        "starterCode": {
+          "c": "// Write your C code here...\n",
+          "cpp": "// Write your C++ code here...\n",
+          "java": "// Write your Java code here...\n",
+          "python": "# Write your Python code here...\n",
+          "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+          "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+          "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+          "php": "<?php\n// Write your PHP code here...\n"
+        },
+        "languages": [
+          "C",
+          "C++",
+          "Java",
+          "Python",
+          "HTML",
+          "JavaScript",
+          "Dart",
+          "PHP"
+        ]
+      }
+    ],
+    "totalTeams": 1,
+    "totalQuestions": 3,
+    "updatedAt": "2026-11-13T04:11:23.157Z"
+  },
+  {
+    "id": "COMP-1794543083161",
+    "title": "V Spark 2026 - Automated Test Arena",
+    "arenaName": "V Spark 2026 - Automated Test Arena",
+    "description": "Test session description",
+    "timestamp": "2026-11-13T04:11:23.160Z",
+    "dateFormatted": "Nov 13, 2026, 9:11 AM",
+    "durationMinutes": 90,
+    "totalPoints": 60,
+    "winner": {
+      "teamName": "Cyber Knights",
+      "leaderName": "Zain Ahmed",
+      "leaderRoll": "FA23-BCS-042",
+      "university": "COMSATS Vehari",
+      "score": 15,
+      "totalPoints": 60
+    },
+    "teams": [
+      {
+        "rank": 1,
+        "titleBadge": "Winner / Champion",
+        "id": "TEAM-311084",
+        "teamType": "duo",
+        "teamName": "Cyber Knights",
+        "username": "cyber_knights",
+        "password": "password123",
+        "leaderName": "Zain Ahmed",
+        "leaderRoll": "FA23-BCS-042",
+        "member2Name": "Bilal Hassan",
+        "member2Roll": "FA23-BCS-055",
+        "university": "COMSATS Vehari",
+        "language": "cpp",
+        "profilePic": null,
+        "status": "approved",
+        "score": 15,
+        "solvedProblems": [
+          1
+        ],
+        "submittedSolutions": {
+          "1": {
+            "problemId": 1,
+            "code": "#include <iostream>\nusing namespace std;\nint main() { cout << \"Hello V Spark\"; return 0; }",
+            "language": "cpp",
+            "difficulty": "Easy",
+            "problemTitle": "Easy Palindrome Check",
+            "points": 10,
+            "submittedAt": "2026-11-13T04:11:23.149Z"
+          }
+        },
+        "isCompleted": false,
+        "finishedAt": null,
+        "timeTakenSeconds": null,
+        "timeTakenFormatted": null,
+        "timeTakenWords": null,
+        "leftEarly": false,
+        "leftAt": null,
+        "bonusMarks": 5,
+        "registeredAt": "2026-11-13T04:11:23.110Z",
+        "approvedAt": "2026-11-13T04:11:23.123Z",
+        "passKey": "cyber_knights",
+        "secretKey": "cyber_knights",
+        "pcLockStatus": "locked",
+        "pcLockedAt": "2026-11-13T04:11:23.140Z",
+        "pcLastHeartbeat": 1794543083141,
+        "pcTamperAlert": false,
+        "totalContestPoints": 60,
+        "assignedProblems": [
+          {
+            "id": 1,
+            "title": "Easy Palindrome Check",
+            "difficulty": "Easy",
+            "points": 10,
+            "timeLimit": "1.5s",
+            "memoryLimit": "256MB",
+            "tags": [
+              "Algorithm",
+              "Logic"
+            ],
+            "description": "Check if string is palindrome",
+            "inputFormat": "Standard Input",
+            "outputFormat": "Standard Output",
+            "constraints": [
+              "1 <= N <= 10^5"
+            ],
+            "optionA": "",
+            "optionB": "",
+            "optionC": "",
+            "optionD": "",
+            "options": {
+              "a": "",
+              "b": "",
+              "c": "",
+              "d": ""
+            },
+            "correctAnswer": "",
+            "sampleCases": [
+              {
+                "input": "Sample input",
+                "expected": "Sample output",
+                "explanation": "Sample demonstration"
+              }
+            ],
+            "starterCode": {
+              "c": "// Write your C code here...\n",
+              "cpp": "// Write your C++ code here...\n",
+              "java": "// Write your Java code here...\n",
+              "python": "# Write your Python code here...\n",
+              "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+              "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+              "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+              "php": "<?php\n// Write your PHP code here...\n"
+            },
+            "languages": [
+              "C",
+              "C++",
+              "Java",
+              "Python",
+              "HTML",
+              "JavaScript",
+              "Dart",
+              "PHP"
+            ],
+            "slotNumber": 1
+          },
+          {
+            "id": 2,
+            "title": "Medium Matrix Spiral",
+            "difficulty": "Medium",
+            "points": 20,
+            "timeLimit": "1.5s",
+            "memoryLimit": "256MB",
+            "tags": [
+              "Algorithm",
+              "Logic"
+            ],
+            "description": "Print matrix in spiral order",
+            "inputFormat": "Standard Input",
+            "outputFormat": "Standard Output",
+            "constraints": [
+              "1 <= N <= 10^5"
+            ],
+            "optionA": "",
+            "optionB": "",
+            "optionC": "",
+            "optionD": "",
+            "options": {
+              "a": "",
+              "b": "",
+              "c": "",
+              "d": ""
+            },
+            "correctAnswer": "",
+            "sampleCases": [
+              {
+                "input": "Sample input",
+                "expected": "Sample output",
+                "explanation": "Sample demonstration"
+              }
+            ],
+            "starterCode": {
+              "c": "// Write your C code here...\n",
+              "cpp": "// Write your C++ code here...\n",
+              "java": "// Write your Java code here...\n",
+              "python": "# Write your Python code here...\n",
+              "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+              "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+              "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+              "php": "<?php\n// Write your PHP code here...\n"
+            },
+            "languages": [
+              "C",
+              "C++",
+              "Java",
+              "Python",
+              "HTML",
+              "JavaScript",
+              "Dart",
+              "PHP"
+            ],
+            "slotNumber": 2
+          },
+          {
+            "id": 3,
+            "title": "Hard Graph Shortest Path",
+            "difficulty": "Hard",
+            "points": 30,
+            "timeLimit": "1.5s",
+            "memoryLimit": "256MB",
+            "tags": [
+              "Algorithm",
+              "Logic"
+            ],
+            "description": "Find shortest path in weighted DAG",
+            "inputFormat": "Standard Input",
+            "outputFormat": "Standard Output",
+            "constraints": [
+              "1 <= N <= 10^5"
+            ],
+            "optionA": "",
+            "optionB": "",
+            "optionC": "",
+            "optionD": "",
+            "options": {
+              "a": "",
+              "b": "",
+              "c": "",
+              "d": ""
+            },
+            "correctAnswer": "",
+            "sampleCases": [
+              {
+                "input": "Sample input",
+                "expected": "Sample output",
+                "explanation": "Sample demonstration"
+              }
+            ],
+            "starterCode": {
+              "c": "// Write your C code here...\n",
+              "cpp": "// Write your C++ code here...\n",
+              "java": "// Write your Java code here...\n",
+              "python": "# Write your Python code here...\n",
+              "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+              "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+              "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+              "php": "<?php\n// Write your PHP code here...\n"
+            },
+            "languages": [
+              "C",
+              "C++",
+              "Java",
+              "Python",
+              "HTML",
+              "JavaScript",
+              "Dart",
+              "PHP"
+            ],
+            "slotNumber": 3
+          }
+        ],
+        "totalAssignedCount": 3,
+        "questionBreakdown": {
+          "1": {
+            "problemId": 1,
+            "problemTitle": "Easy Palindrome Check",
+            "difficulty": "Easy",
+            "scoreAwarded": 10,
+            "bonus": 5,
+            "judgeNotes": ""
+          }
+        },
+        "solvedCount": 1
+      }
+    ],
+    "questions": [
+      {
+        "id": 1,
+        "title": "Easy Palindrome Check",
+        "difficulty": "Easy",
+        "points": 10,
+        "timeLimit": "1.5s",
+        "memoryLimit": "256MB",
+        "tags": [
+          "Algorithm",
+          "Logic"
+        ],
+        "description": "Check if string is palindrome",
+        "inputFormat": "Standard Input",
+        "outputFormat": "Standard Output",
+        "constraints": [
+          "1 <= N <= 10^5"
+        ],
+        "optionA": "",
+        "optionB": "",
+        "optionC": "",
+        "optionD": "",
+        "options": {
+          "a": "",
+          "b": "",
+          "c": "",
+          "d": ""
+        },
+        "correctAnswer": "",
+        "sampleCases": [
+          {
+            "input": "Sample input",
+            "expected": "Sample output",
+            "explanation": "Sample demonstration"
+          }
+        ],
+        "starterCode": {
+          "c": "// Write your C code here...\n",
+          "cpp": "// Write your C++ code here...\n",
+          "java": "// Write your Java code here...\n",
+          "python": "# Write your Python code here...\n",
+          "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+          "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+          "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+          "php": "<?php\n// Write your PHP code here...\n"
+        },
+        "languages": [
+          "C",
+          "C++",
+          "Java",
+          "Python",
+          "HTML",
+          "JavaScript",
+          "Dart",
+          "PHP"
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Medium Matrix Spiral",
+        "difficulty": "Medium",
+        "points": 20,
+        "timeLimit": "1.5s",
+        "memoryLimit": "256MB",
+        "tags": [
+          "Algorithm",
+          "Logic"
+        ],
+        "description": "Print matrix in spiral order",
+        "inputFormat": "Standard Input",
+        "outputFormat": "Standard Output",
+        "constraints": [
+          "1 <= N <= 10^5"
+        ],
+        "optionA": "",
+        "optionB": "",
+        "optionC": "",
+        "optionD": "",
+        "options": {
+          "a": "",
+          "b": "",
+          "c": "",
+          "d": ""
+        },
+        "correctAnswer": "",
+        "sampleCases": [
+          {
+            "input": "Sample input",
+            "expected": "Sample output",
+            "explanation": "Sample demonstration"
+          }
+        ],
+        "starterCode": {
+          "c": "// Write your C code here...\n",
+          "cpp": "// Write your C++ code here...\n",
+          "java": "// Write your Java code here...\n",
+          "python": "# Write your Python code here...\n",
+          "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+          "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+          "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+          "php": "<?php\n// Write your PHP code here...\n"
+        },
+        "languages": [
+          "C",
+          "C++",
+          "Java",
+          "Python",
+          "HTML",
+          "JavaScript",
+          "Dart",
+          "PHP"
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Hard Graph Shortest Path",
+        "difficulty": "Hard",
+        "points": 30,
+        "timeLimit": "1.5s",
+        "memoryLimit": "256MB",
+        "tags": [
+          "Algorithm",
+          "Logic"
+        ],
+        "description": "Find shortest path in weighted DAG",
+        "inputFormat": "Standard Input",
+        "outputFormat": "Standard Output",
+        "constraints": [
+          "1 <= N <= 10^5"
+        ],
+        "optionA": "",
+        "optionB": "",
+        "optionC": "",
+        "optionD": "",
+        "options": {
+          "a": "",
+          "b": "",
+          "c": "",
+          "d": ""
+        },
+        "correctAnswer": "",
+        "sampleCases": [
+          {
+            "input": "Sample input",
+            "expected": "Sample output",
+            "explanation": "Sample demonstration"
+          }
+        ],
+        "starterCode": {
+          "c": "// Write your C code here...\n",
+          "cpp": "// Write your C++ code here...\n",
+          "java": "// Write your Java code here...\n",
+          "python": "# Write your Python code here...\n",
+          "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+          "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+          "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+          "php": "<?php\n// Write your PHP code here...\n"
+        },
+        "languages": [
+          "C",
+          "C++",
+          "Java",
+          "Python",
+          "HTML",
+          "JavaScript",
+          "Dart",
+          "PHP"
+        ]
+      }
+    ],
+    "totalTeams": 1,
+    "totalQuestions": 3
   }
 ]

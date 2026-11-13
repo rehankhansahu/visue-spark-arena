@@ -2792,9 +2792,129 @@ function exportResultsTxt() {
   showToast('Audit Report Exported!', `Contest audit report downloaded as ${safeFilenameTitle}_...`, 'success');
 }
 
-// Backwards compatibility alias
+// Export Official Student Results in CSV (.csv) Format
 function exportResultsCSV() {
-  exportResultsTxt();
+  const teamsList = approvedTeams || [];
+  const arenaTitle = (currentArenaInfo && currentArenaInfo.name) ? currentArenaInfo.name : 'V Spark 2026';
+  const safeFilenameTitle = arenaTitle.replace(/[^a-zA-Z0-9_-]/g, '_').replace(/_+/g, '_').slice(0, 36);
+
+  const headers = ['Rank', 'Team Name', 'Team Username', 'Team Type', 'University', 'Primary Language', 'Score', 'Total Points', 'Challenges Solved', 'Duration', 'Leader Name', 'Leader Roll No', 'Member 2 Name', 'Member 2 Roll No', 'Bonus Marks', 'Status'];
+  const rows = teamsList.map((t, idx) => {
+    const rank = idx + 1;
+    const duration = t.timeTakenWords || t.timeTakenFormatted || (t.timeTakenSeconds ? `${Math.floor(t.timeTakenSeconds / 60)}m ${t.timeTakenSeconds % 60}s` : 'N/A');
+    return [
+      rank,
+      `"${(t.teamName || '').replace(/"/g, '""')}"`,
+      `"${(t.username ? `@${t.username}` : (t.teamName || '')).replace(/"/g, '""')}"`,
+      `"${(t.teamType || 'solo').toUpperCase()}"`,
+      `"${(t.university || '').replace(/"/g, '""')}"`,
+      `"${(t.language || 'cpp').toUpperCase()}"`,
+      t.score || 0,
+      t.totalContestPoints || 60,
+      (t.solvedProblems || []).length,
+      `"${duration}"`,
+      `"${(t.leaderName || '').replace(/"/g, '""')}"`,
+      `"${(t.leaderRoll || t.rollNo || '').replace(/"/g, '""')}"`,
+      `"${(t.member2Name || 'N/A').replace(/"/g, '""')}"`,
+      `"${(t.member2Roll || 'N/A').replace(/"/g, '""')}"`,
+      t.bonusMarks || 0,
+      `"${t.leftEarly ? 'Left Early' : 'Completed'}"`
+    ].join(',');
+  });
+
+  const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\r\n');
+  triggerFileDownload(`${safeFilenameTitle}_Results_${new Date().toISOString().slice(0, 10)}.csv`, csvContent, 'text/csv;charset=utf-8;');
+  showToast('CSV Exported! 📊', `Student results downloaded as CSV.`, 'success');
+}
+
+// Download Historical Competition Audit Report (.txt)
+async function downloadHistoryReportTxt(id) {
+  const token = sessionStorage.getItem('sirToken');
+  if (!token) return;
+
+  try {
+    const res = await fetch(`/api/admin/competitions/${id}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+    if (!data.success || !data.competition) {
+      showToast('Error', 'Unable to load competition for report download.', 'error');
+      return;
+    }
+
+    const comp = data.competition;
+    const teams = comp.teams || [];
+    const questions = comp.questions || [];
+    const safeTitle = (comp.title || 'Competition').replace(/[^a-zA-Z0-9_-]/g, '_').replace(/_+/g, '_').slice(0, 36);
+
+    let txt = '';
+    txt += '================================================================================\n';
+    txt += `  ${(comp.title || 'V SPARK 2026 COMPETITION ARCHIVE').toUpperCase()}\n`;
+    if (comp.description) {
+      txt += `  Description: ${comp.description}\n`;
+    }
+    txt += `  Session Date & Time: ${comp.dateFormatted || comp.timestamp}\n`;
+    txt += `  Archive ID: ${comp.id}\n`;
+    txt += '  PERMANENT COMPETITION AUDIT & RESULTS ARCHIVE REPORT\n';
+    txt += '================================================================================\n\n';
+
+    txt += '--------------------------------------------------------------------------------\n';
+    txt += '  1. FINAL CONTEST STANDINGS & PODIUM RANKINGS\n';
+    txt += '--------------------------------------------------------------------------------\n';
+
+    if (teams.length === 0) {
+      txt += '  No teams recorded in this competition.\n';
+    } else {
+      teams.forEach((t, i) => {
+        const rank = i + 1;
+        const title = rank === 1 ? 'WINNER / CHAMPION 🏆' : (rank === 2 ? '1ST RUNNER UP 🥈' : (rank === 3 ? '2ND RUNNER UP 🥉' : 'HONORABLE MENTION'));
+        const solvedCount = (t.solvedProblems || []).length;
+        const duration = t.timeTakenWords || t.timeTakenFormatted || (t.timeTakenSeconds ? `${Math.floor(t.timeTakenSeconds / 60)}m ${t.timeTakenSeconds % 60}s` : 'N/A');
+        const langUpper = (t.language || 'cpp').toUpperCase();
+
+        txt += `\n[RANK #${rank}] ${title}\n`;
+        txt += `  • Team Name:        ${t.teamName} (${(t.teamType || 'solo').toUpperCase()})\n`;
+        txt += `  • Username:         @${t.username || t.teamName}\n`;
+        txt += `  • University:       ${t.university}\n`;
+        txt += `  • Primary Language: ${langUpper}\n`;
+        txt += `  • Total Score:      ${t.score} / ${comp.totalPoints || 60} points\n`;
+        txt += `  • Solved Status:    ${solvedCount} / ${questions.length || 3} Challenges Solved\n`;
+        txt += `  • Contest Duration: ${duration}\n`;
+        txt += `  • Leader:           ${t.leaderName} (Roll #${t.leaderRoll || t.rollNo || 'N/A'})\n`;
+        if (t.member2Name) {
+          txt += `  • Member 2:         ${t.member2Name} (Roll #${t.member2Roll || 'N/A'})\n`;
+        }
+        if (t.bonusMarks) {
+          txt += `  • Bonus Marks:      +${t.bonusMarks} pts\n`;
+        }
+      });
+    }
+
+    txt += '\n\n--------------------------------------------------------------------------------\n';
+    txt += '  2. QUESTIONS INCLUDED IN THIS COMPETITION\n';
+    txt += '--------------------------------------------------------------------------------\n';
+    if (questions.length === 0) {
+      txt += '  No questions recorded in this competition archive.\n';
+    } else {
+      questions.forEach((q, idx) => {
+        txt += `\n[QUESTION #${idx + 1}] #${q.id} - ${q.title} (${q.difficulty || 'Easy'} • ${q.points || 10} pts)\n`;
+        txt += `  • Languages: ${Array.isArray(q.languages) ? q.languages.join(', ') : 'All'}\n`;
+        if (q.description) {
+          txt += `  • Description: ${q.description}\n`;
+        }
+      });
+    }
+
+    txt += '\n\n================================================================================\n';
+    txt += 'Developed by Muhammad Rehan (BS Software Engineering)\n';
+    txt += 'Portfolio: https://rehankhansahu.github.io/muhammad-rehan-portfolio/\n';
+    txt += '================================================================================\n';
+
+    triggerFileDownload(`${safeTitle}_Archive_Report_${comp.id}.txt`, txt, 'text/plain;charset=utf-8;');
+    showToast('Report Downloaded! 📄', `Audit report for "${comp.title}" downloaded.`, 'success');
+  } catch (err) {
+    showToast('Download Error', err.message, 'error');
+  }
 }
 
 // Export Official Student Results in Excel (.xlsx) Format
@@ -3244,6 +3364,14 @@ async function viewCompetitionSnapshot(id) {
           </button>
 
           <div class="flex items-center gap-2">
+            <button 
+              type="button" 
+              onclick="downloadHistoryReportTxt('${comp.id}')"
+              class="btn-cyber px-3 py-1.5 rounded-lg text-xs font-mono font-bold text-slate-200 bg-slate-800 hover:bg-slate-700 border border-white/10 transition flex items-center gap-1.5 shadow-sm"
+              title="Download historical audit report (.txt)">
+              <span>📄</span>
+              <span>Download Report (.txt)</span>
+            </button>
             <span class="text-[11px] font-mono text-purple-300 bg-purple-500/20 px-2.5 py-1 rounded-md border border-purple-500/40 font-bold">
               Competition Record
             </span>
@@ -3905,6 +4033,7 @@ window.handleQuestionRowSelect = handleQuestionRowSelect;
 window.handleUpdateQuestion = handleUpdateQuestion;
 window.downloadQuestionExcelTemplate = downloadQuestionExcelTemplate;
 window.handleExcelQuestionImport = handleExcelQuestionImport;
+window.downloadHistoryReportTxt = downloadHistoryReportTxt;
 window.exportResultsExcel = exportResultsExcel;
 window.exportResultsPDF = exportResultsPDF;
 window.openCompetitionHistoryModal = openCompetitionHistoryModal;
