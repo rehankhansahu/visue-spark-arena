@@ -425,27 +425,85 @@ async function submitTimerDuration(mins) {
   }
 }
 
+async function autoLockAllTeamsAdmin() {
+  if (checkWebsiteLockForSir()) return;
+  const token = sessionStorage.getItem('sirToken');
+  if (!token) return;
+  try {
+    const res = await fetch('/api/admin/teams/lock-all', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('All PCs Locked 🛡️', data.message || 'All approved teams marked as locked.', 'success');
+      loadApprovedTeams();
+    } else {
+      showToast('Notice', data.message || 'Failed to lock teams', 'warning');
+    }
+  } catch (e) {
+    showToast('Error', 'Connection failed', 'error');
+  }
+}
+window.autoLockAllTeamsAdmin = autoLockAllTeamsAdmin;
+
+async function toggleTeamPCLockAdmin(teamId, status = 'locked') {
+  if (checkWebsiteLockForSir()) return;
+  const token = sessionStorage.getItem('sirToken');
+  if (!token) return;
+  try {
+    const res = await fetch('/api/admin/team/toggle-pc-lock', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ teamId, status })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Lock Updated 🛡️', `Team PC lock status set to ${status}`, 'success');
+      loadApprovedTeams();
+    } else {
+      showToast('Notice', data.message || 'Failed to update lock', 'warning');
+    }
+  } catch (e) {
+    showToast('Error', 'Connection failed', 'error');
+  }
+}
+window.toggleTeamPCLockAdmin = toggleTeamPCLockAdmin;
+
 async function startContestTimer() {
   if (checkWebsiteLockForSir()) return;
   const token = sessionStorage.getItem('sirToken');
   if (!token) return;
 
   // 1. Client-Side Pre-Check: Ensure all participating approved teams have executed PC Exam-Lock!
+  let forceLock = false;
   const activeTeams = (approvedTeams || []).filter(t => !t.leftEarly && t.status === 'approved');
   if (activeTeams.length > 0) {
     const unlockedTeams = activeTeams.filter(t => t.pcLockStatus !== 'locked');
     if (unlockedTeams.length > 0) {
       const namesList = unlockedTeams.map((t, idx) => `${idx + 1}. "${t.teamName}" (${t.university}) - Leader: ${t.leaderName} [User: @${t.username || t.teamName}]`).join('\n');
-      alert(`⚠️ CANNOT START ARENA COMPETITION!\n\nTamam approved students ka internet limit script run karna lazmi hai taake sab imandari se contest dein!\n\nIn ${unlockedTeams.length} team(s) ne abhi tak Exam-Lock run nahi kiya:\n\n${namesList}\n\nPehle tamam students se unka personalized Exam-Lock (.bat) script run karwayein, phir Start button dabayein!`);
-      showToast('Exam-Lock Required 🛡️', `${unlockedTeams.length} team(s) haven't locked their PCs yet.`, 'warning');
-      return;
+      const proceed = confirm(
+        `🛡️ PC Exam-Lock Notice:\n\n${unlockedTeams.length} approved team(s) have not executed the Windows Internet Lock script yet:\n\n${namesList}\n\nDo you want to AUTO-LOCK all teams and start the contest now (Recommended for testing / single laptop)?\n\n• Click [OK] to Auto-Lock all teams & Start Contest immediately.\n• Click [Cancel] to wait for students to run the script.`
+      );
+      if (!proceed) return;
+      forceLock = true;
     }
   }
 
   try {
     const res = await fetch('/api/admin/timer/start', {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${token}` }
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ forceLock })
     });
     const data = await res.json();
     if (data.success) {
@@ -757,9 +815,19 @@ function renderPCLockBadge(t) {
     return `<span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-rose-500/30 text-rose-200 border border-rose-500 animate-pulse" title="Tamper Alert: Lock script heartbeat stopped or process was closed!">⚠️ SCRIPT CLOSED</span>`;
   }
   if (t.pcLockStatus === 'locked') {
-    return `<span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40" title="PC network is locked to Arena only (Heartbeat active)">🛡️ PC LOCKED</span>`;
+    return `
+      <span class="inline-flex items-center gap-1">
+        <span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40" title="PC network is locked to Arena only">🛡️ LOCKED</span>
+        <button onclick="toggleTeamPCLockAdmin('${t.id}', 'unlocked')" class="px-1 py-0.5 rounded text-[8px] font-mono font-bold bg-slate-800 text-slate-400 hover:text-white border border-white/10 transition" title="Unlock team PC">Unlock</button>
+      </span>
+    `;
   }
-  return `<span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-slate-800 text-slate-400 border border-slate-700" title="Exam lock tool has not been run on student PC yet">○ PC UNLOCKED</span>`;
+  return `
+    <span class="inline-flex items-center gap-1">
+      <span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40" title="Exam lock tool has not been run on student PC yet">○ UNLOCKED</span>
+      <button onclick="toggleTeamPCLockAdmin('${t.id}', 'locked')" class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 border border-emerald-500/40 transition" title="Click to simulate PC Lock for testing">🛡️ Lock</button>
+    </span>
+  `;
 }
 
 function renderApprovedTeams(teamsList) {
@@ -771,11 +839,11 @@ function renderApprovedTeams(teamsList) {
       const locked = active.filter(t => t.pcLockStatus === 'locked').length;
       pcLockBadge.classList.remove('hidden');
       if (locked === active.length) {
-        pcLockBadge.className = 'inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm';
+        pcLockBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm';
         pcLockBadge.innerHTML = `<span>🛡️</span><span>All PCs Locked (${locked}/${active.length})</span>`;
       } else {
-        pcLockBadge.className = 'inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm animate-pulse';
-        pcLockBadge.innerHTML = `<span>⚠️</span><span>Exam-Lock Pending: ${locked}/${active.length} PCs Locked</span>`;
+        pcLockBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm animate-pulse';
+        pcLockBadge.innerHTML = `<span>⚠️</span><span>Exam-Lock: ${locked}/${active.length} Locked</span><button onclick="autoLockAllTeamsAdmin()" class="ml-1 px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-500 text-slate-950 hover:bg-amber-400 transition" title="Auto-lock all approved teams for testing">Auto-Lock All</button>`;
       }
     } else {
       pcLockBadge.classList.add('hidden');

@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       currentTeam = JSON.parse(savedTeam);
       updateNavbarStudentBadge();
-      checkLiveTeamStatus(currentTeam.secretKey || currentTeam.passKey);
+      checkLiveTeamStatus(currentTeam.username || currentTeam.secretKey || currentTeam.passKey || currentTeam.id);
     } catch (e) {
       currentTeam = null;
     }
@@ -89,7 +89,7 @@ function applyWebsiteLockState(isLocked) {
   }
 
   // Registration Button
-  const regBtn = document.getElementById('submitRegisterBtn');
+  const regBtn = document.getElementById('regSubmitBtn') || document.getElementById('submitRegisterBtn');
   if (regBtn) {
     if (isLocked) {
       regBtn.disabled = true;
@@ -737,6 +737,36 @@ function promptSecretKeyLogin() {
   return promptStudentLogin();
 }
 
+// Simulate or execute student PC exam lock
+async function handleStudentPCLockSimulate(identifier) {
+  if (!identifier) {
+    if (currentTeam) identifier = currentTeam.username || currentTeam.id;
+  }
+  if (!identifier) return;
+  try {
+    const res = await fetch('/api/team/pc-lock', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ passKey: identifier, username: identifier, status: 'locked' })
+    });
+    const data = await res.json();
+    if (data.success) {
+      if (currentTeam) {
+        currentTeam.pcLockStatus = 'locked';
+        updateTeamProfile(currentTeam);
+      }
+      showToast('Exam-Lock Active 🛡️', 'PC marked as locked! You are ready for the contest start.', 'success');
+      renderContestPassView();
+      if (window.refreshArenaState) window.refreshArenaState();
+    } else {
+      showToast('Notice', data.message || 'Could not update lock status.', 'warning');
+    }
+  } catch (e) {
+    showToast('Error', 'Connection failed during lock update.', 'error');
+  }
+}
+window.handleStudentPCLockSimulate = handleStudentPCLockSimulate;
+
 // Check live team approval & kickout status
 async function checkLiveTeamStatus(passKey) {
   if (!passKey) return;
@@ -993,18 +1023,26 @@ function renderContestPassView() {
           </div>
         `))}
 
-        <!-- Download Windows Exam-Lock Script (.bat) -->
-        <div class="w-full pt-2">
-          <a 
-            href="/api/team/exam-lock-script/${encodeURIComponent(currentTeam.secretKey || currentTeam.passKey || currentTeam.id)}" 
-            download
-            class="btn-cyber w-full py-2.5 rounded-xl text-xs font-mono font-bold text-cyan-200 bg-cyan-950/70 hover:bg-cyan-900/80 border border-cyan-500/50 transition flex items-center justify-center gap-2 shadow-md">
-            <span>🛡️</span>
-            <span>Download Exam-Lock Tool (.bat)</span>
-            <span class="text-[10px] bg-cyan-500/20 text-cyan-300 px-1.5 py-0.5 rounded border border-cyan-500/40">Windows</span>
-          </a>
-          <p class="text-[10px] text-slate-400 text-center mt-1 leading-snug">
-            Locks Windows internet to V Spark Arena during exam. Automatically restores & deletes upon contest completion.
+        <!-- Windows Exam-Lock & Quick Simulate -->
+        <div class="w-full pt-2 space-y-1.5">
+          <div class="flex items-center gap-2">
+            <a 
+              href="/api/team/exam-lock-script/${encodeURIComponent(currentTeam.username || currentTeam.secretKey || currentTeam.passKey || currentTeam.id)}" 
+              download
+              class="btn-cyber flex-1 py-2 rounded-xl text-xs font-mono font-bold text-cyan-200 bg-cyan-950/70 hover:bg-cyan-900/80 border border-cyan-500/50 transition flex items-center justify-center gap-1.5 shadow-md">
+              <span>🛡️</span>
+              <span>Download Tool (.bat)</span>
+            </a>
+            <button 
+              type="button" 
+              onclick="handleStudentPCLockSimulate('${currentTeam.username || currentTeam.id}')"
+              class="px-3 py-2 rounded-xl text-xs font-mono font-bold ${currentTeam.pcLockStatus === 'locked' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30'} transition flex items-center gap-1 shadow-md"
+              title="Click to mark PC as Locked without executing the .bat script">
+              <span>${currentTeam.pcLockStatus === 'locked' ? '✓ PC Locked' : '🛡️ Lock PC'}</span>
+            </button>
+          </div>
+          <p class="text-[10px] text-slate-400 text-center leading-snug">
+            Windows Exam-Lock locks internet to V Spark Arena. Or click "Lock PC" to simulate lock during testing.
           </p>
         </div>
 

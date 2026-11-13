@@ -219,12 +219,13 @@ router.get('/system-status', (req, res) => {
  */
 router.post('/team/pc-lock', (req, res) => {
   try {
-    const { passKey, status = 'locked' } = req.body || {};
-    if (!passKey) {
-      return res.status(400).json({ success: false, message: 'PassKey or Team ID required' });
+    const { passKey, username, teamId, id, status = 'locked' } = req.body || {};
+    const identifier = (username || passKey || teamId || id || '').toString().trim();
+    if (!identifier) {
+      return res.status(400).json({ success: false, message: 'Username, Team ID, or PassKey required' });
     }
 
-    const team = store.setTeamPCLock(passKey, status);
+    const team = store.setTeamPCLock(identifier, status);
     const io = req.app.get('io');
     if (io) {
       io.emit('teamLockStatusChanged', {
@@ -235,6 +236,7 @@ router.post('/team/pc-lock', (req, res) => {
         pcLockedAt: team.pcLockedAt,
         pcTamperAlert: team.pcTamperAlert
       });
+      io.emit('teamsUpdated', {});
     }
 
     return res.status(200).json({
@@ -257,12 +259,13 @@ router.post('/team/pc-lock', (req, res) => {
  */
 router.post('/team/pc-heartbeat', (req, res) => {
   try {
-    const { passKey } = req.body || {};
-    if (!passKey) {
-      return res.status(400).json({ success: false, message: 'PassKey is required' });
+    const { passKey, username, teamId, id } = req.body || {};
+    const identifier = (username || passKey || teamId || id || '').toString().trim();
+    if (!identifier) {
+      return res.status(400).json({ success: false, message: 'Username, Team ID, or PassKey is required' });
     }
 
-    const team = store.recordTeamHeartbeat(passKey);
+    const team = store.recordTeamHeartbeat(identifier);
     if (!team) {
       return res.status(404).json({ success: false, message: 'Team not found' });
     }
@@ -298,7 +301,7 @@ router.get('/team/exam-lock-script/:passKey', (req, res) => {
     const host = req.get('host') || 'visue-spark-arena.onrender.com';
     const serverUrl = `${protocol}://${host}`;
     const cleanTeamName = (team.teamName || 'Team').replace(/[^a-zA-Z0-9 _-]/g, '');
-    const cleanPassKey = team.secretKey || team.passKey || passKey;
+    const cleanPassKey = team.username || team.secretKey || team.passKey || passKey;
     const cleanUniversity = (team.university || 'University').replace(/[^a-zA-Z0-9 _-]/g, '');
 
     const arenaInfo = (store.getArenaInfo ? store.getArenaInfo() : null) || {};

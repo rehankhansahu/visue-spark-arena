@@ -447,13 +447,56 @@ router.post('/admin/remove-team', verifySirToken, ensureWebsiteNotLocked, (req, 
  */
 router.post('/admin/timer/start', verifySirToken, ensureWebsiteNotLocked, (req, res) => {
   try {
-    const timer = store.startTimer();
+    const { forceLock } = req.body || {};
+    if (forceLock) {
+      store.lockAllApprovedTeams();
+    }
+    const timer = store.startTimer({ forceLock: Boolean(forceLock) });
     const io = req.app.get('io');
     if (io) {
       io.emit('timerStatusChange', { timer });
       io.emit('questionsUpdated', {});
+      io.emit('teamsUpdated', {});
     }
     return res.status(200).json({ success: true, message: 'Contest timer started!', timer });
+  } catch (err) {
+    return res.status(400).json({ success: false, message: err.message });
+  }
+});
+
+router.post('/admin/teams/lock-all', verifySirToken, ensureWebsiteNotLocked, (req, res) => {
+  try {
+    const locked = store.lockAllApprovedTeams();
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('teamsUpdated', {});
+    }
+    return res.status(200).json({ success: true, message: `Successfully locked all ${locked.length} approved teams!`, count: locked.length });
+  } catch (err) {
+    return res.status(400).json({ success: false, message: err.message });
+  }
+});
+
+router.post('/admin/team/toggle-pc-lock', verifySirToken, ensureWebsiteNotLocked, (req, res) => {
+  try {
+    const { teamId, status } = req.body || {};
+    if (!teamId) {
+      return res.status(400).json({ success: false, message: 'Team ID is required.' });
+    }
+    const team = store.setTeamPCLock(teamId, status || 'locked');
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('teamsUpdated', {});
+      io.emit('teamLockStatusChanged', {
+        teamId: team.id,
+        teamName: team.teamName,
+        leaderName: team.leaderName,
+        pcLockStatus: team.pcLockStatus,
+        pcLockedAt: team.pcLockedAt,
+        pcTamperAlert: team.pcTamperAlert
+      });
+    }
+    return res.status(200).json({ success: true, message: `Team PC lock set to ${team.pcLockStatus}`, team });
   } catch (err) {
     return res.status(400).json({ success: false, message: err.message });
   }

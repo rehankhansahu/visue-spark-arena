@@ -7,17 +7,33 @@
 const fs = require('fs');
 const path = require('path');
 
-// Question Bank: Initialized empty (Sir configures and adds questions from Sir Desk)
-let questionBank = [];
+// Default Contest Problems Persistence
+const PROBLEMS_FILE = path.join(__dirname, 'problems.json');
+
+function loadProblemsFromFile() {
+  try {
+    if (fs.existsSync(PROBLEMS_FILE)) {
+      const raw = fs.readFileSync(PROBLEMS_FILE, 'utf-8');
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch (err) {
+    console.error('[Store] Error loading problems.json:', err);
+  }
+  return [];
+}
+
+// Question Bank: Initialized with standard 60-point challenges from problems.json
+let questionBank = loadProblemsFromFile();
 
 // Active Contest Question IDs (Must sum up to exactly 60 points)
-let activeContestQuestionIds = [];
+let activeContestQuestionIds = questionBank.map(q => q.id);
 
 // Active Global Problem Slots for backwards compatibility
 let activeGlobalSlots = {
-  easyId: null,
-  mediumId: null,
-  hardId: null
+  easyId: questionBank[0] ? questionBank[0].id : null,
+  mediumId: questionBank[1] ? questionBank[1].id : null,
+  hardId: questionBank[2] ? questionBank[2].id : null
 };
 
 // Question Distribution Mode: 'same' vs 'different'
@@ -382,15 +398,30 @@ const store = {
     return { ready: true, unlockedTeams: [] };
   },
 
-  startTimer() {
+  lockAllApprovedTeams() {
+    const approved = this.getApprovedTeams().filter(t => !t.leftEarly && t.status === 'approved');
+    approved.forEach(team => {
+      team.pcLockStatus = 'locked';
+      team.pcLockedAt = new Date().toISOString();
+      team.pcLastHeartbeat = Date.now();
+      team.pcTamperAlert = false;
+    });
+    return approved;
+  },
+
+  startTimer(options = {}) {
     const readyCheck = this.checkAllApprovedTeamsHaveAssignedQuestions();
     if (!readyCheck.ready) {
       throw new Error(readyCheck.message);
     }
 
-    const pcLockCheck = this.checkAllApprovedTeamsPCLocked();
-    if (!pcLockCheck.ready) {
-      throw new Error(pcLockCheck.message);
+    if (options && (options.forceLock || options.autoLock)) {
+      this.lockAllApprovedTeams();
+    } else {
+      const pcLockCheck = this.checkAllApprovedTeamsPCLocked();
+      if (!pcLockCheck.ready) {
+        throw new Error(pcLockCheck.message);
+      }
     }
 
     if (timerStatus === 'running') return this.getContestTimer();
@@ -568,9 +599,14 @@ const store = {
     teams.clear();
     submissions.length = 0;
     teamSpecificQuestions.clear();
-    questionBank = [];
-    activeContestQuestionIds = [];
-    activeGlobalSlots = { easyId: null, mediumId: null, hardId: null };
+    // Restore default 60-point challenges from problems.json so arena is instantly ready for the next round
+    questionBank = loadProblemsFromFile();
+    activeContestQuestionIds = questionBank.map(q => q.id);
+    activeGlobalSlots = {
+      easyId: questionBank[0] ? questionBank[0].id : null,
+      mediumId: questionBank[1] ? questionBank[1].id : null,
+      hardId: questionBank[2] ? questionBank[2].id : null
+    };
     return {
       timer: this.getContestTimer(),
       teamsCount: 0,
@@ -593,9 +629,14 @@ const store = {
     teams.clear();
     submissions.length = 0;
     teamSpecificQuestions.clear();
-    questionBank = [];
-    activeContestQuestionIds = [];
-    activeGlobalSlots = { easyId: null, mediumId: null, hardId: null };
+    // Restore default 60-point challenges from problems.json so arena is instantly ready for the next round
+    questionBank = loadProblemsFromFile();
+    activeContestQuestionIds = questionBank.map(q => q.id);
+    activeGlobalSlots = {
+      easyId: questionBank[0] ? questionBank[0].id : null,
+      mediumId: questionBank[1] ? questionBank[1].id : null,
+      hardId: questionBank[2] ? questionBank[2].id : null
+    };
     archivedLeaderboard = [];
     archivedPodium = [];
     archivedAt = null;
@@ -1385,6 +1426,11 @@ const store = {
     if (!team) throw new Error(`Team #${teamId} not found.`);
     team.status = 'approved';
     team.approvedAt = new Date().toISOString();
+
+    // Automatically ensure team has 60 points of assigned questions if not already assigned
+    if (activeContestQuestionIds.length > 0 && !teamSpecificQuestions.has(teamId)) {
+      teamSpecificQuestions.set(teamId, [...activeContestQuestionIds]);
+    }
     return team;
   },
 
