@@ -2950,3 +2950,535 @@ html:not(.dark) #modalArenaAutoDatePreview,
 html.light #modalArenaAutoDatePreview {
   color: #92400e !important;
 }
+
+
+/* ============================================================================
+   ENTERPRISE THEME AUDIT & HARMONIZATION (LIGHT & DARK DUAL ENGINE)
+   Complete coverage for Modals, Overlays, Super Admin, History, Faculty,
+   Badges, Dropdowns, Cards, and Micro-interactions.
+   ============================================================================ */
+
+/* --- 1. MODAL OVERLAYS (Light Mode: Clean translucent glass backdrop) --- */
+html:not(.dark) .fixed.inset-0.bg-slate-950\/80,
+html:not(.dark) .fixed.inset-0.bg-slate-950\/85,
+html.light .fixed.inset-0.bg-slate-950\/80,
+html.light .fixed.inset-0.bg-slate-950\/85 {
+  background-color: rgba(15, 23, 42, 0.45) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+
+/* --- 2. SUPER ADMIN CONSOLE NAVIGATION & HEADER BUTTONS --- */
+html:not(.dark) #nav-btn-superadmin.text-emerald-400,
+html.light #nav-btn-superadmin.text-emerald-400 {
+  background-color: #e0e7ff !important;
+  color: #4338ca !important;
+  border-color: #6366f1 !important;
+}
+
+html:not(.dark) #superAdminLoginView,
+html.light #superAdminLoginView {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 20px 40px -5px rgba(15, 23, 42, 0.1) !important;
+}
+
+html:not(.dark) #superAdminLoginView .bg-slate-950,
+html.light #superAdminLoginView .bg-slate-950 {
+  background-color: #eef2ff !important;
+}
+
+html:not(.dark) #superAdminLoginView h2,
+html.light #superAdminLoginView h2 {
+  color: #0f172a !important;
+}
+
+html:not(.dark) #superAdminLoginView p,
+html.light #superAdminLoginView p {
+  color: #475569 !important;
+}
+
+html:not(.dark) #superAdminDashboard > div:first-child,
+html.light #superAdminDashboard > div:first-child {
+  background: linear-gradient(135deg, rgba(238, 242, 255, 0.95), rgba(245, 243, 255, 0.95)) !important;
+  border-color: #c7d2fe !important;
+  box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.1) !important;
+}
+
+html:not(.dark) #superAdminDashboard > div:first-child .bg-slate-950,
+html.light #superAdminDashboard > div:first-child .bg-slate-950 {
+  background-color: #ffffff !important;
+}
+
+html:not(.dark) #superAdminDashboard h2,
+html.light #superAdminDashboard h2 {
+  color: #0f172a !important;
+}
+
+html:not(.dark) #superAdminDashboard p,
+html.light #superAdminDashboard p {
+  color: #475569 !important;
+}
+
+/* Super Admin Section 1: Global Website Lock Box */
+html:not(.dark) #superAdminDashboard .border-indigo-500\/30,
+html.light #superAdminDashboard .border-indigo-500\/30 {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 15px rgba(15, 23, 42, 0.05) !important;
+}
+
+html:not(.dark) #superAdminDashboard .border-indigo-500\/30 h3,
+html.light #superAdminDashboard .border-indigo-500\/30 h3 {
+  color: #0f172a !important;
+}
+
+html:not(.dark) #superAdminDashboard .border-indigo-500\/30 p,
+html.light #superAdminDashboard .border-indigo-500\/30 p {
+  color: #475569 !important;
+}
+
+html:not(.dark) #superAdminDashboard .grid .bg-slate-950\/60,
+html.light #superAdminDashboard .grid .bg-slate-950\/60 {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+html:not(.dark) #superAdminDashboard .grid .text-slate-400,
+html.light #superAdminDashboard .grid .text-slate-400 {
+  color: #64748b !important;
+}
+
+html:not(.dark) #superAdminDashboard .grid .text-slate-200,
+html.light #superAdminDashboard .grid .text-slate-200 {
+  color: #1e293b !important;
+}
+
+/* Super Admin Section 2: Teachers Grid & Cards */
+html:not(.dark) #superAdminTeachersGrid .glass-panel,
+html.light #superAdminTeachersGrid .glass-panel {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05) !important;
+}
+
+html:not(.dark) #superAdminTeachersGrid .glass-panel:hover,
+html.light #superAdminTeachersGrid .glass-panel:hover {
+  border-color: #a855f7 !important;
+  box-shadow: 0 8px 20px rgba(168, 85, 247, 0.12) !important;
+}
+
+html:not(.dark) #superAdminTeachersGrid h4,
+html.light #superAdminTeachersGrid h4 {
+  color: #0f172a !important;
+}
+
+html:not(.dark) #superAdminTeachersGrid .text-cyan-300,
+html.light #superAdminTeachersGrid .text-cyan-300 {
+  color: #0284c7 !important;
+  font-weight: 700 !important;
+}
+
+html:not(.dark) #superAdminTeachersGrid .text-slate-400,
+html.light #superAdminTeachersGrid .text-slate-400 {
+  color: #475569 !important;
+}
+
+html:not(.dark) #superAdminTeachersGrid .text-slate-500,
+html.light #superAdminTeachersGrid .text-slate-500 {
+  color: #64748b !important;
+}
+
+html:not(.dark) #superAdminTeachersGrid button.bg-purple-950\/60,
+html.light #superAdminTeachersGrid button.bg-purple-950\/60 {
+  background-color: #f3e8ff !important;
+  color: #6b21a8 !important;
+  border-color: #d8b4fe !important;
+}
+
+html:not(.dark) #superAdminTeachersGrid button.bg-purple-950\/60:hover,
+html.light #superAdminTeachersGrid button.bg-purple-950\/60:hover {
+  background-color: #e9d5ff !important;
+}
+
+html:not(.dark) #superAdminTeachersGrid button.bg-rose-950\/50,
+html.light #superAdminTeachersGrid button.bg-rose-950\/50 {
+  background-color: #ffe4e6 !important;
+  color: #be123c !important;
+  border-color: #fecdd3 !important;
+}
+
+html:not(.dark) #superAdminTeachersGrid button.bg-rose-950\/50:hover,
+html.light #superAdminTeachersGrid button.bg-rose-950\/50:hover {
+  background-color: #fecdd3 !important;
+}
+
+/* --- 3. FACULTY TEACHER MODALS (Add & Edit Teacher) --- */
+html:not(.dark) #addTeacherModal .glass-panel,
+html:not(.dark) #editTeacherModal .glass-panel,
+html.light #addTeacherModal .glass-panel,
+html.light #editTeacherModal .glass-panel {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.2) !important;
+}
+
+html:not(.dark) #addTeacherModal .bg-slate-900\/80,
+html:not(.dark) #editTeacherModal .bg-slate-900\/80,
+html.light #addTeacherModal .bg-slate-900\/80,
+html.light #editTeacherModal .bg-slate-900\/80 {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+html:not(.dark) #addTeacherModal h3,
+html:not(.dark) #editTeacherModal h3,
+html.light #addTeacherModal h3,
+html.light #editTeacherModal h3 {
+  color: #0f172a !important;
+}
+
+html:not(.dark) #addTeacherModal label,
+html:not(.dark) #editTeacherModal label,
+html.light #addTeacherModal label,
+html.light #editTeacherModal label {
+  color: #475569 !important;
+  font-weight: 700 !important;
+}
+
+html:not(.dark) #addTeacherModal input,
+html:not(.dark) #editTeacherModal input,
+html.light #addTeacherModal input,
+html.light #editTeacherModal input {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html:not(.dark) #addTeacherModal .bg-slate-900,
+html:not(.dark) #editTeacherModal .bg-slate-900,
+html:not(.dark) #editTeacherModal .bg-slate-900\/60,
+html.light #addTeacherModal .bg-slate-900,
+html.light #editTeacherModal .bg-slate-900,
+html.light #editTeacherModal .bg-slate-900\/60 {
+  background-color: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+}
+
+html:not(.dark) #addTeacherModal .w-8.h-8.bg-slate-800,
+html:not(.dark) #editTeacherModal .w-8.h-8.bg-slate-800,
+html.light #addTeacherModal .w-8.h-8.bg-slate-800,
+html.light #editTeacherModal .w-8.h-8.bg-slate-800 {
+  background-color: #e2e8f0 !important;
+  color: #475569 !important;
+}
+
+html:not(.dark) #addTeacherModal .w-8.h-8.bg-slate-800:hover,
+html:not(.dark) #editTeacherModal .w-8.h-8.bg-slate-800:hover,
+html.light #addTeacherModal .w-8.h-8.bg-slate-800:hover,
+html.light #editTeacherModal .w-8.h-8.bg-slate-800:hover {
+  background-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+/* --- 4. COMPETITION HISTORY MODAL (Archived Contests & Standings) --- */
+html:not(.dark) #competitionHistoryModal .glass-panel,
+html.light #competitionHistoryModal .glass-panel {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.2) !important;
+}
+
+html:not(.dark) #competitionHistoryModal .bg-slate-900\/60,
+html:not(.dark) #competitionHistoryModal .bg-slate-900\/80,
+html.light #competitionHistoryModal .bg-slate-900\/60,
+html.light #competitionHistoryModal .bg-slate-900\/80 {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+html:not(.dark) #competitionHistoryModal h3,
+html.light #competitionHistoryModal h3 {
+  color: #0f172a !important;
+}
+
+html:not(.dark) #competitionHistoryModal p,
+html.light #competitionHistoryModal p {
+  color: #475569 !important;
+}
+
+html:not(.dark) #competitionHistoryModal .border-white\/10,
+html:not(.dark) #competitionHistoryModal .border-white\/5,
+html.light #competitionHistoryModal .border-white\/10,
+html.light #competitionHistoryModal .border-white\/5 {
+  border-color: #e2e8f0 !important;
+}
+
+/* History Cards List */
+html:not(.dark) #historyListContainer .glass-panel,
+html.light #historyListContainer .glass-panel {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05) !important;
+}
+
+html:not(.dark) #historyListContainer .glass-panel:hover,
+html.light #historyListContainer .glass-panel:hover {
+  border-color: #a855f7 !important;
+}
+
+html:not(.dark) #historyListContainer h4,
+html.light #historyListContainer h4 {
+  color: #0f172a !important;
+}
+
+html:not(.dark) #historyListContainer .bg-slate-950\/60,
+html:not(.dark) #historyListContainer .bg-slate-950\/50,
+html.light #historyListContainer .bg-slate-950\/60,
+html.light #historyListContainer .bg-slate-950\/50 {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+html:not(.dark) #historyListContainer .bg-slate-950\/50 .text-white,
+html.light #historyListContainer .bg-slate-950\/50 .text-white {
+  color: #0f172a !important;
+}
+
+html:not(.dark) #historyListContainer .bg-slate-950\/50 .text-cyan-300,
+html.light #historyListContainer .bg-slate-950\/50 .text-cyan-300 {
+  color: #0284c7 !important;
+}
+
+html:not(.dark) #historyListContainer .bg-slate-950\/50 .text-amber-300,
+html.light #historyListContainer .bg-slate-950\/50 .text-amber-300 {
+  color: #b45309 !important;
+}
+
+html:not(.dark) #historyListContainer .bg-slate-950\/50 .text-emerald-300,
+html.light #historyListContainer .bg-slate-950\/50 .text-emerald-300 {
+  color: #047857 !important;
+}
+
+html:not(.dark) #historyListContainer button.bg-amber-950\/50,
+html.light #historyListContainer button.bg-amber-950\/50 {
+  background-color: #fffbeb !important;
+  color: #b45309 !important;
+  border-color: #fde68a !important;
+}
+
+html:not(.dark) #historyListContainer button.bg-purple-950\/60,
+html.light #historyListContainer button.bg-purple-950\/60 {
+  background-color: #f3e8ff !important;
+  color: #6b21a8 !important;
+  border-color: #d8b4fe !important;
+}
+
+/* History Detail View (Questions & Teams Table) */
+html:not(.dark) #historyDetailContainer .bg-slate-900\/80,
+html.light #historyDetailContainer .bg-slate-900\/80 {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04) !important;
+}
+
+html:not(.dark) #historyDetailContainer h5,
+html.light #historyDetailContainer h5 {
+  color: #0f172a !important;
+}
+
+html:not(.dark) #historyDetailContainer .bg-slate-950\/60,
+html:not(.dark) #historyDetailContainer .bg-slate-950\/40,
+html.light #historyDetailContainer .bg-slate-950\/60,
+html.light #historyDetailContainer .bg-slate-950\/40 {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #1e293b !important;
+}
+
+html:not(.dark) #historyDetailContainer table thead,
+html.light #historyDetailContainer table thead {
+  background-color: #f1f5f9 !important;
+  color: #475569 !important;
+  border-color: #e2e8f0 !important;
+}
+
+html:not(.dark) #historyDetailContainer table tbody tr,
+html.light #historyDetailContainer table tbody tr {
+  border-color: #f1f5f9 !important;
+}
+
+html:not(.dark) #historyDetailContainer table tbody tr:hover,
+html.light #historyDetailContainer table tbody tr:hover {
+  background-color: #f8fafc !important;
+}
+
+html:not(.dark) #historyDetailContainer table tbody td .text-white,
+html:not(.dark) #historyDetailContainer table tbody td.text-white,
+html.light #historyDetailContainer table tbody td .text-white,
+html.light #historyDetailContainer table tbody td.text-white {
+  color: #0f172a !important;
+  font-weight: 700 !important;
+}
+
+html:not(.dark) #historyDetailContainer table tbody td .text-slate-300,
+html.light #historyDetailContainer table tbody td .text-slate-300 {
+  color: #334155 !important;
+}
+
+html:not(.dark) #historyDetailContainer .glass-panel.bg-gradient-to-r,
+html.light #historyDetailContainer .glass-panel.bg-gradient-to-r {
+  background: linear-gradient(135deg, rgba(243, 232, 255, 0.8), rgba(255, 255, 255, 0.95)) !important;
+  border-color: #d8b4fe !important;
+}
+
+/* --- 5. LEAVE CONTEST EARLY MODAL --- */
+html:not(.dark) #leaveContestModal .glass-panel,
+html.light #leaveContestModal .glass-panel {
+  background: #ffffff !important;
+  border-color: #fca5a5 !important;
+  box-shadow: 0 20px 40px -5px rgba(225, 29, 72, 0.15) !important;
+}
+
+html:not(.dark) #leaveContestModal h3,
+html.light #leaveContestModal h3 {
+  color: #0f172a !important;
+}
+
+html:not(.dark) #leaveContestModal .bg-slate-900\/60,
+html.light #leaveContestModal .bg-slate-900\/60 {
+  background-color: #fef2f2 !important;
+  border-color: #fecdd3 !important;
+  color: #334155 !important;
+}
+
+html:not(.dark) #leaveContestModal button.bg-slate-800,
+html.light #leaveContestModal button.bg-slate-800 {
+  background-color: #f1f5f9 !important;
+  color: #475569 !important;
+  border-color: #cbd5e1 !important;
+}
+
+html:not(.dark) #leaveContestModal button.bg-slate-800:hover,
+html.light #leaveContestModal button.bg-slate-800:hover {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+/* --- 6. EXAM-LOCK MODAL & EMERGENCY UNLOCK BOX --- */
+html:not(.dark) #examLockInfoModal .bg-gradient-to-r,
+html.light #examLockInfoModal .bg-gradient-to-r {
+  background: linear-gradient(135deg, #f0fdf4, #ecfeff) !important;
+  border-color: #a7f3d0 !important;
+}
+
+html:not(.dark) #examLockInfoModal .bg-gradient-to-br,
+html.light #examLockInfoModal .bg-gradient-to-br {
+  background: linear-gradient(135deg, #fffbeb, #fef3c7) !important;
+  border-color: #f59e0b !important;
+}
+
+html:not(.dark) #examLockInfoModal .bg-black\/60,
+html.light #examLockInfoModal .bg-black\/60 {
+  background-color: #ffffff !important;
+  border-color: #fcd34d !important;
+}
+
+html:not(.dark) #emergencyUnlockPathText,
+html.light #emergencyUnlockPathText {
+  color: #b45309 !important;
+}
+
+html:not(.dark) #examLockInfoModal kbd,
+html.light #examLockInfoModal kbd {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* --- 7. ARENA NAME & DESCRIPTION MODAL --- */
+html:not(.dark) #arenaNameModal .bg-gradient-to-r,
+html.light #arenaNameModal .bg-gradient-to-r {
+  background: linear-gradient(135deg, #fffbeb, #fef3c7) !important;
+  border-color: #fde68a !important;
+}
+
+/* --- 8. GLOBAL WEBSITE LOCK BANNER (HEADER NOTIFICATION) --- */
+html:not(.dark) #websiteLockBanner,
+html.light #websiteLockBanner {
+  background: linear-gradient(90deg, #ffe4e6, #fee2e2, #ffe4e6) !important;
+  color: #9f1239 !important;
+  border-bottom: 1.5px solid #f43f5e !important;
+}
+
+/* --- 9. EARLY EXIT BANNER IN ARENA WORKSPACE --- */
+html:not(.dark) #arenaLeftEarlyBanner,
+html.light #arenaLeftEarlyBanner {
+  background: #fef2f2 !important;
+  border-color: #fca5a5 !important;
+}
+
+html:not(.dark) #arenaLeftEarlyBanner h3,
+html.light #arenaLeftEarlyBanner h3 {
+  color: #9f1239 !important;
+}
+
+html:not(.dark) #arenaLeftEarlyBanner p,
+html.light #arenaLeftEarlyBanner p {
+  color: #475569 !important;
+}
+
+/* --- 10. SYSTEM-WIDE ACCESSIBILITY CONTRAST SAFEGUARDS --- */
+/* Ensure all badges, tags, and pills have clear contrast in light mode */
+html:not(.dark) .bg-purple-500\/20,
+html.light .bg-purple-500\/20 {
+  background-color: #f3e8ff !important;
+  color: #6b21a8 !important;
+  border-color: #d8b4fe !important;
+}
+
+html:not(.dark) .bg-indigo-500\/20,
+html.light .bg-indigo-500\/20 {
+  background-color: #e0e7ff !important;
+  color: #4338ca !important;
+  border-color: #a5b4fc !important;
+}
+
+html:not(.dark) .bg-cyan-500\/20,
+html.light .bg-cyan-500\/20 {
+  background-color: #ecfeff !important;
+  color: #0369a1 !important;
+  border-color: #bae6fd !important;
+}
+
+html:not(.dark) .bg-amber-500\/20,
+html.light .bg-amber-500\/20 {
+  background-color: #fffbeb !important;
+  color: #b45309 !important;
+  border-color: #fde68a !important;
+}
+
+html:not(.dark) .bg-rose-500\/20,
+html.light .bg-rose-500\/20 {
+  background-color: #ffe4e6 !important;
+  color: #be123c !important;
+  border-color: #fecdd3 !important;
+}
+
+/* Form place-holders readability in light mode */
+html:not(.dark) input::placeholder,
+html:not(.dark) textarea::placeholder,
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Ensure all buttons have crisp hover interaction */
+html:not(.dark) button:hover,
+html.light button:hover {
+  filter: brightness(0.97);
+}
+
+html.dark button:hover {
+  filter: brightness(1.1);
+}
