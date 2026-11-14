@@ -1023,26 +1023,30 @@ function renderContestPassView() {
           </div>
         `))}
 
-        <!-- Windows Exam-Lock & Quick Simulate -->
-        <div class="w-full pt-2 space-y-1.5">
-          <div class="flex items-center gap-2">
-            <a 
-              href="/api/team/exam-lock-script/${encodeURIComponent(currentTeam.username || currentTeam.secretKey || currentTeam.passKey || currentTeam.id)}" 
-              download
-              class="btn-cyber flex-1 py-2 rounded-xl text-xs font-mono font-bold text-cyan-200 bg-cyan-950/70 hover:bg-cyan-900/80 border border-cyan-500/50 transition flex items-center justify-center gap-1.5 shadow-md">
+        <!-- Windows Exam-Lock (.bat Tool Required) -->
+        <div class="w-full pt-2 space-y-2">
+          <a 
+            href="/api/team/exam-lock-script/${encodeURIComponent(currentTeam.username || currentTeam.secretKey || currentTeam.passKey || currentTeam.id)}" 
+            download
+            class="btn-cyber w-full py-2.5 rounded-xl text-xs font-mono font-bold text-cyan-200 bg-cyan-950/70 hover:bg-cyan-900/80 border border-cyan-500/50 transition flex items-center justify-center gap-2 shadow-md">
+            <span>🛡️</span>
+            <span>Download Exam-Lock Tool (.bat)</span>
+          </a>
+
+          ${currentTeam.pcLockStatus === 'locked' ? `
+            <div class="w-full py-2 px-3 rounded-xl text-xs font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center justify-center gap-1.5 shadow-sm">
               <span>🛡️</span>
-              <span>Download Tool (.bat)</span>
-            </a>
-            <button 
-              type="button" 
-              onclick="handleStudentPCLockSimulate('${currentTeam.username || currentTeam.id}')"
-              class="px-3 py-2 rounded-xl text-xs font-mono font-bold ${currentTeam.pcLockStatus === 'locked' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30'} transition flex items-center gap-1 shadow-md"
-              title="Click to mark PC as Locked without executing the .bat script">
-              <span>${currentTeam.pcLockStatus === 'locked' ? '✓ PC Locked' : '🛡️ Lock PC'}</span>
-            </button>
-          </div>
+              <span>PC Exam-Lock Active (Locked by .bat script)</span>
+            </div>
+          ` : `
+            <div class="w-full py-2 px-3 rounded-xl text-xs font-mono font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/30 flex items-center justify-center gap-1.5">
+              <span>⏳</span>
+              <span>Awaiting .bat execution (Run as Administrator to Lock PC)</span>
+            </div>
+          `}
+
           <p class="text-[10px] text-slate-400 text-center leading-snug">
-            Windows Exam-Lock locks internet to V Spark Arena. Or click "Lock PC" to simulate lock during testing.
+            Windows Exam-Lock locks internet to V Spark Arena. You must download and run the .bat script as Administrator before Sir can start the contest.
           </p>
         </div>
 

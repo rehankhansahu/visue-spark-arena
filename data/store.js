@@ -425,13 +425,10 @@ const store = {
       throw new Error(readyCheck.message);
     }
 
-    if (options && (options.forceLock || options.autoLock)) {
-      this.lockAllApprovedTeams();
-    } else {
-      const pcLockCheck = this.checkAllApprovedTeamsPCLocked();
-      if (!pcLockCheck.ready) {
-        throw new Error(pcLockCheck.message);
-      }
+    // Strict PC Lock Check: ALL approved teams must execute .bat script on their PC before contest can start!
+    const pcLockCheck = this.checkAllApprovedTeamsPCLocked();
+    if (!pcLockCheck.ready) {
+      throw new Error(pcLockCheck.message);
     }
 
     if (timerStatus === 'running') return this.getContestTimer();

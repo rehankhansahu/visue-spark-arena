@@ -481,18 +481,17 @@ async function startContestTimer() {
   const token = sessionStorage.getItem('sirToken');
   if (!token) return;
 
-  // 1. Client-Side Pre-Check: Ensure all participating approved teams have executed PC Exam-Lock!
-  let forceLock = false;
+  // 1. Client-Side Pre-Check: Strictly ensure ALL approved teams have executed their .bat Exam-Lock!
   const activeTeams = (approvedTeams || []).filter(t => !t.leftEarly && t.status === 'approved');
   if (activeTeams.length > 0) {
     const unlockedTeams = activeTeams.filter(t => t.pcLockStatus !== 'locked');
     if (unlockedTeams.length > 0) {
-      const namesList = unlockedTeams.map((t, idx) => `${idx + 1}. "${t.teamName}" (${t.university}) - Leader: ${t.leaderName} [User: @${t.username || t.teamName}]`).join('\n');
-      const proceed = confirm(
-        `🛡️ PC Exam-Lock Notice:\n\n${unlockedTeams.length} approved team(s) have not executed the Windows Internet Lock script yet:\n\n${namesList}\n\nDo you want to AUTO-LOCK all teams and start the contest now (Recommended for testing / single laptop)?\n\n• Click [OK] to Auto-Lock all teams & Start Contest immediately.\n• Click [Cancel] to wait for students to run the script.`
+      const namesList = unlockedTeams.map((t, idx) => `${idx + 1}. "${t.teamName}" (${t.university}) - Leader: ${t.leaderName} [@${t.username || t.teamName}]`).join('\n');
+      alert(
+        `🛡️ CANNOT START COMPETITION!\n\nAll participating teams must execute their .bat Exam-Lock script on their PC first.\n\nThe following ${unlockedTeams.length} approved team(s) have NOT locked their PC yet:\n\n${namesList}\n\nPlease instruct all students to download and run their personalized Exam-Lock script (.bat) as Administrator before starting the contest!`
       );
-      if (!proceed) return;
-      forceLock = true;
+      showToast('Exam-Lock Required', `${unlockedTeams.length} team(s) have not executed the .bat tool yet.`, 'warning');
+      return;
     }
   }
 
@@ -502,8 +501,7 @@ async function startContestTimer() {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ forceLock })
+      }
     });
     const data = await res.json();
     if (data.success) {
@@ -847,7 +845,7 @@ function renderApprovedTeams(teamsList) {
         pcLockBadge.innerHTML = `<span>🛡️</span><span>All PCs Locked (${locked}/${active.length})</span>`;
       } else {
         pcLockBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm animate-pulse';
-        pcLockBadge.innerHTML = `<span>⚠️</span><span>Exam-Lock: ${locked}/${active.length} Locked</span><button onclick="autoLockAllTeamsAdmin()" class="ml-1 px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-500 text-slate-950 hover:bg-amber-400 transition" title="Auto-lock all approved teams for testing">Auto-Lock All</button>`;
+        pcLockBadge.innerHTML = `<span>⚠️</span><span>Exam-Lock: ${locked}/${active.length} Locked (Awaiting .bat)</span>`;
       }
     } else {
       pcLockBadge.classList.add('hidden');

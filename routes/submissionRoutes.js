@@ -448,11 +448,7 @@ router.post('/admin/remove-team', verifySirToken, ensureWebsiteNotLocked, (req, 
  */
 router.post('/admin/timer/start', verifySirToken, ensureWebsiteNotLocked, (req, res) => {
   try {
-    const { forceLock } = req.body || {};
-    if (forceLock) {
-      store.lockAllApprovedTeams();
-    }
-    const timer = store.startTimer({ forceLock: Boolean(forceLock) });
+    const timer = store.startTimer();
     const io = req.app.get('io');
     if (io) {
       io.emit('timerStatusChange', { timer });
