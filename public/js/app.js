@@ -1434,7 +1434,10 @@ function showToast(title, message, type = 'info') {
   }, 4200);
 }
 
-let currentArenaInfo = null;
+// Arena info state (stored on window so admin.js and app.js share the exact same state)
+if (typeof window.currentArenaInfo === 'undefined') {
+  window.currentArenaInfo = null;
+}
 
 async function fetchInitialArenaInfo() {
   try {
@@ -1508,5 +1511,8 @@ window.handleUnlinkTeam = handleUnlinkTeam;
 window.updateStudentPCLockBadge = updateStudentPCLockBadge;
 window.handleArenaInfoUpdate = handleArenaInfoUpdate;
 window.fetchInitialArenaInfo = fetchInitialArenaInfo;
+window.handleProfilePicSelected = handleProfilePicSelected;
+window.clearSelectedProfilePic = clearSelectedProfilePic;
+window.handleStudentPCLockSimulate = handleStudentPCLockSimulate;
 window.toggleTheme = toggleTheme;
 window.showToast = showToast;
