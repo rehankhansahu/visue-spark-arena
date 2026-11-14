@@ -1605,6 +1605,42 @@
           </div>
         </div>
 
+        <!-- Section 3: Competition History Governance -->
+        <div class="glass-panel rounded-2xl p-5 sm:p-6 space-y-4 border border-purple-500/20 shadow-xl">
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/5 pb-3">
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="text-sm sm:text-base font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2">
+                  <span>🏆</span>
+                  <span>Competition History Governance</span>
+                </h3>
+                <span id="superAdminCompCountBadge" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/40">
+                  0 Records
+                </span>
+              </div>
+              <p class="text-xs text-slate-400 mt-0.5">
+                Audit, inspect, or permanently delete archived competition rounds from the database.
+              </p>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button 
+                type="button" 
+                onclick="keepOnlyLatestCompetitions()" 
+                class="btn-cyber px-3.5 py-2 rounded-xl text-xs font-bold text-amber-300 bg-amber-950/70 border border-amber-500/40 hover:bg-amber-900/60 transition flex items-center gap-1.5 shadow-md"
+                title="Preserve only the newest competition and delete all older ones">
+                <span>🧹</span>
+                <span>Keep Latest Only</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Super Admin Competitions Container -->
+          <div id="superAdminCompetitionsList" class="space-y-3">
+            <!-- Injected by superadmin.js -->
+          </div>
+        </div>
+
       </div>
 
     </section>

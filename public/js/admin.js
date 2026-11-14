@@ -801,9 +801,13 @@ async function loadApprovedTeams() {
 
     if (data.success) {
       approvedTeams = data.teams || [];
+      if (data.isResultsPublished !== undefined) {
+        currentResultsPublished = Boolean(data.isResultsPublished);
+      }
       renderApprovedTeams(approvedTeams);
       updateJudgeMetrics();
       renderContestReadinessMeter(data.readiness || null);
+      updateResultsPublishBadge(currentResultsPublished);
     }
   } catch (err) {
     console.error('Failed to load approved teams:', err);
@@ -2326,24 +2330,24 @@ async function unpublishOfficialResults() {
   }
 }
 
-function updateResultsPublishBadge(isPublished, isResetOrNoSubmissions = false) {
+function updateResultsPublishBadge(isPublished, isReset = false) {
   const banner = document.getElementById('resultsPublishBanner');
   const btnPublish = document.getElementById('btnPublishResults');
   const btnUnpublish = document.getElementById('btnUnpublishResults');
 
   if (banner) {
     if (isPublished) {
-      banner.className = 'px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+      banner.className = 'inline-block mt-0.5 px-3 py-0.5 rounded-full text-[11px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
       banner.textContent = '● STANDINGS: PUBLISHED (VISIBLE)';
     } else {
-      banner.className = 'px-3 py-1 rounded-full text-xs font-mono font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30';
+      banner.className = 'inline-block mt-0.5 px-3 py-0.5 rounded-full text-[11px] font-mono font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30';
       banner.textContent = '⏳ STANDINGS: HIDDEN';
     }
   }
 
   if (btnPublish && btnUnpublish) {
-    const noSubmissions = isResetOrNoSubmissions || (!allSubmissions || allSubmissions.length === 0);
-    if (noSubmissions) {
+    const hasApproved = approvedTeams && approvedTeams.length > 0;
+    if (isReset || !hasApproved) {
       btnPublish.classList.add('hidden');
       btnUnpublish.classList.add('hidden');
     } else if (isPublished) {
@@ -2371,12 +2375,7 @@ async function loadJudgeSubmissions() {
       allSubmissions = data.submissions || [];
       renderJudgeSubmissions(allSubmissions);
       updateJudgeMetrics();
-      if (allSubmissions.length === 0) {
-        currentResultsPublished = false;
-        updateResultsPublishBadge(false, true);
-      } else {
-        updateResultsPublishBadge(currentResultsPublished);
-      }
+      updateResultsPublishBadge(currentResultsPublished);
     }
   } catch (err) {
     console.error('Failed to load submissions:', err);
@@ -3359,6 +3358,14 @@ async function loadCompetitionHistory() {
                   <span>🔍</span>
                   <span>View Details</span>
                 </button>
+                <button 
+                  type="button" 
+                  onclick="deleteCompetitionFromHistory('${comp.id}', '${(comp.title || '').replace(/'/g, "\\'")}')"
+                  class="btn-cyber px-2.5 py-1.5 rounded-lg text-xs font-bold text-rose-300 bg-rose-950/60 border border-rose-500/40 hover:bg-rose-900/50 transition flex items-center gap-1 shadow-sm font-mono"
+                  title="Permanently delete this competition from history">
+                  <span>🗑️</span>
+                  <span>Delete</span>
+                </button>
               </div>
             </div>
           </div>
@@ -3371,7 +3378,7 @@ async function loadCompetitionHistory() {
 }
 
 async function viewCompetitionSnapshot(id) {
-  const token = sessionStorage.getItem('sirToken');
+  const token = sessionStorage.getItem('sirToken') || sessionStorage.getItem('superAdminToken');
   if (!token) return;
 
   const detailContainer = document.getElementById('historyDetailContainer');
@@ -3398,6 +3405,7 @@ async function viewCompetitionSnapshot(id) {
     }
 
     const comp = data.competition;
+    window.currentViewingCompetition = comp;
     const questions = comp.questions || [];
     const teams = comp.teams || [];
 
@@ -3411,13 +3419,21 @@ async function viewCompetitionSnapshot(id) {
               <span class="font-mono text-xs font-bold text-slate-400">#${idx + 1}</span>
               <h5 class="text-xs sm:text-sm font-bold text-white">${q.title}</h5>
             </div>
-            <div class="flex items-center gap-1.5 font-mono text-[10px]">
+            <div class="flex items-center gap-1.5 font-mono text-[10px] flex-wrap">
               <span class="px-2 py-0.5 rounded font-bold ${
                 q.difficulty === 'Easy' ? 'bg-emerald-500/20 text-emerald-400' :
                 q.difficulty === 'Medium' ? 'bg-cyan-500/20 text-cyan-400' : 'bg-amber-500/20 text-amber-400'
               }">${q.difficulty || 'Easy'}</span>
               <span class="px-2 py-0.5 rounded font-bold text-amber-300 bg-amber-500/20">${q.points || 10} pts</span>
               <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300">${qLangs}</span>
+              <button 
+                type="button"
+                onclick="addQuestionFromHistoryToBank('${comp.id}', ${idx})"
+                class="btn-cyber px-2.5 py-1 rounded-lg text-xs font-bold text-cyan-300 bg-cyan-950/70 border border-cyan-500/40 hover:bg-cyan-900/60 transition flex items-center gap-1 shadow-sm font-mono"
+                title="Add this question to Question Bank">
+                <span>➕</span>
+                <span>Add to Bank</span>
+              </button>
             </div>
           </div>
 
@@ -3477,7 +3493,7 @@ async function viewCompetitionSnapshot(id) {
             <span>← Back to Competitions List</span>
           </button>
 
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 flex-wrap">
             <button 
               type="button" 
               onclick="downloadHistoryReportTxt('${comp.id}')"
@@ -3485,6 +3501,14 @@ async function viewCompetitionSnapshot(id) {
               title="Download historical audit report (.txt)">
               <span>📄</span>
               <span>Download Report (.txt)</span>
+            </button>
+            <button 
+              type="button" 
+              onclick="deleteCompetitionFromHistory('${comp.id}', '${(comp.title || '').replace(/'/g, "\\'")}')"
+              class="btn-cyber px-3 py-1.5 rounded-lg text-xs font-mono font-bold text-rose-300 bg-rose-950/60 border border-rose-500/40 hover:bg-rose-900/50 transition flex items-center gap-1.5 shadow-sm"
+              title="Permanently delete this competition record">
+              <span>🗑️</span>
+              <span>Delete Record</span>
             </button>
             <span class="text-[11px] font-mono text-purple-300 bg-purple-500/20 px-2.5 py-1 rounded-md border border-purple-500/40 font-bold">
               Competition Record
@@ -3516,11 +3540,21 @@ async function viewCompetitionSnapshot(id) {
 
         <!-- Questions Included in this Competition -->
         <div class="space-y-2.5">
-          <div class="flex items-center justify-between">
+          <div class="flex items-center justify-between gap-2 flex-wrap">
             <h5 class="text-xs font-bold text-white uppercase tracking-wider font-mono flex items-center gap-1.5">
               <span>📚</span>
               <span>Questions Included in this Competition (${questions.length})</span>
             </h5>
+            ${questions.length > 0 ? `
+              <button 
+                type="button" 
+                onclick="addAllQuestionsFromHistoryToBank('${comp.id}')"
+                class="btn-cyber px-3 py-1.5 rounded-lg text-xs font-bold text-emerald-300 bg-emerald-950/70 border border-emerald-500/40 hover:bg-emerald-900/60 transition flex items-center gap-1.5 shadow-sm font-mono"
+                title="Add all questions from this competition to Question Bank">
+                <span>📥</span>
+                <span>Add All Questions to Bank</span>
+              </button>
+            ` : ''}
           </div>
           <div class="space-y-3">
             ${questionsHtml}
@@ -3539,6 +3573,145 @@ async function viewCompetitionSnapshot(id) {
     `;
   } catch (err) {
     detailContainer.innerHTML = `<div class="text-rose-400 p-4 text-xs font-mono">Error viewing competition: ${err.message}</div>`;
+  }
+}
+
+async function addQuestionFromHistoryToBank(compId, questionIdx) {
+  if (checkWebsiteLockForSir()) return;
+  const token = sessionStorage.getItem('sirToken') || sessionStorage.getItem('superAdminToken');
+  if (!token) {
+    showToast('Unauthorized', 'Please login as Sir / Judge.', 'error');
+    return;
+  }
+  const comp = (window.currentViewingCompetition && window.currentViewingCompetition.id === compId)
+    ? window.currentViewingCompetition
+    : (competitionHistoryCache || []).find(c => c.id === compId);
+
+  if (!comp || !comp.questions || !comp.questions[questionIdx]) {
+    showToast('Error', 'Question not found in competition record.', 'error');
+    return;
+  }
+  const q = comp.questions[questionIdx];
+  try {
+    const res = await fetch('/api/admin/questions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        title: q.title,
+        description: q.description || q.statement || '',
+        difficulty: q.difficulty || 'Easy',
+        points: q.points || 10,
+        languages: q.languages,
+        optionA: q.optionA,
+        optionB: q.optionB,
+        optionC: q.optionC,
+        optionD: q.optionD,
+        correctAnswer: q.correctAnswer,
+        sampleInput: q.sampleCases && q.sampleCases[0] ? q.sampleCases[0].input : (q.sampleInput || ''),
+        sampleOutput: q.sampleCases && q.sampleCases[0] ? q.sampleCases[0].expected : (q.sampleOutput || '')
+      })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Question Added! ➕', `"${q.title}" added to Question Bank.`, 'success');
+      if (typeof loadQuestionBank === 'function') loadQuestionBank();
+    } else {
+      showToast('Error', data.message || 'Failed to add question.', 'error');
+    }
+  } catch (err) {
+    showToast('Network Error', 'Failed to add question to bank.', 'error');
+  }
+}
+
+async function addAllQuestionsFromHistoryToBank(compId) {
+  if (checkWebsiteLockForSir()) return;
+  const token = sessionStorage.getItem('sirToken') || sessionStorage.getItem('superAdminToken');
+  if (!token) {
+    showToast('Unauthorized', 'Please login as Sir / Judge.', 'error');
+    return;
+  }
+  const comp = (window.currentViewingCompetition && window.currentViewingCompetition.id === compId)
+    ? window.currentViewingCompetition
+    : (competitionHistoryCache || []).find(c => c.id === compId);
+
+  if (!comp || !comp.questions || comp.questions.length === 0) {
+    showToast('No Questions', 'No questions to import from this competition.', 'info');
+    return;
+  }
+
+  try {
+    const questionsToImport = comp.questions.map(q => ({
+      title: q.title,
+      description: q.description || q.statement || '',
+      difficulty: q.difficulty || 'Easy',
+      points: q.points || 10,
+      languages: q.languages,
+      optionA: q.optionA,
+      optionB: q.optionB,
+      optionC: q.optionC,
+      optionD: q.optionD,
+      correctAnswer: q.correctAnswer,
+      sampleInput: q.sampleCases && q.sampleCases[0] ? q.sampleCases[0].input : (q.sampleInput || ''),
+      sampleOutput: q.sampleCases && q.sampleCases[0] ? q.sampleCases[0].expected : (q.sampleOutput || '')
+    }));
+
+    const res = await fetch('/api/admin/questions/import', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ questions: questionsToImport })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('All Questions Added! 📚', `Imported ${data.count || questionsToImport.length} questions into Question Bank.`, 'success');
+      if (typeof loadQuestionBank === 'function') loadQuestionBank();
+    } else {
+      showToast('Error', data.message || 'Failed to import questions.', 'error');
+    }
+  } catch (err) {
+    showToast('Network Error', 'Failed to import questions to bank.', 'error');
+  }
+}
+
+async function deleteCompetitionFromHistory(id, title) {
+  const token = sessionStorage.getItem('superAdminToken') || sessionStorage.getItem('sirToken');
+  if (!token) {
+    showToast('Unauthorized', 'Please login to delete competition.', 'error');
+    return;
+  }
+  const dispTitle = title || id;
+  if (!confirm(`Are you sure you want to permanently delete competition record:\n\n"${dispTitle}"?\n\nThis cannot be undone.`)) {
+    return;
+  }
+  try {
+    let res = await fetch(`/api/admin/competitions/${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (res.status === 404 || res.status === 405) {
+      res = await fetch(`/api/admin/competitions/delete/${id}`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+    }
+    const data = await res.json();
+    if (data.success) {
+      showToast('Competition Deleted', `Competition record deleted successfully.`, 'info');
+      backToHistoryList();
+      await loadCompetitionHistory();
+      if (window.loadSuperAdminCompetitions) {
+        window.loadSuperAdminCompetitions();
+      }
+    } else {
+      showToast('Error', data.message || 'Failed to delete competition.', 'error');
+    }
+  } catch (err) {
+    showToast('Error', 'Failed to delete competition record.', 'error');
   }
 }
 
@@ -4156,6 +4329,9 @@ window.closeCompetitionHistoryModal = closeCompetitionHistoryModal;
 window.loadCompetitionHistory = loadCompetitionHistory;
 window.viewCompetitionSnapshot = viewCompetitionSnapshot;
 window.backToHistoryList = backToHistoryList;
+window.addQuestionFromHistoryToBank = addQuestionFromHistoryToBank;
+window.addAllQuestionsFromHistoryToBank = addAllQuestionsFromHistoryToBank;
+window.deleteCompetitionFromHistory = deleteCompetitionFromHistory;
 window.openExamLockInfoModal = openExamLockInfoModal;
 window.closeExamLockInfoModal = closeExamLockInfoModal;
 window.copyEmergencyUnlockPath = copyEmergencyUnlockPath;

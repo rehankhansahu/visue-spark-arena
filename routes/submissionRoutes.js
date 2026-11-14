@@ -292,7 +292,8 @@ router.get('/admin/approved-teams', verifySirToken, (req, res) => {
       success: true,
       count: approved.length,
       teams: approved,
-      readiness: readiness
+      readiness: readiness,
+      isResultsPublished: store.isResultsPublished()
     });
   } catch (err) {
     return res.status(500).json({ success: false, message: 'Failed to retrieve teams' });
@@ -979,6 +980,67 @@ router.put('/admin/competitions/:id', verifySirToken, ensureWebsiteNotLocked, (r
       success: true,
       message: `Competition details updated successfully.`,
       competition: comp
+    });
+  } catch (err) {
+    return res.status(400).json({ success: false, message: err.message });
+  }
+});
+
+/**
+ * DELETE /api/admin/competitions/:id & POST /api/admin/competitions/delete/:id
+ * Super Admin / Sir permanently deletes a specific competition from history
+ */
+router.delete('/admin/competitions/:id', verifySirToken, ensureWebsiteNotLocked, (req, res) => {
+  try {
+    const { id } = req.params;
+    const removed = store.deleteCompetitionHistoryItem(id);
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('competitionsUpdated', { remaining: store.getCompetitionHistory().length });
+    }
+    return res.status(200).json({
+      success: true,
+      message: `Competition "${removed.title || id}" permanently deleted from history.`,
+      competition: removed
+    });
+  } catch (err) {
+    return res.status(400).json({ success: false, message: err.message });
+  }
+});
+
+router.post('/admin/competitions/delete/:id', verifySirToken, ensureWebsiteNotLocked, (req, res) => {
+  try {
+    const { id } = req.params;
+    const removed = store.deleteCompetitionHistoryItem(id);
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('competitionsUpdated', { remaining: store.getCompetitionHistory().length });
+    }
+    return res.status(200).json({
+      success: true,
+      message: `Competition "${removed.title || id}" permanently deleted from history.`,
+      competition: removed
+    });
+  } catch (err) {
+    return res.status(400).json({ success: false, message: err.message });
+  }
+});
+
+/**
+ * POST /api/admin/competitions/keep-latest
+ * Keeps only the single latest competition snapshot and deletes all previous ones
+ */
+router.post('/admin/competitions/keep-latest', verifySirToken, ensureWebsiteNotLocked, (req, res) => {
+  try {
+    const result = store.deleteCompetitionsKeepLatest();
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('competitionsUpdated', { remaining: result.kept });
+    }
+    return res.status(200).json({
+      success: true,
+      message: `Preserved latest competition. Deleted ${result.deletedCount} older records.`,
+      ...result
     });
   } catch (err) {
     return res.status(400).json({ success: false, message: err.message });

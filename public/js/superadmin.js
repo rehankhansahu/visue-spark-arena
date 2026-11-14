@@ -52,6 +52,7 @@ async function checkSuperAdminAuth() {
       // Load Super Admin Data
       await loadWebsiteLockStatus();
       await loadTeachersList();
+      await loadSuperAdminCompetitions();
     } else {
       sessionStorage.removeItem('superAdminToken');
       superAdminToken = null;
@@ -589,6 +590,145 @@ async function handleDeleteTeacher(id, name) {
   }
 }
 
+// =========================================================================
+// COMPETITION HISTORY GOVERNANCE (SUPER ADMIN)
+// =========================================================================
+async function loadSuperAdminCompetitions() {
+  const token = sessionStorage.getItem('superAdminToken');
+  const container = document.getElementById('superAdminCompetitionsList');
+  const badge = document.getElementById('superAdminCompCountBadge');
+  if (!token || !container) return;
+
+  try {
+    const res = await fetch('/api/admin/competitions', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+    if (data.success) {
+      const history = data.history || [];
+      if (badge) badge.textContent = `${history.length} Record${history.length === 1 ? '' : 's'}`;
+
+      if (history.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-8 text-slate-500 font-mono text-xs">
+            No competition records found in database.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = history.map(comp => {
+        const winner = comp.winner;
+        const totalTeams = comp.totalTeams || (comp.teams ? comp.teams.length : 0);
+        const totalQuestions = comp.totalQuestions || (comp.questions ? comp.questions.length : 0);
+
+        return `
+          <div class="p-4 rounded-xl bg-slate-900/80 border border-white/10 hover:border-purple-500/40 transition flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40">
+                  ${comp.id}
+                </span>
+                <h4 class="text-xs sm:text-sm font-bold text-white">${comp.title}</h4>
+              </div>
+              <div class="text-[11px] font-mono text-slate-400 flex items-center gap-3 flex-wrap">
+                <span>📅 ${comp.dateFormatted || new Date(comp.timestamp).toLocaleString()}</span>
+                <span>👥 ${totalTeams} Teams</span>
+                <span>📚 ${totalQuestions} Questions</span>
+                ${winner ? `<span class="text-amber-300">🏆 Winner: ${winner.teamName} (${winner.score}/60 pts)</span>` : ''}
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 shrink-0">
+              <button 
+                type="button" 
+                onclick="viewCompetitionAsSuperAdmin('${comp.id}')"
+                class="btn-cyber px-3 py-1.5 rounded-lg text-xs font-bold text-purple-300 bg-purple-950/60 border border-purple-500/40 hover:bg-purple-900/50 transition flex items-center gap-1 shadow-sm font-mono"
+                title="Inspect this competition snapshot">
+                <span>🔍</span>
+                <span>View</span>
+              </button>
+
+              <button 
+                type="button" 
+                onclick="deleteCompetitionAsSuperAdmin('${comp.id}', '${(comp.title || '').replace(/'/g, "\\'")}')"
+                class="btn-cyber px-3 py-1.5 rounded-lg text-xs font-bold text-rose-300 bg-rose-950/60 border border-rose-500/40 hover:bg-rose-900/50 transition flex items-center gap-1 shadow-sm font-mono"
+                title="Permanently delete this competition from history">
+                <span>🗑️</span>
+                <span>Delete</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  } catch (err) {
+    container.innerHTML = `<div class="text-rose-400 p-3 text-xs font-mono">Error loading competitions: ${err.message}</div>`;
+  }
+}
+
+async function viewCompetitionAsSuperAdmin(id) {
+  if (typeof openCompetitionHistoryModal === 'function') {
+    openCompetitionHistoryModal();
+    if (typeof viewCompetitionSnapshot === 'function') {
+      viewCompetitionSnapshot(id);
+    }
+  }
+}
+
+async function deleteCompetitionAsSuperAdmin(id, title) {
+  const token = sessionStorage.getItem('superAdminToken');
+  if (!token) return;
+  const dispTitle = title || id;
+  if (!confirm(`⚠️ Super Admin Confirmation:\n\nAre you sure you want to permanently delete competition:\n"${dispTitle}"?\n\nThis will remove it completely from permanent history.`)) {
+    return;
+  }
+  try {
+    const res = await fetch(`/api/admin/competitions/${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Competition Deleted', data.message || `Competition "${dispTitle}" deleted.`, 'info');
+      await loadSuperAdminCompetitions();
+      if (typeof loadCompetitionHistory === 'function') {
+        loadCompetitionHistory();
+      }
+    } else {
+      showToast('Error', data.message || 'Failed to delete competition.', 'error');
+    }
+  } catch (err) {
+    showToast('Network Error', 'Failed to delete competition.', 'error');
+  }
+}
+
+async function keepOnlyLatestCompetitions() {
+  const token = sessionStorage.getItem('superAdminToken');
+  if (!token) return;
+  if (!confirm('⚠️ Keep Only Latest Competition?\n\nThis will permanently delete all past competitions EXCEPT the single most recent one.\n\nAre you sure you want to proceed?')) {
+    return;
+  }
+  try {
+    const res = await fetch('/api/admin/competitions/keep-latest', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Preserved Latest', data.message, 'success');
+      await loadSuperAdminCompetitions();
+      if (typeof loadCompetitionHistory === 'function') {
+        loadCompetitionHistory();
+      }
+    } else {
+      showToast('Error', data.message || 'Failed to clean history.', 'error');
+    }
+  } catch (err) {
+    showToast('Network Error', 'Failed to clean history.', 'error');
+  }
+}
+
 // Global Exports
 window.checkSuperAdminAuth = checkSuperAdminAuth;
 window.handleSuperAdminLogin = handleSuperAdminLogin;
@@ -607,3 +747,7 @@ window.pickEditTeacherPreset = pickEditTeacherPreset;
 window.handleUpdateTeacher = handleUpdateTeacher;
 window.handleDeleteTeacher = handleDeleteTeacher;
 window.handleTeacherPicUpload = handleTeacherPicUpload;
+window.loadSuperAdminCompetitions = loadSuperAdminCompetitions;
+window.viewCompetitionAsSuperAdmin = viewCompetitionAsSuperAdmin;
+window.deleteCompetitionAsSuperAdmin = deleteCompetitionAsSuperAdmin;
+window.keepOnlyLatestCompetitions = keepOnlyLatestCompetitions;

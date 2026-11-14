@@ -3509,3 +3509,50 @@ html.dark #clearAllQuestionsBtn:hover {
   color: #ffe4e6 !important;
   border-color: rgba(244, 63, 94, 0.6) !important;
 }
+
+/* Super Admin Competition History Governance & Modal History Question Buttons */
+html:not(.dark) #superAdminCompetitionsList > div,
+html.light #superAdminCompetitionsList > div {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+}
+
+html:not(.dark) #superAdminCompetitionsList h4,
+html.light #superAdminCompetitionsList h4 {
+  color: #0f172a !important;
+}
+
+html:not(.dark) #superAdminCompetitionsList .text-slate-400,
+html.light #superAdminCompetitionsList .text-slate-400 {
+  color: #64748b !important;
+}
+
+html:not(.dark) #superAdminCompetitionsList button.bg-rose-950\/60,
+html.light #superAdminCompetitionsList button.bg-rose-950\/60 {
+  background-color: #ffe4e6 !important;
+  color: #be123c !important;
+  border-color: #fecdd3 !important;
+}
+
+html:not(.dark) #superAdminCompetitionsList button.bg-purple-950\/60,
+html.light #superAdminCompetitionsList button.bg-purple-950\/60 {
+  background-color: #f3e8ff !important;
+  color: #6b21a8 !important;
+  border-color: #d8b4fe !important;
+}
+
+/* History Modal Add Question To Bank buttons */
+html:not(.dark) #historyDetailContainer button.bg-cyan-950\/70,
+html.light #historyDetailContainer button.bg-cyan-950\/70 {
+  background-color: #e0f2fe !important;
+  color: #0369a1 !important;
+  border-color: #bae6fd !important;
+}
+
+html:not(.dark) #historyDetailContainer button.bg-emerald-950\/70,
+html.light #historyDetailContainer button.bg-emerald-950\/70 {
+  background-color: #dcfce7 !important;
+  color: #15803d !important;
+  border-color: #bbf7d0 !important;
+}

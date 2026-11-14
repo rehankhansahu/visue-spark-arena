@@ -555,6 +555,27 @@ const store = {
     return comp;
   },
 
+  deleteCompetitionHistoryItem(id) {
+    const idx = competitionHistory.findIndex(c => c.id === id);
+    if (idx === -1) throw new Error(`Competition "${id}" not found in history.`);
+    const removed = competitionHistory.splice(idx, 1)[0];
+    saveCompetitionHistoryToFile(competitionHistory);
+    return removed;
+  },
+
+  deleteCompetitionsKeepLatest() {
+    if (competitionHistory.length <= 1) {
+      return { kept: competitionHistory.length, deletedCount: 0, latest: competitionHistory[0] || null };
+    }
+    const sorted = [...competitionHistory].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    const latest = sorted[0];
+    const deletedCount = competitionHistory.length - 1;
+    competitionHistory.length = 0;
+    competitionHistory.push(latest);
+    saveCompetitionHistoryToFile(competitionHistory);
+    return { kept: 1, deletedCount, latest };
+  },
+
   // =========================================================================
   // ARENA SESSION METADATA (CUSTOM NAME & DESCRIPTION WITH AUTO DATE/TIME)
   // =========================================================================
@@ -1913,11 +1934,7 @@ const store = {
       throw new Error('Cannot publish results: There are no approved teams in the contest.');
     }
 
-    if (submissions.length === 0) {
-      throw new Error('Cannot publish results: No code submissions recorded yet. Cannot publish un-graded marks.');
-    }
-
-    // Check that all submissions have valid marks and left-early / time-up drafts have been graded
+    // Check that any existing submissions have valid marks and left-early / time-up drafts have been graded
     for (const sub of submissions) {
       if (sub.scoreAwarded === null || sub.scoreAwarded === undefined || isNaN(sub.scoreAwarded)) {
         throw new Error(`Cannot publish results: Submission #${sub.id} for Problem #${sub.problemId} (${sub.teamName}) has not been awarded marks.`);
