@@ -772,7 +772,63 @@ router.post('/admin/questions', verifySirToken, ensureWebsiteNotLocked, ensureCo
   }
 });
 
+// Clear all questions from bank
+router.post('/admin/questions/clear-all', verifySirToken, ensureWebsiteNotLocked, ensureContestNotRunning, (req, res) => {
+  try {
+    const result = store.clearQuestionBank();
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('questionsUpdated', { bankCount: 0 });
+      io.emit('contestReadinessUpdated', store.getContestReadiness());
+    }
+    return res.status(200).json({
+      success: true,
+      message: 'All questions have been permanently cleared from Question Bank.',
+      removedCount: result.removedCount
+    });
+  } catch (err) {
+    return res.status(400).json({ success: false, message: err.message });
+  }
+});
+
+router.delete('/admin/questions/all', verifySirToken, ensureWebsiteNotLocked, ensureContestNotRunning, (req, res) => {
+  try {
+    const result = store.clearQuestionBank();
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('questionsUpdated', { bankCount: 0 });
+      io.emit('contestReadinessUpdated', store.getContestReadiness());
+    }
+    return res.status(200).json({
+      success: true,
+      message: 'All questions have been permanently cleared from Question Bank.',
+      removedCount: result.removedCount
+    });
+  } catch (err) {
+    return res.status(400).json({ success: false, message: err.message });
+  }
+});
+
+// Delete single question (DELETE & POST fallback)
 router.delete('/admin/questions/:id', verifySirToken, ensureWebsiteNotLocked, ensureContestNotRunning, (req, res) => {
+  try {
+    const { id } = req.params;
+    store.removeQuestionFromBank(id);
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('questionsUpdated', { bankCount: store.getQuestionBank().length });
+      io.emit('contestReadinessUpdated', store.getContestReadiness());
+    }
+    return res.status(200).json({
+      success: true,
+      message: `Question #${id} removed from bank.`
+    });
+  } catch (err) {
+    return res.status(400).json({ success: false, message: err.message });
+  }
+});
+
+router.post('/admin/questions/delete/:id', verifySirToken, ensureWebsiteNotLocked, ensureContestNotRunning, (req, res) => {
   try {
     const { id } = req.params;
     store.removeQuestionFromBank(id);

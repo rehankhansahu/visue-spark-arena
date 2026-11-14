@@ -1,0 +1,33 @@
+# Visue Spark Arena (V Spark 2026) - Project Development Guidelines & Rules
+
+## 🎨 MANDATORY RULE: STRICT DUAL-THEME COMPLIANCE (LIGHT & DARK MODE)
+Every developer and agent working on this repository must adhere strictly to these principles:
+
+1. **Both Themes are First-Class Citizens:**
+   - Any new feature, modal, table, button, card, badge, form input, or UI element MUST be tested and verified in BOTH **Dark Mode** (`html.dark`) and **Light Mode** (`html:not(.dark)` / `html.light`).
+   - A task is NEVER complete until verified in both modes.
+
+2. **Centralized CSS Architecture & Design Tokens:**
+   - Always utilize the design tokens defined in `public/css/styles.css` (`:root` for light mode and `html.dark` for dark mode).
+   - Never use unstyled inline `style="..."` colors that break contrast in light mode.
+   - Maintain AAA accessibility standards (WCAG contrast minimum 4.5:1 for body text, 7:1 for headings and data tables).
+
+3. **High Contrast Guidelines for Light Mode:**
+   - Dark mode background is deep obsidian `#090d16` with cyber-emerald and electric-cyan accents.
+   - Light mode background is crisp pearl slate `#f8fafc` / `#ffffff`.
+   - Text in Light Mode must always be deep charcoal/obsidian `#0f172a` or `#1e293b` (never faint white or low-contrast gray).
+   - Accents in Light Mode must use deep saturated tones:
+     • Emerald: `#047857` (not light neon green)
+     • Cyan / Sky: `#0284c7` (not pale cyan)
+     • Amber / Gold: `#b45309` (not pale yellow)
+     • Rose / Crimson: `#be123c` (not pale pink)
+     • Purple / Indigo: `#6b21a8` / `#4338ca`
+
+4. **Modals, Overlays & Inputs:**
+   - Modal backdrops in light mode must use translucent frosted slate `rgba(15, 23, 42, 0.45)` with `backdrop-filter: blur(8px)`.
+   - Inputs, textareas, and select elements must feature distinct borders, clear placeholder text, and high-contrast text in both themes.
+   - Modal close buttons (`&times;`) must remain clearly visible and interactive.
+
+5. **Testing & Verification Requirement:**
+   - Run `node test-all-flows.js` and `node test-files-history.js` before any commit.
+   - Check simulated browser rendering across both `dark` and `light` root classes.

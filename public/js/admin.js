@@ -1821,19 +1821,65 @@ async function deleteQuestionFromBank(id) {
   if (!token) return;
   if (!confirm(`Are you sure you want to permanently delete question #${id} from the bank?`)) return;
   try {
-    const res = await fetch(`/api/admin/questions/${id}`, {
+    let res = await fetch(`/api/admin/questions/${id}`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${token}` }
     });
+    if (res.status === 404 || res.status === 405) {
+      res = await fetch(`/api/admin/questions/delete/${id}`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+    }
     const data = await res.json();
     if (data.success) {
-      showToast('Question Deleted', `Question #${id} has been removed.`, 'info');
-      loadQuestionBank();
+      showToast('Question Deleted', `Question #${id} has been permanently removed.`, 'info');
+      await loadQuestionBank();
     } else {
       showToast('Error', data.message || 'Failed to delete question', 'error');
     }
   } catch (err) {
     showToast('Error', 'Failed to delete question', 'error');
+  }
+}
+
+async function clearAllQuestionsFromBank() {
+  if (checkWebsiteLockForSir()) return;
+  if (currentContestTimer && currentContestTimer.status === 'running') {
+    alert('Competition is currently running! Question modifications are locked.');
+    return;
+  }
+  const token = sessionStorage.getItem('sirToken');
+  if (!token) {
+    showToast('Unauthorized', 'Please login as Sir / Chief Judge.', 'error');
+    return;
+  }
+  if (!confirm('⚠️ Are you sure you want to permanently delete ALL questions from the Question Bank?\n\nThis will completely empty the Question Bank.')) {
+    return;
+  }
+  try {
+    let res = await fetch('/api/admin/questions/clear-all', {
+      method: 'POST',
+      headers: { 
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    if (!res.ok) {
+      res = await fetch('/api/admin/questions/all', {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+    }
+    const data = await res.json();
+    if (data.success) {
+      showToast('Question Bank Cleared', 'All questions have been permanently deleted.', 'success');
+      await loadQuestionBank();
+    } else {
+      showToast('Error', data.message || 'Failed to clear question bank', 'error');
+    }
+  } catch (err) {
+    showToast('Error', 'Network error while clearing question bank', 'error');
   }
 }
 
@@ -4090,6 +4136,7 @@ window.exportResultsCSV = exportResultsCSV;
 window.exportResultsTxt = exportResultsTxt;
 window.fullResetContestWipeAll = fullResetContestWipeAll;
 window.deleteQuestionFromBank = deleteQuestionFromBank;
+window.clearAllQuestionsFromBank = clearAllQuestionsFromBank;
 window.setQuestionDistributionMode = setQuestionDistributionMode;
 window.closeSameModeQuestionSelectModal = closeSameModeQuestionSelectModal;
 window.confirmSameModeQuestionSelection = confirmSameModeQuestionSelection;

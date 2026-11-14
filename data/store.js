@@ -7,7 +7,7 @@
 const fs = require('fs');
 const path = require('path');
 
-// Default Contest Problems Persistence
+// Contest Problems Persistence
 const PROBLEMS_FILE = path.join(__dirname, 'problems.json');
 
 function loadProblemsFromFile() {
@@ -15,7 +15,7 @@ function loadProblemsFromFile() {
     if (fs.existsSync(PROBLEMS_FILE)) {
       const raw = fs.readFileSync(PROBLEMS_FILE, 'utf-8');
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed)) return parsed;
     }
   } catch (err) {
     console.error('[Store] Error loading problems.json:', err);
@@ -23,7 +23,15 @@ function loadProblemsFromFile() {
   return [];
 }
 
-// Question Bank: Initialized with standard 60-point challenges from problems.json
+function saveProblemsToFile(problems) {
+  try {
+    fs.writeFileSync(PROBLEMS_FILE, JSON.stringify(problems, null, 2), 'utf-8');
+  } catch (err) {
+    console.error('[Store] Error saving problems.json:', err);
+  }
+}
+
+// Question Bank: Initialized from problems.json (starts empty by default)
 let questionBank = loadProblemsFromFile();
 
 // Active Contest Question IDs (Must sum up to exactly 60 points)
@@ -599,8 +607,7 @@ const store = {
     teams.clear();
     submissions.length = 0;
     teamSpecificQuestions.clear();
-    // Restore default 60-point challenges from problems.json so arena is instantly ready for the next round
-    questionBank = loadProblemsFromFile();
+    // Do NOT reload default questions; keep questionBank as is
     activeContestQuestionIds = questionBank.map(q => q.id);
     activeGlobalSlots = {
       easyId: questionBank[0] ? questionBank[0].id : null,
@@ -611,7 +618,7 @@ const store = {
       timer: this.getContestTimer(),
       teamsCount: 0,
       submissionsCount: 0,
-      questionsCount: 0,
+      questionsCount: questionBank.length,
       hasArchivedPodium: archivedLeaderboard.length > 0,
       archivedPodium: archivedPodium
     };
@@ -629,8 +636,7 @@ const store = {
     teams.clear();
     submissions.length = 0;
     teamSpecificQuestions.clear();
-    // Restore default 60-point challenges from problems.json so arena is instantly ready for the next round
-    questionBank = loadProblemsFromFile();
+    // Do NOT reload default questions; keep questionBank as is
     activeContestQuestionIds = questionBank.map(q => q.id);
     activeGlobalSlots = {
       easyId: questionBank[0] ? questionBank[0].id : null,
@@ -645,7 +651,7 @@ const store = {
       timer: this.getContestTimer(),
       teamsCount: 0,
       submissionsCount: 0,
-      questionsCount: 0,
+      questionsCount: questionBank.length,
       hasArchivedPodium: false,
       archivedPodium: []
     };
@@ -1152,6 +1158,7 @@ const store = {
     };
 
     questionBank.push(newQuestion);
+    saveProblemsToFile(questionBank);
     return newQuestion;
   },
 
@@ -1203,6 +1210,7 @@ const store = {
       ];
     }
 
+    saveProblemsToFile(questionBank);
     return existing;
   },
 
@@ -1299,7 +1307,22 @@ const store = {
       teamSpecificQuestions.set(teamId, qIds.filter(qId => qId !== numId));
     }
     this.syncGlobalSlots();
+    saveProblemsToFile(questionBank);
     return { success: true, removedId: numId };
+  },
+
+  clearQuestionBank() {
+    const count = questionBank.length;
+    questionBank = [];
+    activeContestQuestionIds = [];
+    activeGlobalSlots = {
+      easyId: null,
+      mediumId: null,
+      hardId: null
+    };
+    teamSpecificQuestions.clear();
+    saveProblemsToFile(questionBank);
+    return { success: true, removedCount: count };
   },
 
   getProblems() {
