@@ -954,12 +954,22 @@ router.get('/admin/competitions/:id', verifySirToken, (req, res) => {
 router.post('/admin/competitions/snapshot', verifySirToken, ensureWebsiteNotLocked, (req, res) => {
   try {
     const { title, description } = req.body || {};
+    if (!store.isContestProperlyCompleted()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Contest cannot be archived: The competition must run from start to finish (timer ended, official results published, or submissions evaluated) before it can be saved to History.'
+      });
+    }
     const snapshot = store.saveCurrentCompetitionSnapshot(title, description);
     if (!snapshot) {
       return res.status(400).json({
         success: false,
-        message: 'Unable to snapshot: No active teams or questions found to snapshot.'
+        message: 'Unable to snapshot: Competition was already saved to history or has no active teams.'
       });
+    }
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('competitionsUpdated', { remaining: store.getCompetitionHistory().length });
     }
     return res.status(200).json({
       success: true,

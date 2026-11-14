@@ -54,6 +54,8 @@ let totalDurationSeconds = contestDurationMinutes * 60;
 let timerStatus = 'not_started'; // 'not_started' | 'running' | 'paused' | 'ended'
 let timerStartTime = null;
 let elapsedBeforePause = 0;
+let hasContestEverStarted = false;
+let isCurrentContestSnapshotSaved = false;
 
 // Results Publication Flag: Podium is masked/empty until Sir publishes official marks!
 let resultsPublished = false;
@@ -433,6 +435,8 @@ const store = {
     }
 
     if (timerStatus === 'running') return this.getContestTimer();
+    hasContestEverStarted = true;
+    isCurrentContestSnapshotSaved = false;
     timerStartTime = Date.now();
     timerStatus = 'running';
     return this.getContestTimer();
@@ -454,13 +458,45 @@ const store = {
     return this.getContestTimer();
   },
 
-  saveCurrentCompetitionSnapshot(customTitle = null, customDescription = null) {
+  isContestProperlyCompleted() {
+    const approved = this.getApprovedTeams();
+    if (approved.length === 0) {
+      return false; // No approved teams participated
+    }
+
+    // Must have actually started
+    const started = hasContestEverStarted || timerStartTime !== null || elapsedBeforePause > 0 || timerStatus === 'running' || timerStatus === 'ended';
+    if (!started) {
+      return false; // Contest was never started
+    }
+
+    // Must have completed / finished:
+    // Either timer expired / ended, or contest concluded with evaluated submissions & official results published
+    const timer = this.getContestTimer();
+    const timerEnded = (timer.remainingSeconds !== undefined && timer.remainingSeconds <= 0) || timerStatus === 'ended';
+    const hasEvaluatedSubmissions = submissions.length > 0 && submissions.some(s => s.scoreAwarded !== null && s.scoreAwarded !== undefined);
+    const finished = timerEnded || (hasEvaluatedSubmissions && resultsPublished) || (hasEvaluatedSubmissions && timerStatus !== 'running');
+
+    return Boolean(finished);
+  },
+
+  saveCurrentCompetitionSnapshot(customTitle = null, customDescription = null, force = false) {
     try {
+      if (isCurrentContestSnapshotSaved && !force) {
+        return null;
+      }
+
+      // Strict Rule: Contest must have started and finished properly before entering history!
+      if (!this.isContestProperlyCompleted() && !force) {
+        console.log('[Store] Cannot snapshot: Contest has not completed from start to finish properly.');
+        return null;
+      }
+
       const currentLeaderboard = this.getLeaderboard(true);
       const teamsList = currentLeaderboard.leaderboard || [];
 
-      // Only save if there was at least one team, or questions were assigned
-      if (teamsList.length === 0 && questionBank.length === 0) {
+      // Must have at least one team
+      if (teamsList.length === 0) {
         return null;
       }
 
@@ -525,6 +561,7 @@ const store = {
 
       competitionHistory.push(snapshot);
       saveCompetitionHistoryToFile(competitionHistory);
+      isCurrentContestSnapshotSaved = true;
       return snapshot;
     } catch (err) {
       console.error('[Store] Failed to save competition snapshot:', err);
@@ -601,8 +638,10 @@ const store = {
   },
 
   resetContestFull() {
-    // 0. Automatically preserve current competition in permanent history before resetting!
-    this.saveCurrentCompetitionSnapshot();
+    // 0. Automatically preserve current competition in permanent history IF AND ONLY IF contest properly started and completed!
+    if (this.isContestProperlyCompleted()) {
+      this.saveCurrentCompetitionSnapshot();
+    }
 
     // 1. Preserve current evaluated standings as archived podium so users can still view previous winners
     try {
@@ -624,6 +663,8 @@ const store = {
     timerStatus = 'not_started';
     timerStartTime = null;
     elapsedBeforePause = 0;
+    hasContestEverStarted = false;
+    isCurrentContestSnapshotSaved = false;
     resultsPublished = false;
     teams.clear();
     submissions.length = 0;
@@ -647,12 +688,16 @@ const store = {
 
   // 100% Full Contest Reset: Completely wipes teams, submissions, timer, questions AND podium archive
   resetContestWipeAll() {
-    // Automatically preserve competition snapshot before wiping live arena
-    this.saveCurrentCompetitionSnapshot();
+    // Automatically preserve competition snapshot before wiping live arena IF AND ONLY IF contest properly started and completed!
+    if (this.isContestProperlyCompleted()) {
+      this.saveCurrentCompetitionSnapshot();
+    }
 
     timerStatus = 'not_started';
     timerStartTime = null;
     elapsedBeforePause = 0;
+    hasContestEverStarted = false;
+    isCurrentContestSnapshotSaved = false;
     resultsPublished = false;
     teams.clear();
     submissions.length = 0;
@@ -1470,6 +1515,9 @@ const store = {
     if (!team) throw new Error(`Team #${teamId} not found.`);
     team.status = 'approved';
     team.approvedAt = new Date().toISOString();
+
+    // Standings are automatically live & visible when teams are approved
+    resultsPublished = true;
 
     // Automatically ensure team has 60 points of assigned questions if not already assigned
     if (activeContestQuestionIds.length > 0 && !teamSpecificQuestions.has(teamId)) {

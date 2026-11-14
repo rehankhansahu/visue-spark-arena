@@ -2335,18 +2335,22 @@ function updateResultsPublishBadge(isPublished, isReset = false) {
   const btnPublish = document.getElementById('btnPublishResults');
   const btnUnpublish = document.getElementById('btnUnpublishResults');
 
+  const hasApproved = approvedTeams && approvedTeams.length > 0;
+
   if (banner) {
-    if (isPublished) {
+    if (hasApproved && isPublished) {
       banner.className = 'inline-block mt-0.5 px-3 py-0.5 rounded-full text-[11px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
-      banner.textContent = '● STANDINGS: PUBLISHED (VISIBLE)';
-    } else {
+      banner.textContent = '● STANDINGS: LIVE (VISIBLE)';
+    } else if (hasApproved && !isPublished) {
       banner.className = 'inline-block mt-0.5 px-3 py-0.5 rounded-full text-[11px] font-mono font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30';
       banner.textContent = '⏳ STANDINGS: HIDDEN';
+    } else {
+      banner.className = 'inline-block mt-0.5 px-3 py-0.5 rounded-full text-[11px] font-mono font-bold bg-slate-500/20 text-slate-400 border border-slate-500/30';
+      banner.textContent = '⚪ STANDINGS: NO TEAMS';
     }
   }
 
   if (btnPublish && btnUnpublish) {
-    const hasApproved = approvedTeams && approvedTeams.length > 0;
     if (isReset || !hasApproved) {
       btnPublish.classList.add('hidden');
       btnUnpublish.classList.add('hidden');
