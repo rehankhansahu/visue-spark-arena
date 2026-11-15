@@ -1772,19 +1772,34 @@ const store = {
     return 60;
   },
 
-  // Sir custom grading / score override
+  // Sir custom grading / score override with strict maxPoints capping
   gradeSubmission({ submissionId, marks, judgeNotes }) {
     const sub = this.getSubmissionById(submissionId);
     if (!sub) throw new Error(`Submission #${submissionId} not found.`);
 
-    sub.isGradedBySir = true;
-    const team = teams.get(sub.teamId);
+    const maxPoints = parseInt(sub.points, 10) || (sub.problemId === 1 ? 10 : (sub.problemId === 2 ? 20 : (sub.problemId === 3 ? 30 : 10)));
     const newMarks = parseInt(marks, 10);
 
-    if (team && !isNaN(newMarks)) {
-      const diff = newMarks - sub.scoreAwarded;
+    if (isNaN(newMarks)) {
+      throw new Error('Invalid marks value. Please enter a valid number.');
+    }
+
+    if (newMarks < 0) {
+      throw new Error('Marks cannot be negative. Minimum allowed score is 0.');
+    }
+
+    if (newMarks > maxPoints) {
+      throw new Error(`Cannot award ${newMarks} points! Maximum allowed score for Problem #${sub.problemId} is ${maxPoints} points.`);
+    }
+
+    sub.isGradedBySir = true;
+    const team = teams.get(sub.teamId);
+
+    if (team) {
+      const oldScore = sub.scoreAwarded !== undefined && sub.scoreAwarded !== null ? sub.scoreAwarded : 0;
+      const diff = newMarks - oldScore;
       sub.scoreAwarded = newMarks;
-      team.score = Math.max(0, team.score + diff);
+      team.score = Math.max(0, (team.score || 0) + diff);
 
       if (team.submittedSolutions && team.submittedSolutions[sub.problemId]) {
         team.submittedSolutions[sub.problemId].scoreAwarded = newMarks;

@@ -1324,8 +1324,10 @@ router.post('/admin/unpublish-results', verifySirToken, ensureWebsiteNotLocked, 
 
 router.post('/admin/grade-submission', verifySirToken, ensureWebsiteNotLocked, (req, res) => {
   try {
-    const { submissionId, marks, judgeNotes } = req.body;
-    const result = store.gradeSubmission({ submissionId, marks, judgeNotes });
+    const { submissionId, marks, score, judgeNotes, notes } = req.body || {};
+    const finalMarks = marks !== undefined ? marks : score;
+    const finalNotes = judgeNotes !== undefined ? judgeNotes : notes;
+    const result = store.gradeSubmission({ submissionId, marks: finalMarks, judgeNotes: finalNotes });
 
     const io = req.app.get('io');
     if (io) {
@@ -1347,7 +1349,7 @@ router.post('/admin/grade-submission', verifySirToken, ensureWebsiteNotLocked, (
 
     return res.status(200).json({
       success: true,
-      message: `Score updated to ${marks} marks for submission #${submissionId}.`,
+      message: `Score updated to ${result.submission.scoreAwarded} marks for submission #${submissionId}.`,
       submission: result.submission,
       team: result.team
     });

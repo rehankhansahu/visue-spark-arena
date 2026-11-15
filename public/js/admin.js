@@ -2484,9 +2484,9 @@ function renderJudgeSubmissions(submissions) {
           </td>
           <td class="px-4 py-3 font-mono">
             ${isExitSub ? `
-              <div class="text-xs text-rose-400 font-bold">+${sub.scoreAwarded} pts</div>
+              <div class="text-xs text-rose-400 font-bold">+${sub.scoreAwarded} / ${sub.points || (sub.problemId === 1 ? 10 : (sub.problemId === 2 ? 20 : 30))} pts</div>
             ` : `
-              <div class="text-xs text-emerald-400 font-bold">+${sub.scoreAwarded} pts</div>
+              <div class="text-xs text-emerald-400 font-bold">+${sub.scoreAwarded} / ${sub.points || (sub.problemId === 1 ? 10 : (sub.problemId === 2 ? 20 : 30))} pts</div>
             `}
             ${sub.bonus > 0 ? `<div class="text-[10px] text-amber-400 font-bold">★ +${sub.bonus} Bonus</div>` : ''}
             ${sub.judgeNotes ? `<div class="text-[10px] text-slate-400 italic mt-0.5 font-sans">"${sub.judgeNotes}"</div>` : ''}
@@ -2606,7 +2606,8 @@ function inspectCodeModal(submissionId) {
   document.getElementById('inspectStudentName').textContent = `${sub.teamName} • ${sub.university}`;
   document.getElementById('inspectProblem').textContent = `Problem #${sub.problemId}: ${sub.problemTitle}`;
   document.getElementById('inspectLanguage').textContent = `${sub.language.toUpperCase()} (.${ext})`;
-  document.getElementById('inspectStatus').textContent = `Verified Submission (+${sub.scoreAwarded} pts)`;
+  const maxSubPoints = sub.points || (sub.problemId === 1 ? 10 : (sub.problemId === 2 ? 20 : 30));
+  document.getElementById('inspectStatus').textContent = `Verified Submission (+${sub.scoreAwarded} / ${maxSubPoints} pts)`;
   document.getElementById('inspectCodeBody').textContent = sub.code;
 
   // Wire buttons inside modal
@@ -2704,19 +2705,32 @@ function triggerFileDownload(filename, content, mimeType) {
   URL.revokeObjectURL(url);
 }
 
-// Prompt to adjust marks / grade
+// Prompt to adjust marks / grade with strict max points limit
 async function promptGradeSubmission(submissionId) {
   if (checkWebsiteLockForSir()) return;
   const sub = allSubmissions.find(s => s.id === submissionId);
   if (!sub) return;
 
-  const currentScore = sub.scoreAwarded;
-  const newMarksStr = prompt(`Enter new marks for ${sub.teamName} on Problem #${sub.problemId}:`, currentScore);
+  const maxPoints = parseInt(sub.points, 10) || (sub.problemId === 1 ? 10 : (sub.problemId === 2 ? 20 : (sub.problemId === 3 ? 30 : 10)));
+  const currentScore = (sub.scoreAwarded !== undefined && sub.scoreAwarded !== null) ? sub.scoreAwarded : 0;
+
+  const promptMsg = `Enter marks for ${sub.teamName} on Problem #${sub.problemId} (${sub.problemTitle || 'Challenge'}):\n\n• Maximum Allowed Points: ${maxPoints} pts\n• Current Score: ${currentScore} / ${maxPoints} pts`;
+  const newMarksStr = prompt(promptMsg, currentScore);
   if (newMarksStr === null) return;
 
   const newMarks = parseInt(newMarksStr, 10);
   if (isNaN(newMarks)) {
     alert('Please enter a valid numeric score.');
+    return;
+  }
+
+  if (newMarks < 0) {
+    alert('Marks cannot be negative. Minimum score is 0.');
+    return;
+  }
+
+  if (newMarks > maxPoints) {
+    alert(`⚠️ Cannot award ${newMarks} points!\n\nThis question is only worth ${maxPoints} points maximum.\nPlease enter a score between 0 and ${maxPoints}.`);
     return;
   }
 
@@ -2750,6 +2764,9 @@ async function promptGradeSubmission(submissionId) {
       if (window.fetchInitialLeaderboard) {
         window.fetchInitialLeaderboard();
       }
+    } else {
+      alert(`Grading Error:\n\n${data.message}`);
+      showToast('Error', data.message, 'error');
     }
   } catch (e) {
     showToast('Error', 'Failed to update score', 'error');
