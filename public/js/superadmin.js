@@ -260,6 +260,34 @@ async function loadTeachersList() {
 
     if (data.success && Array.isArray(data.teachers)) {
       teachersListCache = data.teachers;
+
+      // Permanent persistence: Store teachers backup in client-side localStorage
+      try {
+        localStorage.setItem('vspark_teachers_list', JSON.stringify(teachersListCache));
+      } catch (e) {}
+
+      // Auto-sync if server has default Unsplash image but client has customized photo
+      try {
+        const cachedRaw = localStorage.getItem('vspark_teachers_list');
+        const sirProfile = localStorage.getItem('vspark_sir_profile');
+        if (sirProfile) {
+          const parsedSir = JSON.parse(sirProfile);
+          if (parsedSir && parsedSir.profilePic && !teachersListCache.some(t => t.profilePic === parsedSir.profilePic)) {
+            fetch('/api/admin/profile/sync', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(parsedSir)
+            }).then(r => r.json()).then(res => {
+              if (res.success && res.teacher) {
+                const idx = teachersListCache.findIndex(t => t.id === res.teacher.id);
+                if (idx !== -1) teachersListCache[idx] = res.teacher;
+                else teachersListCache.push(res.teacher);
+              }
+            }).catch(() => {});
+          }
+        }
+      } catch (e) {}
+
       if (badge) badge.textContent = `${teachersListCache.length} Teachers`;
 
       if (teachersListCache.length === 0) {

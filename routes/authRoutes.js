@@ -36,10 +36,12 @@ router.post('/login', validateLogin, (req, res) => {
     });
   }
 
-  const teacherName = matchedTeacher ? matchedTeacher.name : 'Dr. Rashid Jahangir';
-  const teacherDept = matchedTeacher ? (matchedTeacher.department || 'Department of Computer Science') : 'Department of Computer Science';
-  const teacherDesignation = matchedTeacher ? (matchedTeacher.designation || 'Chief Evaluation Judge') : 'Chief Evaluation Judge';
-  const teacherPic = matchedTeacher ? (matchedTeacher.profilePic || null) : null;
+  // Always resolve authentic teacher record so custom photo and name are never lost
+  const primaryTeacher = matchedTeacher || store.getTeacherByUsername(cleanUser) || store.getTeacherById('teacher-1') || store.getTeachers(true)[0];
+  const teacherName = primaryTeacher ? primaryTeacher.name : 'Dr. Rashid Jahangir';
+  const teacherDept = primaryTeacher ? (primaryTeacher.department || 'Department of Computer Science') : 'Department of Computer Science';
+  const teacherDesignation = primaryTeacher ? (primaryTeacher.designation || 'Chief Evaluation Judge') : 'Chief Evaluation Judge';
+  const teacherPic = primaryTeacher ? (primaryTeacher.profilePic || null) : null;
 
   // Option A: Single-Judge Strict Lock Check
   const existingSession = store.getActiveJudgeSession();
@@ -133,13 +135,13 @@ router.get('/verify-auth', (req, res) => {
       store.touchJudgeSession();
     }
 
-    const teacher = store.getTeacherByUsername(decoded.username);
+    const teacher = store.getTeacherByUsername(decoded.username) || store.getTeacherById('teacher-1') || store.getTeachers(false)[0];
     return res.status(200).json({
       success: true,
       judge: {
         username: decoded.username,
-        name: (teacher ? teacher.name : decoded.name) || 'Judge',
-        role: decoded.role,
+        name: (teacher ? teacher.name : decoded.name) || 'Dr. Rashid Jahangir',
+        role: decoded.role || 'judge',
         department: (teacher ? teacher.department : decoded.department) || 'Department of Computer Science',
         designation: (teacher ? teacher.designation : decoded.designation) || 'Chief Evaluation Judge',
         profilePic: (teacher ? teacher.profilePic : decoded.profilePic) || null
@@ -147,6 +149,77 @@ router.get('/verify-auth', (req, res) => {
     });
   } catch (err) {
     return res.status(401).json({ success: false, message: 'Session expired' });
+  }
+});
+
+/**
+ * POST /api/admin/profile
+ * Sir updates their own profile details (Name, Designation, Department, Profile Picture)
+ */
+router.post('/admin/profile', (req, res) => {
+  const authHeader = req.headers['authorization'];
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ success: false, message: 'Authentication required to update profile' });
+  }
+
+  const token = authHeader.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const { name, designation, department, profilePic } = req.body || {};
+
+    const updated = store.syncSirProfile({ name, designation, department, profilePic });
+
+    const safeJudge = {
+      username: decoded.username,
+      name: updated.name,
+      role: 'judge',
+      department: updated.department,
+      designation: updated.designation,
+      profilePic: updated.profilePic
+    };
+
+    // Broadcast update via Socket.IO so all connected screens reflect changes live
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('teacherProfileUpdated', { teacher: safeJudge });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Judge profile updated and permanently persisted! ✨',
+      judge: safeJudge
+    });
+  } catch (err) {
+    return res.status(401).json({ success: false, message: 'Invalid or expired session' });
+  }
+});
+
+/**
+ * POST /api/admin/profile/sync
+ * Sync cached teacher profile from client localStorage to persist across server cold boots
+ */
+router.post('/admin/profile/sync', (req, res) => {
+  try {
+    const { name, designation, department, profilePic } = req.body || {};
+    if (!name && !profilePic) {
+      return res.status(400).json({ success: false, message: 'No profile data provided for sync' });
+    }
+
+    const updated = store.syncSirProfile({ name, designation, department, profilePic });
+    return res.status(200).json({
+      success: true,
+      message: 'Judge profile synchronized successfully!',
+      teacher: {
+        id: updated.id,
+        name: updated.name,
+        username: updated.username,
+        designation: updated.designation,
+        department: updated.department,
+        profilePic: updated.profilePic
+      }
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
   }
 });
 

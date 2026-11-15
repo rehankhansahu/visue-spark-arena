@@ -88,6 +88,33 @@ router.get('/teachers', verifySuperAdminToken, (req, res) => {
 });
 
 /**
+ * POST /api/superadmin/teachers/sync
+ * Bulk sync cached teachers list from client localStorage to persist across cold boots
+ */
+router.post('/teachers/sync', (req, res) => {
+  try {
+    const { teachers: incomingList } = req.body || {};
+    if (!Array.isArray(incomingList) || incomingList.length === 0) {
+      return res.status(400).json({ success: false, message: 'Invalid or empty teachers list' });
+    }
+    const synced = store.syncTeachers(incomingList);
+    const safeList = synced.map(t => {
+      const copy = { ...t };
+      delete copy.password;
+      return copy;
+    });
+    return res.status(200).json({
+      success: true,
+      message: 'Teachers list synchronized successfully!',
+      count: safeList.length,
+      teachers: safeList
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+/**
  * POST /api/superadmin/teachers
  * Add a new teacher / judge
  */

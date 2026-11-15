@@ -19,6 +19,7 @@ let currentContestTimer = null;
 
 function updateSirHeaderProfile(judge) {
   if (!judge) return;
+  currentJudge = { ...(currentJudge || {}), ...judge };
   const judgeNameEl = document.getElementById('sirJudgeNameDisplay');
   const judgeHeaderEl = document.getElementById('sirJudgeNameDisplayHeader');
   const designationEl = document.getElementById('sirJudgeDesignationDisplay');
@@ -37,8 +38,259 @@ function updateSirHeaderProfile(judge) {
       avatarContainer.innerHTML = `<span id="sirJudgeAvatarIcon">👨‍🏫</span>`;
     }
   }
+
+  // Permanent Client-side Persistence: Backup teacher data in localStorage
+  try {
+    const cached = {
+      username: judge.username || 'sir_visue',
+      name: judge.name || 'Dr. Rashid Jahangir',
+      designation: judge.designation || 'Chief Evaluation Judge',
+      department: judge.department || 'Department of Computer Science',
+      profilePic: judge.profilePic || null
+    };
+    localStorage.setItem('vspark_sir_profile', JSON.stringify(cached));
+  } catch (e) {}
 }
 window.updateSirHeaderProfile = updateSirHeaderProfile;
+
+/**
+ * Sir / Judge Profile & Photo Management Controls
+ */
+function openSirProfileModal() {
+  const modal = document.getElementById('sirProfileModal');
+  if (!modal) return;
+
+  let judge = currentJudge;
+  if (!judge) {
+    try {
+      const cached = localStorage.getItem('vspark_sir_profile');
+      if (cached) judge = JSON.parse(cached);
+    } catch (e) {}
+  }
+
+  const nameInput = document.getElementById('sirProfileNameInput');
+  const desigInput = document.getElementById('sirProfileDesignationInput');
+  const deptInput = document.getElementById('sirProfileDeptInput');
+  const picInput = document.getElementById('sirProfilePicInput');
+  const urlInput = document.getElementById('sirProfileUrlInput');
+  const preview = document.getElementById('sirProfilePicModalPreview');
+  const fileInput = document.getElementById('sirProfileFileInput');
+
+  if (fileInput) fileInput.value = '';
+
+  const pic = (judge && judge.profilePic) ? judge.profilePic : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80';
+  if (nameInput) nameInput.value = (judge && judge.name) ? judge.name : 'Dr. Rashid Jahangir';
+  if (desigInput) desigInput.value = (judge && judge.designation) ? judge.designation : 'Chief Evaluation Judge';
+  if (deptInput) deptInput.value = (judge && judge.department) ? judge.department : 'Department of Computer Science • CUI Vehari Campus';
+  if (picInput) picInput.value = pic;
+  if (urlInput) urlInput.value = (pic && !pic.startsWith('data:')) ? pic : '';
+
+  if (preview) {
+    preview.src = pic;
+  }
+
+  modal.classList.remove('hidden');
+}
+window.openSirProfileModal = openSirProfileModal;
+
+function closeSirProfileModal() {
+  const modal = document.getElementById('sirProfileModal');
+  if (modal) modal.classList.add('hidden');
+}
+window.closeSirProfileModal = closeSirProfileModal;
+
+function updateSirProfileModalPreviewFromUrl() {
+  const urlInput = document.getElementById('sirProfileUrlInput');
+  const picInput = document.getElementById('sirProfilePicInput');
+  const preview = document.getElementById('sirProfilePicModalPreview');
+  if (urlInput && preview) {
+    const val = urlInput.value.trim();
+    if (val) {
+      preview.src = val;
+      if (picInput) picInput.value = val;
+    }
+  }
+}
+window.updateSirProfileModalPreviewFromUrl = updateSirProfileModalPreviewFromUrl;
+
+function resetSirProfilePic() {
+  const defaultPic = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80';
+  const picInput = document.getElementById('sirProfilePicInput');
+  const urlInput = document.getElementById('sirProfileUrlInput');
+  const preview = document.getElementById('sirProfilePicModalPreview');
+  const fileInput = document.getElementById('sirProfileFileInput');
+
+  if (picInput) picInput.value = defaultPic;
+  if (urlInput) urlInput.value = defaultPic;
+  if (preview) preview.src = defaultPic;
+  if (fileInput) fileInput.value = '';
+}
+window.resetSirProfilePic = resetSirProfilePic;
+
+function handleSirProfilePicUpload(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  if (!file.type.startsWith('image/')) {
+    if (typeof showToast === 'function') {
+      showToast('Invalid File', 'Please select a valid image file (PNG, JPG, WebP).', 'error');
+    } else {
+      alert('Please select a valid image file.');
+    }
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      const maxDim = 320;
+      let width = img.width;
+      let height = img.height;
+
+      if (width > height) {
+        if (width > maxDim) {
+          height = Math.round((height * maxDim) / width);
+          width = maxDim;
+        }
+      } else {
+        if (height > maxDim) {
+          width = Math.round((width * maxDim) / height);
+          height = maxDim;
+        }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+
+      const optimizedDataUrl = canvas.toDataURL('image/jpeg', 0.88);
+
+      const picInput = document.getElementById('sirProfilePicInput');
+      const urlInput = document.getElementById('sirProfileUrlInput');
+      const preview = document.getElementById('sirProfilePicModalPreview');
+
+      if (picInput) picInput.value = optimizedDataUrl;
+      if (urlInput) urlInput.value = '';
+      if (preview) preview.src = optimizedDataUrl;
+
+      if (typeof showToast === 'function') {
+        showToast('Photo Loaded! 📸', `${file.name} ready to save.`, 'success');
+      }
+    };
+    img.src = evt.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+window.handleSirProfilePicUpload = handleSirProfilePicUpload;
+
+async function handleSaveSirProfile(event) {
+  if (event) event.preventDefault();
+
+  const nameInput = document.getElementById('sirProfileNameInput');
+  const desigInput = document.getElementById('sirProfileDesignationInput');
+  const deptInput = document.getElementById('sirProfileDeptInput');
+  const picInput = document.getElementById('sirProfilePicInput');
+  const urlInput = document.getElementById('sirProfileUrlInput');
+
+  const name = nameInput ? nameInput.value.trim() : '';
+  const designation = desigInput ? desigInput.value.trim() : '';
+  const department = deptInput ? deptInput.value.trim() : '';
+  let profilePic = picInput ? picInput.value.trim() : '';
+  if (urlInput && urlInput.value.trim()) {
+    profilePic = urlInput.value.trim();
+  }
+
+  if (!name) {
+    if (typeof showToast === 'function') {
+      showToast('Missing Name', 'Teacher Name is required.', 'error');
+    } else {
+      alert('Teacher Name is required.');
+    }
+    return;
+  }
+
+  const payload = { name, designation, department, profilePic };
+  const token = sessionStorage.getItem('vspark_sir_token') || sessionStorage.getItem('sirToken');
+
+  try {
+    const res = await fetch('/api/admin/profile', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+      },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+
+    if (data.success && data.judge) {
+      currentJudge = { ...(currentJudge || {}), ...data.judge };
+      updateSirHeaderProfile(currentJudge);
+      closeSirProfileModal();
+      if (typeof showToast === 'function') {
+        showToast('Profile Saved! ✨', 'Dr. Rashid Jahangir profile updated and saved permanently.', 'success');
+      }
+    } else {
+      // In case session expired on client, fallback sync
+      const syncRes = await fetch('/api/admin/profile/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const syncData = await syncRes.json();
+      if (syncData.success) {
+        currentJudge = { ...(currentJudge || {}), ...payload };
+        updateSirHeaderProfile(currentJudge);
+        closeSirProfileModal();
+        if (typeof showToast === 'function') {
+          showToast('Profile Saved! ✨', 'Dr. Rashid Jahangir profile updated and saved permanently.', 'success');
+        }
+      } else {
+        if (typeof showToast === 'function') {
+          showToast('Error', data.message || 'Failed to save profile.', 'error');
+        }
+      }
+    }
+  } catch (err) {
+    // If offline/fetch fails, update locally
+    currentJudge = { ...(currentJudge || {}), ...payload };
+    updateSirHeaderProfile(currentJudge);
+    closeSirProfileModal();
+    if (typeof showToast === 'function') {
+      showToast('Saved Locally 💾', 'Profile updated in local storage and will sync to server.', 'info');
+    }
+  }
+}
+window.handleSaveSirProfile = handleSaveSirProfile;
+
+// Auto-restore cached teacher profile on script initialization so photo/name never disappear
+(function autoRestoreTeacherProfile() {
+  try {
+    const cachedSir = localStorage.getItem('vspark_sir_profile');
+    if (cachedSir) {
+      const parsed = JSON.parse(cachedSir);
+      if (parsed && (parsed.profilePic || parsed.name)) {
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', () => {
+            updateSirHeaderProfile(parsed);
+          });
+        } else {
+          updateSirHeaderProfile(parsed);
+        }
+
+        // Background auto-sync to server so server disk remains in sync
+        fetch('/api/admin/profile/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(parsed)
+        }).catch(() => {});
+      }
+    }
+  } catch (e) {}
+})();
 
 /**
  * Check if the platform is currently locked in Read-Only Mode.

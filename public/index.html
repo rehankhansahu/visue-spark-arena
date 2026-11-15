@@ -976,9 +976,12 @@
         <!-- Dedicated Sir Portal Header with High-Visibility Logout Button -->
         <div class="glass-panel rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-purple-500/30 shadow-xl">
           <div class="flex items-center gap-3.5">
-            <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-amber-500 p-[2px] shadow-md shadow-purple-500/20 shrink-0">
+            <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-amber-500 p-[2px] shadow-md shadow-purple-500/20 shrink-0 cursor-pointer group relative" onclick="openSirProfileModal()" title="Click to edit profile photo and details">
               <div id="sirJudgeAvatarContainer" class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center text-xl sm:text-2xl judge-avatar-inner overflow-hidden">
                 <span id="sirJudgeAvatarIcon">👨‍🏫</span>
+              </div>
+              <div class="absolute inset-0 bg-black/60 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold pointer-events-none">
+                📷
               </div>
             </div>
             <div>
@@ -990,6 +993,13 @@
                   <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                   <span>Active Session</span>
                 </span>
+                <button 
+                  type="button" 
+                  onclick="openSirProfileModal()" 
+                  class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 transition flex items-center gap-1 shadow-sm"
+                  title="Edit your photo and info">
+                  <span>✏️</span><span>Edit Profile</span>
+                </button>
               </div>
               <h2 id="sirJudgeNameDisplayHeader" class="text-lg sm:text-xl font-black text-white mt-0.5 tracking-tight">
                 Dr. Rashid Jahangir
@@ -1002,6 +1012,15 @@
 
           <!-- Top Right Action Controls: Competition History, Results Exports (Excel, PDF, TXT) & Logout -->
           <div class="flex items-center gap-2 flex-wrap w-full sm:w-auto justify-end">
+            <button 
+              type="button"
+              onclick="openSirProfileModal()" 
+              class="btn-cyber px-3 py-1.5 rounded-xl text-xs font-bold text-amber-300 bg-amber-950/60 border border-amber-500/40 hover:bg-amber-900/50 transition flex items-center gap-1.5 shadow-sm"
+              title="Edit Sir / Judge Profile Picture and Information">
+              <span>✏️</span>
+              <span class="hidden md:inline">Edit</span><span>Profile</span>
+            </button>
+
             <button 
               type="button"
               onclick="openCompetitionHistoryModal()" 
@@ -2361,6 +2380,89 @@
           <button type="submit" class="btn-cyber px-5 py-2 rounded-xl text-xs font-mono font-bold bg-purple-600 hover:bg-purple-500 text-white transition flex items-center gap-1.5 shadow-lg">
             <span>💾</span>
             <span>Update Profile</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       Sir / Judge Dedicated Profile & Photo Edit Modal
+       ========================================================================= -->
+  <div id="sirProfileModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5">
+    <div class="glass-panel w-full max-w-lg rounded-2xl border border-purple-500/40 shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+      <!-- Header -->
+      <div class="p-4 sm:p-5 border-b border-white/10 flex items-center justify-between bg-slate-900/80">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-300 flex items-center justify-center text-base border border-purple-500/30">
+            👨‍🏫
+          </div>
+          <div>
+            <h3 class="text-sm sm:text-base font-bold text-white">Judge Profile & Photo</h3>
+            <p class="text-[11px] text-slate-400">Update photo, title, or department. Saved permanently.</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeSirProfileModal()" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-lg leading-none transition">
+          &times;
+        </button>
+      </div>
+
+      <!-- Form Body -->
+      <form id="sirProfileForm" onsubmit="handleSaveSirProfile(event); return false;" class="p-4 sm:p-5 overflow-y-auto space-y-3.5 flex-1 text-left text-xs font-mono">
+        <!-- Photo Preview and Upload from PC -->
+        <div class="flex items-center gap-4 p-3 rounded-xl bg-slate-900/60 border border-white/5">
+          <div class="w-16 h-16 rounded-xl bg-slate-950 border border-purple-500/40 overflow-hidden shrink-0 shadow-md flex items-center justify-center">
+            <img id="sirProfilePicModalPreview" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80" alt="Preview" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://api.dicebear.com/7.x/bottts/svg?seed=judge';">
+          </div>
+          <div class="min-w-0 flex-1 space-y-1">
+            <label class="block text-slate-400 uppercase text-[10px]">Profile Picture (Upload from PC)</label>
+            <input type="hidden" id="sirProfilePicInput">
+            <input type="file" id="sirProfileFileInput" accept="image/*" class="hidden" onchange="handleSirProfilePicUpload(event)">
+            <div class="flex items-center gap-2 flex-wrap">
+              <button type="button" onclick="document.getElementById('sirProfileFileInput').click()" class="px-3 py-1.5 rounded-lg text-xs font-mono font-bold bg-purple-600/30 hover:bg-purple-600/50 border border-purple-500/50 text-purple-300 transition flex items-center gap-1.5">
+                <span>📁</span>
+                <span>Choose Photo from PC</span>
+              </button>
+              <button type="button" onclick="resetSirProfilePic()" class="px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-200 transition">
+                Reset
+              </button>
+            </div>
+            <p class="text-[10px] text-slate-500">Auto-compressed & saved permanently in database & local storage.</p>
+          </div>
+        </div>
+
+        <!-- Or Image URL -->
+        <div class="space-y-1">
+          <label class="block text-slate-400 uppercase text-[10px]">Or Paste Image URL</label>
+          <input type="url" id="sirProfileUrlInput" placeholder="https://..." oninput="updateSirProfileModalPreviewFromUrl()" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-white/10 text-white placeholder-slate-500 focus:border-purple-500 focus:outline-none transition">
+        </div>
+
+        <!-- Full Name -->
+        <div class="space-y-1">
+          <label class="block text-slate-400 uppercase text-[10px]">Full Name *</label>
+          <input type="text" id="sirProfileNameInput" required placeholder="Dr. Rashid Jahangir" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-white/10 text-white placeholder-slate-500 focus:border-purple-500 focus:outline-none transition">
+        </div>
+
+        <!-- Designation -->
+        <div class="space-y-1">
+          <label class="block text-slate-400 uppercase text-[10px]">Designation / Role</label>
+          <input type="text" id="sirProfileDesignationInput" placeholder="Chief Evaluation Judge" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-white/10 text-white placeholder-slate-500 focus:border-purple-500 focus:outline-none transition">
+        </div>
+
+        <!-- Department -->
+        <div class="space-y-1">
+          <label class="block text-slate-400 uppercase text-[10px]">Department & University</label>
+          <input type="text" id="sirProfileDeptInput" placeholder="Department of Computer Science • CUI Vehari Campus" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-white/10 text-white placeholder-slate-500 focus:border-purple-500 focus:outline-none transition">
+        </div>
+
+        <!-- Footer Buttons -->
+        <div class="pt-3 border-t border-white/10 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeSirProfileModal()" class="px-4 py-2 rounded-xl text-xs font-mono font-bold bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+            Cancel
+          </button>
+          <button type="submit" id="saveSirProfileSubmitBtn" class="btn-cyber px-5 py-2 rounded-xl text-xs font-mono font-bold bg-purple-600 hover:bg-purple-500 text-white transition flex items-center gap-1.5 shadow-lg">
+            <span>💾</span>
+            <span>Save Profile</span>
           </button>
         </div>
       </form>
