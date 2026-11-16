@@ -439,12 +439,23 @@ function initSocketClient() {
     socket.on('teamLockStatusChanged', (data) => {
       console.log('[Socket.IO] PC Lock status changed:', data);
       const curTeam = window.getCurrentTeam ? window.getCurrentTeam() : null;
-      if (curTeam && (curTeam.id === data.teamId || curTeam.passKey === data.passKey || curTeam.secretKey === data.passKey)) {
+      if (curTeam && (curTeam.id === data.teamId || curTeam.passKey === data.passKey || curTeam.secretKey === data.passKey || curTeam.username === data.username)) {
         curTeam.pcLockStatus = data.pcLockStatus;
         if (window.updateStudentPCLockBadge) {
           window.updateStudentPCLockBadge(data.pcLockStatus);
         }
       }
+
+      // Live notification for Sir when any team executes script / locks PC
+      const sirToken = sessionStorage.getItem('sirToken');
+      if (sirToken && data.pcLockStatus === 'locked') {
+        showToast(
+          '🛡️ Script Executed Successfully!',
+          `Team "${data.teamName}" (${data.leaderName} - ${data.university || ''}) has executed the Exam-Lock script. PC is now locked to Arena only!`,
+          'success'
+        );
+      }
+
       if (window.loadApprovedTeams) {
         window.loadApprovedTeams();
       }

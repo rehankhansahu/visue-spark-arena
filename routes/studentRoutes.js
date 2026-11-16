@@ -232,6 +232,9 @@ router.post('/team/pc-lock', (req, res) => {
         teamId: team.id,
         teamName: team.teamName,
         leaderName: team.leaderName,
+        leaderRoll: team.leaderRoll,
+        university: team.university,
+        username: team.username,
         pcLockStatus: team.pcLockStatus,
         pcLockedAt: team.pcLockedAt,
         pcTamperAlert: team.pcTamperAlert

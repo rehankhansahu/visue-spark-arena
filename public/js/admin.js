@@ -1066,20 +1066,20 @@ async function loadApprovedTeams() {
 
 function renderPCLockBadge(t) {
   if (t.pcTamperAlert) {
-    return `<span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-rose-500/30 text-rose-200 border border-rose-500 animate-pulse" title="Tamper Alert: Lock script heartbeat stopped or process was closed!">⚠️ SCRIPT CLOSED</span>`;
+    return `<span class="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-rose-500/30 text-rose-200 border border-rose-500 animate-pulse" title="Tamper Alert: Lock script heartbeat stopped or process was closed!">⚠️ SCRIPT CLOSED</span>`;
   }
   if (t.pcLockStatus === 'locked') {
     return `
-      <span class="inline-flex items-center gap-1">
-        <span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40" title="PC network is locked to Arena only">🛡️ LOCKED</span>
-        <button onclick="toggleTeamPCLockAdmin('${t.id}', 'unlocked')" class="px-1 py-0.5 rounded text-[8px] font-mono font-bold bg-slate-800 text-slate-400 hover:text-white border border-white/10 transition" title="Unlock team PC">Unlock</button>
+      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/50 shadow-sm" title="Script executed successfully - PC is locked to Arena only">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span>✓ Script Executed (PC Locked)</span>
       </span>
     `;
   }
   return `
-    <span class="inline-flex items-center gap-1">
-      <span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40" title="Exam lock tool has not been run on student PC yet">○ UNLOCKED</span>
-      <button onclick="toggleTeamPCLockAdmin('${t.id}', 'locked')" class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 border border-emerald-500/40 transition" title="Click to simulate PC Lock for testing">🛡️ Lock</button>
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm" title="Awaiting student to download and execute the .bat tool as Administrator">
+      <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+      <span>⏳ Awaiting Script (.bat)</span>
     </span>
   `;
 }
@@ -1094,13 +1094,26 @@ function renderApprovedTeams(teamsList) {
       pcLockBadge.classList.remove('hidden');
       if (locked === active.length) {
         pcLockBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm';
-        pcLockBadge.innerHTML = `<span>🛡️</span><span>All PCs Locked (${locked}/${active.length})</span>`;
+        pcLockBadge.innerHTML = `<span>🛡️</span><span>✓ All Scripts Executed (${locked}/${active.length} Locked)</span>`;
       } else {
         pcLockBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm animate-pulse';
         pcLockBadge.innerHTML = `<span>⚠️</span><span>Exam-Lock: ${locked}/${active.length} Locked (Awaiting .bat)</span>`;
       }
     } else {
       pcLockBadge.classList.add('hidden');
+    }
+  }
+
+  const btnStart = document.getElementById('sirBtnStartTimer');
+  if (btnStart) {
+    const active = teamsList.filter(t => !t.leftEarly && t.status === 'approved');
+    if (active.length > 0) {
+      const locked = active.filter(t => t.pcLockStatus === 'locked').length;
+      if (locked < active.length) {
+        btnStart.title = `⚠️ Cannot Start: ${active.length - locked} team(s) have not executed the .bat Exam-Lock script yet.`;
+      } else {
+        btnStart.title = '▶ Start Contest Timer (All student PCs locked)';
+      }
     }
   }
 

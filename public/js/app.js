@@ -28,14 +28,9 @@ document.addEventListener('DOMContentLoaded', () => {
     window.initSocketClient();
   }
 
-  // Restore Team from SessionStorage (isolated per tab) or LocalStorage
-  let savedTeam = sessionStorage.getItem('visue_team');
-  if (!savedTeam) {
-    savedTeam = localStorage.getItem('visue_team');
-    if (savedTeam) {
-      sessionStorage.setItem('visue_team', savedTeam);
-    }
-  }
+  // Restore Team from SessionStorage ONLY (closing the browser automatically logs out)
+  localStorage.removeItem('visue_team');
+  const savedTeam = sessionStorage.getItem('visue_team');
   if (savedTeam) {
     try {
       currentTeam = JSON.parse(savedTeam);
@@ -351,6 +346,23 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 window.addEventListener('focus', syncTimerOnFocusOrVisibility);
+
+// Periodic background sync with server clock while contest is running (guarantees student timer never desyncs or stops)
+setInterval(async () => {
+  if (timerData && timerData.status === 'running' && !window.isContestTimeUp) {
+    try {
+      const res = await fetch('/api/timer');
+      const data = await res.json();
+      if (data && data.success && data.timer) {
+        if (data.timer.status !== 'running') {
+          handleTimerStateUpdate(data.timer);
+        } else if (data.timer.remainingSeconds !== undefined) {
+          countdownTargetEndTime = Date.now() + (data.timer.remainingSeconds * 1000);
+        }
+      }
+    } catch (e) {}
+  }
+}, 10000);
 
 function formatSeconds(sec) {
   const hrs = Math.floor(sec / 3600);
@@ -794,11 +806,11 @@ function updateTeamProfile(team) {
   currentTeam = team;
   if (team) {
     sessionStorage.setItem('visue_team', JSON.stringify(team));
-    localStorage.setItem('visue_team', JSON.stringify(team));
   } else {
     sessionStorage.removeItem('visue_team');
-    localStorage.removeItem('visue_team');
   }
+  // Never persist in localStorage so closing browser acts as logout
+  localStorage.removeItem('visue_team');
   updateNavbarStudentBadge();
   updateStudentPCLockBadge();
   renderContestPassView();
