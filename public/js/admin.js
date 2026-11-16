@@ -2617,6 +2617,29 @@ function updateResultsPublishBadge(isPublished, isReset = false) {
 // =========================================================================
 // 9. SUBMISSIONS & 3 CODE DOWNLOAD / VIEW OPTIONS
 // =========================================================================
+function deduplicateSubmissionsList(list) {
+  if (!Array.isArray(list)) return [];
+  const map = new Map();
+  list.forEach(sub => {
+    if (!sub) return;
+    const key = `${sub.teamId || sub.teamName}_${sub.problemId}`;
+    if (!map.has(key)) {
+      map.set(key, sub);
+    } else {
+      const existing = map.get(key);
+      // Prefer graded submission with higher marks or non-exit submission
+      if ((sub.scoreAwarded || 0) > (existing.scoreAwarded || 0)) {
+        map.set(key, sub);
+      } else if (existing.leftEarly && !sub.leftEarly) {
+        map.set(key, sub);
+      } else if ((existing.scoreAwarded || 0) === (sub.scoreAwarded || 0) && sub.id === existing.id) {
+        map.set(key, sub);
+      }
+    }
+  });
+  return Array.from(map.values());
+}
+
 async function loadJudgeSubmissions() {
   const token = sessionStorage.getItem('sirToken');
   if (!token) return;
@@ -2626,7 +2649,7 @@ async function loadJudgeSubmissions() {
     const data = await res.json();
 
     if (data.success) {
-      allSubmissions = data.submissions || [];
+      allSubmissions = deduplicateSubmissionsList(data.submissions || []);
       renderJudgeSubmissions(allSubmissions);
       updateJudgeMetrics();
       updateResultsPublishBadge(currentResultsPublished);
@@ -2637,14 +2660,15 @@ async function loadJudgeSubmissions() {
 }
 
 function renderJudgeSubmissions(submissions) {
+  const cleanSubmissions = deduplicateSubmissionsList(submissions || []);
   const container = document.getElementById('sirSubmissionsByTeamContainer');
   const countBadge = document.getElementById('judgeTotalSubmissionsCountBadge');
   if (countBadge) {
-    countBadge.textContent = `${submissions.length} Submissions`;
+    countBadge.textContent = `${cleanSubmissions.length} Submissions`;
   }
   if (!container) return;
 
-  if (submissions.length === 0) {
+  if (cleanSubmissions.length === 0) {
     container.innerHTML = `
       <div class="p-8 text-center glass-panel rounded-xl border border-white/5 space-y-2">
         <div class="text-3xl">📤</div>
@@ -2659,7 +2683,7 @@ function renderJudgeSubmissions(submissions) {
 
   // Group submissions by team
   const teamMap = new Map();
-  submissions.forEach(sub => {
+  cleanSubmissions.forEach(sub => {
     const tKey = sub.teamId || sub.teamName;
     if (!teamMap.has(tKey)) {
       teamMap.set(tKey, {
@@ -2674,7 +2698,15 @@ function renderJudgeSubmissions(submissions) {
       });
     }
     const group = teamMap.get(tKey);
-    group.submissions.push(sub);
+    const existingIdx = group.submissions.findIndex(s => s.problemId === sub.problemId);
+    if (existingIdx !== -1) {
+      const existing = group.submissions[existingIdx];
+      if ((sub.scoreAwarded || 0) > (existing.scoreAwarded || 0) || (existing.leftEarly && !sub.leftEarly)) {
+        group.submissions[existingIdx] = sub;
+      }
+    } else {
+      group.submissions.push(sub);
+    }
     if (sub.timeTakenWords || sub.timeTakenFormatted) {
       group.finishedDuration = sub.timeTakenWords || sub.timeTakenFormatted;
     }
@@ -2698,9 +2730,14 @@ function renderJudgeSubmissions(submissions) {
       return (parseInt(a.problemId, 10) || 0) - (parseInt(b.problemId, 10) || 0);
     });
 
+    const groupTeamObj = approvedTeams.find(t => t.id === group.teamId || t.teamName === group.teamName);
+    const hasLeftEarly = Boolean(
+      (groupTeamObj && (groupTeamObj.leftEarly || groupTeamObj.status === 'left_early')) ||
+      group.submissions.some(s => s.leftEarly || s.status === 'LEFT_EARLY' || s.status === 'TIME_UP')
+    );
     const totalScore = group.submissions.reduce((sum, s) => sum + (s.scoreAwarded || 0) + (s.bonus || 0), 0);
     const solvedCount = group.submissions.length;
-    const isCompleted = solvedCount >= 3;
+    const isCompleted = !hasLeftEarly && ((groupTeamObj && groupTeamObj.isCompleted) || (solvedCount >= 3 && group.submissions.every(s => s.status === 'AC')));
     const langBadgeClass = getLangBadgeClass(group.language);
     const langUpper = (group.language || 'CPP').toUpperCase();
 
@@ -2789,6 +2826,10 @@ function renderJudgeSubmissions(submissions) {
                   <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
                     <span>🏆</span> <span>3/3 Solved</span>
                   </span>
+                ` : hasLeftEarly ? `
+                  <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30 flex items-center gap-1">
+                    <span>🚪</span> <span>Left Early (Incomplete)</span>
+                  </span>
                 ` : ''}
               </div>
               <div class="text-xs text-slate-400 font-mono mt-0.5">
@@ -2804,7 +2845,7 @@ function renderJudgeSubmissions(submissions) {
                 <span>Finished: ${group.finishedDuration}</span>
               </div>
             ` : ''}
-            <div class="px-2.5 py-1 rounded text-xs font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+            <div class="px-2.5 py-1 rounded text-xs font-mono font-bold ${hasLeftEarly ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}">
               ${solvedCount} Questions Submitted
             </div>
             <div class="px-3 py-1 rounded text-xs font-mono font-black bg-amber-500/20 text-amber-400 border border-amber-500/40">
@@ -3061,7 +3102,14 @@ async function awardBonusPoints(submissionId, bonusAmount = 10) {
 }
 
 function prependSubmissionToSirDesk(sub) {
-  allSubmissions.unshift(sub);
+  if (!sub) return;
+  const existingIdx = allSubmissions.findIndex(s => s.id === sub.id || (s.teamId === sub.teamId && s.problemId === sub.problemId));
+  if (existingIdx !== -1) {
+    allSubmissions[existingIdx] = sub;
+  } else {
+    allSubmissions.unshift(sub);
+  }
+  allSubmissions = deduplicateSubmissionsList(allSubmissions);
   renderJudgeSubmissions(allSubmissions);
   updateJudgeMetrics();
   updateResultsPublishBadge(currentResultsPublished);
@@ -3144,10 +3192,11 @@ function exportResultsTxt() {
   txt += '  2. DETAILED LIVE CODE SUBMISSIONS & GRADING AUDIT\n';
   txt += '--------------------------------------------------------------------------------\n';
 
-  if (allSubmissions.length === 0) {
+  const cleanReportSubmissions = deduplicateSubmissionsList(allSubmissions || []);
+  if (cleanReportSubmissions.length === 0) {
     txt += '  No code submissions recorded in contest.\n';
   } else {
-    allSubmissions.forEach((sub, idx) => {
+    cleanReportSubmissions.forEach((sub, idx) => {
       txt += `\n[SUBMISSION #${idx + 1}] ID: ${sub.id}\n`;
       txt += `  • Timestamp:        ${sub.submittedAt}\n`;
       txt += `  • Team Name:        ${sub.teamName} (${sub.university})\n`;
@@ -3309,7 +3358,7 @@ function exportResultsExcel() {
   }
 
   const teamsList = approvedTeams || [];
-  const submissionsList = allSubmissions || [];
+  const submissionsList = deduplicateSubmissionsList(allSubmissions || []);
 
   // Sheet 1: Leaderboard & Official Results
   const resultsData = teamsList.map((t, idx) => {

@@ -13,7 +13,7 @@ const PROBLEMS_FILE = path.join(__dirname, 'problems.json');
 function loadProblemsFromFile() {
   try {
     if (fs.existsSync(PROBLEMS_FILE)) {
-      const raw = fs.readFileSync(PROBLEMS_FILE, 'utf-8');
+      const raw = fs.readFileSync(PROBLEMS_FILE, 'utf-8').replace(/^\uFEFF/, '');
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) return parsed;
     }
@@ -1129,10 +1129,16 @@ const store = {
       }
     }
 
+    // Ensure qIds contains unique, valid question IDs
+    const uniqueQIds = Array.from(new Set(qIds.map(Number))).filter(id => !isNaN(id) && id > 0);
+
     const allProblems = [];
-    qIds.forEach((id) => {
+    const seenProblemIds = new Set();
+    uniqueQIds.forEach((id) => {
+      if (seenProblemIds.has(id)) return;
       const q = this.getQuestionById(id);
       if (q) {
+        seenProblemIds.add(id);
         allProblems.push({ ...q });
       }
     });
@@ -1743,7 +1749,12 @@ const store = {
       submittedAt: new Date().toISOString()
     };
 
-    submissions.unshift(submissionRecord);
+    const existingIdx = submissions.findIndex(s => s.teamId === team.id && s.problemId === numProblemId);
+    if (existingIdx !== -1) {
+      submissions[existingIdx] = submissionRecord;
+    } else {
+      submissions.unshift(submissionRecord);
+    }
 
     return {
       submission: submissionRecord,
@@ -1758,6 +1769,15 @@ const store = {
   },
 
   getAllSubmissions() {
+    // Strictly deduplicate submissions list to ensure exactly 1 record per team & problem
+    const seen = new Set();
+    submissions = submissions.filter(s => {
+      if (!s || !s.teamId || s.problemId === undefined) return false;
+      const key = `${s.teamId}_${s.problemId}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
     return submissions;
   },
 
@@ -1859,15 +1879,26 @@ const store = {
     }
 
     const recordedSubmissions = [];
+    const seenPids = new Set();
+    const seenSlots = new Set();
 
     // Ensure all assigned problems (all 3 questions) are submitted to Sir even if left blank
-    let targetProblems = [...assignedProblems];
-    if (targetProblems.length === 0) {
-      targetProblems = this.getProblems();
-    }
-    if (targetProblems.length === 0 && questionBank.length > 0) {
-      targetProblems = questionBank.slice(0, 3).map((q, idx) => ({ ...q, slotNumber: idx + 1 }));
-    }
+    let targetProblems = [];
+    const candidateProblems = (assignedProblems && assignedProblems.length > 0)
+      ? assignedProblems
+      : (this.getProblems().length > 0 ? this.getProblems() : questionBank.slice(0, 3));
+
+    candidateProblems.forEach((p, idx) => {
+      const pId = p.id !== undefined ? p.id : (idx + 1);
+      if (!seenPids.has(pId)) {
+        seenPids.add(pId);
+        targetProblems.push({
+          ...p,
+          id: pId,
+          slotNumber: p.slotNumber || (idx + 1)
+        });
+      }
+    });
 
     if (targetProblems && targetProblems.length > 0) {
       targetProblems.forEach(p => {
@@ -1877,105 +1908,126 @@ const store = {
         const pPoints = p.points || (p.difficulty === 'Easy' ? 10 : (p.difficulty === 'Medium' ? 20 : 30));
         const pDiff = p.difficulty || (pPoints === 10 ? 'Easy' : (pPoints === 20 ? 'Medium' : 'Hard'));
 
-        // If not already in submittedSolutions or if student hadn't submitted yet
-        if (!team.submittedSolutions[numPid] || !team.solvedProblems.includes(numPid)) {
-          const finalCode = (draftCode && draftCode.trim()) 
-            ? draftCode 
-            : `// No code submitted for Problem #${p.slotNumber || p.id}: "${p.title || 'Challenge'}" (${isTimeUp ? 'Contest Timer Expired' : 'Left Contest Early'}).`;
+        // Check if an existing submission for this team and problem already exists
+        const existingSubIndex = submissions.findIndex(s => s.teamId === team.id && s.problemId === numPid);
+        const isAlreadySolved = Array.isArray(team.solvedProblems) && team.solvedProblems.includes(numPid);
 
-          team.submittedSolutions[numPid] = {
-            problemId: numPid,
-            problemTitle: p.title || `Problem #${numPid}`,
-            difficulty: pDiff,
-            points: pPoints,
-            code: finalCode,
-            language: effectiveLang,
-            submittedAt: new Date().toISOString(),
-            leftEarly: !isTimeUp,
-            isTimeUp: Boolean(isTimeUp)
-          };
+        if (isAlreadySolved && existingSubIndex !== -1 && submissions[existingSubIndex].status === 'AC') {
+          // Keep their successfully accepted submission; do not overwrite with empty or partial draft
+          return;
+        }
 
-          const subId = `SUB-${isTimeUp ? 'TIMEUP' : 'EXIT'}-${Date.now().toString().slice(-4)}${Math.floor(Math.random() * 90 + 10)}`;
-          const submissionRecord = {
-            id: subId,
-            teamId: team.id,
-            teamName: team.teamName,
-            leaderName: team.leaderName,
-            leaderRoll: team.leaderRoll,
-            university: team.university,
-            problemId: numPid,
-            problemTitle: p.title || `Problem #${numPid}`,
-            difficulty: pDiff,
-            points: pPoints,
-            language: effectiveLang,
-            code: finalCode,
-            status: isTimeUp ? 'TIME_UP' : 'LEFT_EARLY',
-            scoreAwarded: 0,
-            bonus: 0,
-            judgeNotes: isTimeUp ? 'Auto-submitted on contest timer expiration (Time Up)' : 'Submitted on early contest exit (Incomplete)',
-            leftEarly: !isTimeUp,
-            isTimeUp: Boolean(isTimeUp),
-            submittedAt: new Date().toISOString()
-          };
+        const finalCode = (draftCode && draftCode.trim()) 
+          ? draftCode 
+          : `// No code submitted for Problem #${p.slotNumber || p.id}: "${p.title || 'Challenge'}" (${isTimeUp ? 'Contest Timer Expired' : 'Left Contest Early'}).`;
 
+        team.submittedSolutions[numPid] = {
+          problemId: numPid,
+          problemTitle: p.title || `Problem #${numPid}`,
+          difficulty: pDiff,
+          points: pPoints,
+          code: finalCode,
+          language: effectiveLang,
+          submittedAt: new Date().toISOString(),
+          leftEarly: !isTimeUp,
+          isTimeUp: Boolean(isTimeUp)
+        };
+
+        const subId = `SUB-${isTimeUp ? 'TIMEUP' : 'EXIT'}-${Date.now().toString().slice(-4)}${Math.floor(Math.random() * 90 + 10)}`;
+        const submissionRecord = {
+          id: (existingSubIndex !== -1 && submissions[existingSubIndex].id) ? submissions[existingSubIndex].id : subId,
+          teamId: team.id,
+          teamName: team.teamName,
+          leaderName: team.leaderName,
+          leaderRoll: team.leaderRoll,
+          university: team.university,
+          problemId: numPid,
+          problemTitle: p.title || `Problem #${numPid}`,
+          difficulty: pDiff,
+          points: pPoints,
+          language: effectiveLang,
+          code: finalCode,
+          status: isTimeUp ? 'TIME_UP' : 'LEFT_EARLY',
+          scoreAwarded: 0,
+          bonus: 0,
+          judgeNotes: isTimeUp ? 'Auto-submitted on contest timer expiration (Time Up)' : 'Submitted on early contest exit (Incomplete)',
+          leftEarly: !isTimeUp,
+          isTimeUp: Boolean(isTimeUp),
+          submittedAt: new Date().toISOString()
+        };
+
+        if (existingSubIndex !== -1) {
+          submissions[existingSubIndex] = submissionRecord;
+        } else {
           submissions.unshift(submissionRecord);
-          recordedSubmissions.push(submissionRecord);
+        }
+        recordedSubmissions.push(submissionRecord);
+      });
+    }
+
+    // Fallback: ONLY if targetProblems was empty, check if draftCodeMap has valid question keys
+    if (targetProblems.length === 0) {
+      Object.keys(draftCodeMap).forEach(key => {
+        const numPid = parseInt(key, 10);
+        if (!isNaN(numPid) && !seenPids.has(numPid) && !seenSlots.has(key)) {
+          seenPids.add(numPid);
+          const draftCode = draftCodeMap[key];
+          if (draftCode && draftCode.trim()) {
+            const q = this.getQuestionById(numPid);
+            const pTitle = q ? q.title : `Question ${key}`;
+            const pPoints = q ? q.points : (numPid === 1 ? 10 : (numPid === 2 ? 20 : 30));
+            const pDiff = q ? q.difficulty : (pPoints === 10 ? 'Easy' : (pPoints === 20 ? 'Medium' : 'Hard'));
+            const effectiveLang = language || team.language || 'cpp';
+
+            team.submittedSolutions[numPid] = {
+              problemId: numPid,
+              problemTitle: pTitle,
+              difficulty: pDiff,
+              points: pPoints,
+              code: draftCode,
+              language: effectiveLang,
+              submittedAt: new Date().toISOString(),
+              leftEarly: !isTimeUp,
+              isTimeUp: Boolean(isTimeUp)
+            };
+
+            const existingSubIndex = submissions.findIndex(s => s.teamId === team.id && s.problemId === numPid);
+            const subId = `SUB-${isTimeUp ? 'TIMEUP' : 'EXIT'}-${Date.now().toString().slice(-4)}${Math.floor(Math.random() * 90 + 10)}`;
+            const submissionRecord = {
+              id: (existingSubIndex !== -1 && submissions[existingSubIndex].id) ? submissions[existingSubIndex].id : subId,
+              teamId: team.id,
+              teamName: team.teamName,
+              leaderName: team.leaderName,
+              leaderRoll: team.leaderRoll,
+              university: team.university,
+              problemId: numPid,
+              problemTitle: pTitle,
+              difficulty: pDiff,
+              points: pPoints,
+              language: effectiveLang,
+              code: draftCode,
+              status: isTimeUp ? 'TIME_UP' : 'LEFT_EARLY',
+              scoreAwarded: 0,
+              bonus: 0,
+              judgeNotes: isTimeUp ? 'Auto-submitted on contest timer expiration (Time Up)' : 'Submitted on early contest exit (Incomplete)',
+              leftEarly: !isTimeUp,
+              isTimeUp: Boolean(isTimeUp),
+              submittedAt: new Date().toISOString()
+            };
+
+            if (existingSubIndex !== -1) {
+              submissions[existingSubIndex] = submissionRecord;
+            } else {
+              submissions.unshift(submissionRecord);
+            }
+            recordedSubmissions.push(submissionRecord);
+          }
         }
       });
     }
 
-    // Fallback: check if draftCodeMap has extra keys not covered above
-    Object.keys(draftCodeMap).forEach(key => {
-      const numPid = parseInt(key, 10);
-      if (!isNaN(numPid) && !team.submittedSolutions[numPid]) {
-        const draftCode = draftCodeMap[key];
-        if (draftCode && draftCode.trim()) {
-          const q = this.getQuestionById(numPid);
-          const pTitle = q ? q.title : `Question ${key}`;
-          const pPoints = q ? q.points : (numPid === 1 ? 10 : (numPid === 2 ? 20 : 30));
-          const pDiff = q ? q.difficulty : (pPoints === 10 ? 'Easy' : (pPoints === 20 ? 'Medium' : 'Hard'));
-          const effectiveLang = language || team.language || 'cpp';
-
-          team.submittedSolutions[numPid] = {
-            problemId: numPid,
-            problemTitle: pTitle,
-            difficulty: pDiff,
-            points: pPoints,
-            code: draftCode,
-            language: effectiveLang,
-            submittedAt: new Date().toISOString(),
-            leftEarly: !isTimeUp,
-            isTimeUp: Boolean(isTimeUp)
-          };
-
-          const subId = `SUB-${isTimeUp ? 'TIMEUP' : 'EXIT'}-${Date.now().toString().slice(-4)}${Math.floor(Math.random() * 90 + 10)}`;
-          const submissionRecord = {
-            id: subId,
-            teamId: team.id,
-            teamName: team.teamName,
-            leaderName: team.leaderName,
-            leaderRoll: team.leaderRoll,
-            university: team.university,
-            problemId: numPid,
-            problemTitle: pTitle,
-            difficulty: pDiff,
-            points: pPoints,
-            language: effectiveLang,
-            code: draftCode,
-            status: isTimeUp ? 'TIME_UP' : 'LEFT_EARLY',
-            scoreAwarded: 0,
-            bonus: 0,
-            judgeNotes: isTimeUp ? 'Auto-submitted on contest timer expiration (Time Up)' : 'Submitted on early contest exit (Incomplete)',
-            leftEarly: !isTimeUp,
-            isTimeUp: Boolean(isTimeUp),
-            submittedAt: new Date().toISOString()
-          };
-
-          submissions.unshift(submissionRecord);
-          recordedSubmissions.push(submissionRecord);
-        }
-      }
-    });
+    // Ensure submissions list is deduplicated
+    this.getAllSubmissions();
 
     return {
       success: true,

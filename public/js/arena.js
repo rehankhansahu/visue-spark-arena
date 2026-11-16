@@ -1115,7 +1115,10 @@ function toggleLeaveContestModal(show) {
   }
 }
 
+let isLeavingContestProcess = false;
+
 async function executeLeaveContest() {
+  if (isLeavingContestProcess) return;
   const currentTeam = window.getCurrentTeam ? window.getCurrentTeam() : null;
   if (!currentTeam || !currentTeam.id) {
     alert('No active team session found.');
@@ -1123,6 +1126,7 @@ async function executeLeaveContest() {
     return;
   }
 
+  isLeavingContestProcess = true;
   const btnConfirm = document.getElementById('btnConfirmLeaveContest');
   if (btnConfirm) {
     btnConfirm.disabled = true;
@@ -1202,6 +1206,7 @@ async function executeLeaveContest() {
     console.error('Error leaving contest:', err);
     alert('Error leaving contest: ' + err.message);
   } finally {
+    isLeavingContestProcess = false;
     if (btnConfirm) {
       btnConfirm.disabled = false;
       btnConfirm.innerHTML = '<span>🚪</span> <span>Yes, Submit & Leave</span>';
@@ -1224,6 +1229,7 @@ function hidePodiumButtonInArena() {
 }
 
 async function autoSubmitOnTimeUp() {
+  if (isLeavingContestProcess) return;
   const currentTeam = window.getCurrentTeam ? window.getCurrentTeam() : null;
   if (!currentTeam || !currentTeam.id) return;
 
@@ -1232,6 +1238,7 @@ async function autoSubmitOnTimeUp() {
     return;
   }
 
+  isLeavingContestProcess = true;
   try {
     const activeEditor = document.getElementById('codeEditor');
     const currentCode = activeEditor ? activeEditor.value : '';
@@ -1296,6 +1303,8 @@ async function autoSubmitOnTimeUp() {
 
   } catch (err) {
     console.error('Error in autoSubmitOnTimeUp:', err);
+  } finally {
+    isLeavingContestProcess = false;
   }
 }
 
