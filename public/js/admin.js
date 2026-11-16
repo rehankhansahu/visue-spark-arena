@@ -479,7 +479,6 @@ async function performSirLogin(username, password, forceUnlock = false) {
       loadQuestionBank();
       checkTimerStatus();
       loadArenaInfo();
-    }
     } else if (data.error === 'SESSION_LOCKED') {
       // Option A: Active Session Lock detected on another device/browser
       if (errorMsg) {
@@ -2816,8 +2815,6 @@ function renderJudgeSubmissions(submissions) {
         </tr>
       `;
     }).join('');
-
-    const groupTeamObj = approvedTeams.find(t => t.id === group.teamId || t.teamName === group.teamName);
 
     return `
       <div class="team-submission-card rounded-xl border border-white/10 bg-slate-900/60 overflow-hidden shadow-md">
