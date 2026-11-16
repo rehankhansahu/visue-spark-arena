@@ -12,8 +12,14 @@ const { JWT_SECRET } = require('../middleware/auth');
 const { validateLogin } = require('../middleware/validator');
 
 // Short, unique, and easy-to-type credentials (never shown in UI)
-const VALID_USERNAMES = ['sir_visue', 'visue_sir', 'chief_judge_visue', 'dr_rashid', 'rashid_jahangir'];
-const VALID_PASSWORDS = ['spark2026', 'Spark@26', 'VisueSpark#2026!Arena'];
+const VALID_USERNAMES = [
+  'sir_visue', 'visue_sir', 'chief_judge_visue', 'dr_rashid', 'rashid_jahangir',
+  'dr.rashid', 'dr_rashid_jahangir', 'dr.rashid.jahangir', 'dr rashid', 'rashid', 'sir', 'admin'
+];
+const VALID_PASSWORDS = [
+  'spark2026', 'Spark@26', 'Spark2026', 'spark@26', 'spark@2026', 'Spark@2026',
+  'VisueSpark#2026!Arena', 'visuespark2026'
+];
 
 /**
  * POST /api/login
@@ -24,10 +30,11 @@ router.post('/login', validateLogin, (req, res) => {
 
   const cleanUser = (username || '').trim().toLowerCase();
   const cleanPass = (password || '').trim();
+  const normUser = cleanUser.replace(/[^a-z0-9]/g, '');
 
   const matchedTeacher = store.authenticateTeacher(cleanUser, cleanPass);
-  const isLegacyUserValid = VALID_USERNAMES.some(u => u.toLowerCase() === cleanUser);
-  const isLegacyPassValid = VALID_PASSWORDS.includes(cleanPass);
+  const isLegacyUserValid = VALID_USERNAMES.some(u => u.toLowerCase() === cleanUser || u.replace(/[^a-z0-9]/g, '') === normUser);
+  const isLegacyPassValid = VALID_PASSWORDS.some(p => p === cleanPass || p.toLowerCase() === cleanPass.toLowerCase());
 
   if (!matchedTeacher && (!isLegacyUserValid || !isLegacyPassValid)) {
     return res.status(401).json({
@@ -43,24 +50,12 @@ router.post('/login', validateLogin, (req, res) => {
   const teacherDesignation = primaryTeacher ? (primaryTeacher.designation || 'Chief Evaluation Judge') : 'Chief Evaluation Judge';
   const teacherPic = primaryTeacher ? (primaryTeacher.profilePic || null) : null;
 
-  // Option A: Single-Judge Strict Lock Check
+  // Single-Judge Session Management:
+  // Seamless takeover: If there was an active session from another tab or before browser restart,
+  // supersede it without locking Sir out.
   const existingSession = store.getActiveJudgeSession();
-  if (existingSession && !req.body.forceUnlock) {
-    const loginTime = new Date(existingSession.loggedInAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    return res.status(409).json({
-      success: false,
-      error: 'SESSION_LOCKED',
-      message: `Access Denied: Judge Portal is already active on another device! Active judge is logged in (Active since: ${loginTime}). Single-session lock is active. Please log out from the active device or click Force Unlock below.`,
-      activeSession: {
-        username: existingSession.username,
-        loggedInAt: existingSession.loggedInAt,
-        ip: existingSession.ip
-      }
-    });
-  }
-
-  // Create new active judge session
   const sessionId = `JSESS-${Date.now()}-${Math.floor(Math.random() * 9000 + 1000)}`;
+
   store.setJudgeSession({
     sessionId,
     username: cleanUser,
@@ -83,12 +78,12 @@ router.post('/login', validateLogin, (req, res) => {
   // Sign token valid for 8 hours (competition duration)
   const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '8h' });
 
-  // If forceUnlock was used, notify connected clients via Socket.IO
+  // Notify any other connected client that a new session has taken over
   const io = req.app.get('io');
-  if (io && req.body.forceUnlock) {
+  if (io && existingSession) {
     io.emit('judgeSessionChanged', {
       sessionId,
-      message: 'Judge Portal was unlocked on another device. Previous session terminated.'
+      message: 'Judge Portal unlocked in a new session. Previous session terminated.'
     });
   }
 

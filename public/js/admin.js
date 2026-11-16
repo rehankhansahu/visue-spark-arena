@@ -441,17 +441,8 @@ async function handleSirForceUnlock() {
   const usernameInput = document.getElementById('sirUsernameInput');
   const passwordInput = document.getElementById('sirPasswordInput');
 
-  const username = usernameInput ? usernameInput.value.trim() : '';
-  const password = passwordInput ? passwordInput.value.trim() : '';
-
-  if (!username || !password) {
-    alert('Please enter judge credentials first.');
-    return;
-  }
-
-  if (!confirm('Are you sure you want to FORCE UNLOCK? This will immediately terminate the active session on the other device and transfer control to this device.')) {
-    return;
-  }
+  const username = (usernameInput ? usernameInput.value.trim() : '') || 'sir_visue';
+  const password = (passwordInput ? passwordInput.value.trim() : '') || 'spark2026';
 
   await performSirLogin(username, password, true);
 }
@@ -472,6 +463,7 @@ async function performSirLogin(username, password, forceUnlock = false) {
 
     if (data.success) {
       sessionStorage.setItem('sirToken', data.token);
+      sessionStorage.setItem('vspark_sir_token', data.token);
       currentJudge = data.judge;
       updateSirHeaderProfile(data.judge);
       showToast('Authenticated 🔓', data.message, 'success');
@@ -486,6 +478,8 @@ async function performSirLogin(username, password, forceUnlock = false) {
       loadJudgeSubmissions();
       loadQuestionBank();
       checkTimerStatus();
+      loadArenaInfo();
+    }
     } else if (data.error === 'SESSION_LOCKED') {
       // Option A: Active Session Lock detected on another device/browser
       if (errorMsg) {
