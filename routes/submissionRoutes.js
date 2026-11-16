@@ -1174,6 +1174,9 @@ router.get('/admin/teams-with-questions', verifySirToken, (req, res) => {
         assignedQuestions: teamAssignment.questions,
         totalPoints: teamAssignment.totalPoints,
         isReady: teamAssignment.isReady,
+        pcLockStatus: team.pcLockStatus || 'unlocked',
+        pcLockedAt: team.pcLockedAt || null,
+        pcTamperAlert: Boolean(team.pcTamperAlert),
         matchingBankCount
       };
     });
