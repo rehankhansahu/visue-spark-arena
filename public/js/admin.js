@@ -1580,6 +1580,12 @@ function renderQuestionBankTable(bank, activeIds = []) {
   const tbody = document.getElementById('questionBankTableBody');
   if (!tbody) return;
 
+  const selectAllCb = document.getElementById('selectAllQuestionsCheckbox');
+  if (selectAllCb) {
+    selectAllCb.checked = false;
+    selectAllCb.indeterminate = false;
+  }
+
   if (!bank || bank.length === 0) {
     tbody.innerHTML = `
       <tr>
@@ -1588,6 +1594,7 @@ function renderQuestionBankTable(bank, activeIds = []) {
         </td>
       </tr>
     `;
+    updateSelectedQuestionsUI();
     return;
   }
 
@@ -1613,6 +1620,7 @@ function renderQuestionBankTable(bank, activeIds = []) {
         </td>
       </tr>
     `;
+    updateSelectedQuestionsUI();
     return;
   }
 
@@ -1639,7 +1647,7 @@ function renderQuestionBankTable(bank, activeIds = []) {
           class="q-row-select-checkbox accent-cyan-500 cursor-pointer w-4 h-4 rounded" 
           data-id="${q.id}"
           onchange="handleQuestionRowSelect(this, ${q.id})"
-          title="Select to auto-populate question details">
+          title="Select question #${q.id}">
       </td>
       <td class="px-3 py-3 font-mono text-xs q-id text-slate-400">#${q.id}</td>
       <td class="px-3 py-3">
@@ -1679,6 +1687,8 @@ function renderQuestionBankTable(bank, activeIds = []) {
     </tr>
     `;
   }).join('');
+
+  updateSelectedQuestionsUI();
 }
 
 async function assignQuestionToTeamDirectly(questionId) {
@@ -2303,9 +2313,119 @@ function openEditQuestionModal(qId) {
 }
 
 function handleQuestionRowSelect(checkbox, qId) {
-  if (checkWebsiteLockForSir()) { if (checkbox) checkbox.checked = false; return; }
-  if (checkbox && checkbox.checked) {
-    openEditQuestionModal(qId);
+  if (checkWebsiteLockForSir()) {
+    if (checkbox) checkbox.checked = false;
+    return;
+  }
+  updateSelectedQuestionsUI();
+}
+
+function toggleSelectAllQuestions(masterCheckbox) {
+  if (checkWebsiteLockForSir()) {
+    if (masterCheckbox) masterCheckbox.checked = false;
+    return;
+  }
+  const isChecked = !!(masterCheckbox && masterCheckbox.checked);
+  const rowCheckboxes = document.querySelectorAll('.q-row-select-checkbox');
+  rowCheckboxes.forEach(cb => {
+    cb.checked = isChecked;
+  });
+  updateSelectedQuestionsUI();
+}
+
+function updateSelectedQuestionsUI() {
+  const rowCheckboxes = document.querySelectorAll('.q-row-select-checkbox');
+  const checkedBoxes = document.querySelectorAll('.q-row-select-checkbox:checked');
+  const count = checkedBoxes.length;
+
+  const countSpan = document.getElementById('selectedQuestionsCount');
+  if (countSpan) countSpan.textContent = count;
+
+  const deleteBtn = document.getElementById('deleteSelectedQuestionsBtn');
+  if (deleteBtn) {
+    if (count > 0) {
+      deleteBtn.classList.remove('hidden');
+      deleteBtn.classList.add('flex');
+    } else {
+      deleteBtn.classList.add('hidden');
+      deleteBtn.classList.remove('flex');
+    }
+  }
+
+  const selectAllCb = document.getElementById('selectAllQuestionsCheckbox');
+  if (selectAllCb) {
+    if (rowCheckboxes.length > 0 && count === rowCheckboxes.length) {
+      selectAllCb.checked = true;
+      selectAllCb.indeterminate = false;
+    } else if (count > 0 && count < rowCheckboxes.length) {
+      selectAllCb.checked = false;
+      selectAllCb.indeterminate = true;
+    } else {
+      selectAllCb.checked = false;
+      selectAllCb.indeterminate = false;
+    }
+  }
+}
+
+async function deleteSelectedQuestionsFromBank() {
+  if (checkWebsiteLockForSir()) return;
+  if (currentContestTimer && currentContestTimer.status === 'running') {
+    alert('Competition is currently running! Question modifications are locked.');
+    return;
+  }
+  const token = sessionStorage.getItem('sirToken');
+  if (!token) {
+    showToast('Unauthorized', 'Please login as Sir / Chief Judge.', 'error');
+    return;
+  }
+
+  const checkedBoxes = Array.from(document.querySelectorAll('.q-row-select-checkbox:checked'));
+  const selectedIds = checkedBoxes.map(cb => parseInt(cb.getAttribute('data-id'), 10)).filter(n => !isNaN(n));
+
+  if (selectedIds.length === 0) {
+    showToast('No Selection', 'Please select at least one question to delete.', 'warning');
+    return;
+  }
+
+  const isAll = (questionBank && selectedIds.length >= questionBank.length);
+  const confirmMsg = isAll
+    ? `⚠️ Are you sure you want to permanently delete ALL ${selectedIds.length} questions from the Question Bank?`
+    : `Are you sure you want to permanently delete ${selectedIds.length} selected question(s) from the Question Bank?`;
+
+  if (!confirm(confirmMsg)) return;
+
+  try {
+    let res = await fetch('/api/admin/questions/bulk-delete', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ ids: selectedIds })
+    });
+
+    if (!res.ok && (res.status === 404 || res.status === 405)) {
+      // Fallback: delete one by one if bulk route not yet reloaded
+      for (const qId of selectedIds) {
+        await fetch(`/api/admin/questions/${qId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+      }
+      showToast('Deleted! 🗑️', `Successfully deleted ${selectedIds.length} question(s).`, 'success');
+      await loadQuestionBank();
+      return;
+    }
+
+    const data = await res.json();
+    if (data.success) {
+      showToast('Deleted! 🗑️', data.message || `Successfully removed ${selectedIds.length} question(s).`, 'success');
+      await loadQuestionBank();
+    } else {
+      showToast('Error', data.message || 'Failed to delete selected questions.', 'error');
+    }
+  } catch (err) {
+    showToast('Error', 'Network error while deleting selected questions.', 'error');
   }
 }
 
@@ -4844,7 +4964,10 @@ window.exportResultsCSV = exportResultsCSV;
 window.exportResultsTxt = exportResultsTxt;
 window.fullResetContestWipeAll = fullResetContestWipeAll;
 window.deleteQuestionFromBank = deleteQuestionFromBank;
+window.deleteSelectedQuestionsFromBank = deleteSelectedQuestionsFromBank;
 window.clearAllQuestionsFromBank = clearAllQuestionsFromBank;
+window.toggleSelectAllQuestions = toggleSelectAllQuestions;
+window.updateSelectedQuestionsUI = updateSelectedQuestionsUI;
 window.setQuestionDistributionMode = setQuestionDistributionMode;
 window.closeSameModeQuestionSelectModal = closeSameModeQuestionSelectModal;
 window.confirmSameModeQuestionSelection = confirmSameModeQuestionSelection;

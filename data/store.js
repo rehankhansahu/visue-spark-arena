@@ -1451,6 +1451,26 @@ const store = {
     return { success: true, removedId: numId };
   },
 
+  removeQuestionsBulk(ids) {
+    if (!Array.isArray(ids) || ids.length === 0) return { success: true, count: 0 };
+    const numIds = ids.map(id => parseInt(id, 10)).filter(n => !isNaN(n));
+    let count = 0;
+    numIds.forEach(id => {
+      const idx = questionBank.findIndex(q => q.id === id);
+      if (idx !== -1) {
+        questionBank.splice(idx, 1);
+        count++;
+      }
+      activeContestQuestionIds = activeContestQuestionIds.filter(qId => qId !== id);
+      for (const [teamId, qIds] of teamSpecificQuestions.entries()) {
+        teamSpecificQuestions.set(teamId, qIds.filter(qId => qId !== id));
+      }
+    });
+    this.syncGlobalSlots();
+    saveProblemsToFile(questionBank);
+    return { success: true, count };
+  },
+
   clearQuestionBank() {
     const count = questionBank.length;
     questionBank = [];

@@ -1285,6 +1285,16 @@
 
               <button 
                 type="button"
+                id="deleteSelectedQuestionsBtn"
+                onclick="deleteSelectedQuestionsFromBank()" 
+                class="btn-cyber px-3 py-1.5 rounded-lg text-xs font-bold text-rose-300 bg-rose-950/60 border border-rose-500/40 hover:bg-rose-900/50 transition hidden items-center gap-1.5 shadow-sm"
+                title="Permanently remove selected questions from Question Bank">
+                <span>🗑️</span>
+                <span>Delete Selected (<span id="selectedQuestionsCount">0</span>)</span>
+              </button>
+
+              <button 
+                type="button"
                 id="clearAllQuestionsBtn"
                 onclick="clearAllQuestionsFromBank()" 
                 class="btn-cyber px-3 py-1.5 rounded-lg text-xs font-bold text-rose-300 bg-rose-950/60 border border-rose-500/40 hover:bg-rose-900/50 transition flex items-center gap-1.5 shadow-sm"
@@ -1344,7 +1354,14 @@
               <thead class="bg-slate-950/80 text-slate-400 font-mono uppercase text-[10px] tracking-wider border-b border-white/10">
                 <tr>
                   <th class="px-2.5 py-2.5 text-center w-12">
-                    <span title="Select / Check question to auto-fill">Select</span>
+                    <div class="flex items-center justify-center gap-1" title="Select / Deselect All Questions">
+                      <input 
+                        type="checkbox" 
+                        id="selectAllQuestionsCheckbox" 
+                        onchange="toggleSelectAllQuestions(this)"
+                        class="accent-cyan-500 cursor-pointer w-4 h-4 rounded" 
+                        title="Select / Deselect All Questions">
+                    </div>
                   </th>
                   <th class="px-3 py-2.5">ID</th>
                   <th class="px-3 py-2.5">Title & Description</th>

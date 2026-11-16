@@ -846,6 +846,29 @@ router.post('/admin/questions/delete/:id', verifySirToken, ensureWebsiteNotLocke
   }
 });
 
+// Bulk delete selected questions from bank
+router.post('/admin/questions/bulk-delete', verifySirToken, ensureWebsiteNotLocked, ensureContestNotRunning, (req, res) => {
+  try {
+    const { ids } = req.body;
+    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ success: false, message: 'Question IDs array is required.' });
+    }
+    const result = store.removeQuestionsBulk(ids);
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('questionsUpdated', { bankCount: store.getQuestionBank().length });
+      io.emit('contestReadinessUpdated', store.getContestReadiness());
+    }
+    return res.status(200).json({
+      success: true,
+      message: `Successfully deleted ${result.count} question(s) from Question Bank.`,
+      count: result.count
+    });
+  } catch (err) {
+    return res.status(400).json({ success: false, message: err.message });
+  }
+});
+
 /**
  * POST /api/admin/questions/update & PUT /api/admin/questions/:id
  * In-place edit of existing question in Question Bank
