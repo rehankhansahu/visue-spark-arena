@@ -63,7 +63,7 @@ router.post('/login', validateLogin, (req, res) => {
     userAgent: req.headers['user-agent']
   });
 
-  // Payload for JWT (includes unique sessionId)
+  // Payload for JWT (includes unique sessionId) - Keep lightweight (NEVER put base64 image in JWT header)
   const payload = {
     role: 'judge',
     sessionId,
@@ -71,7 +71,6 @@ router.post('/login', validateLogin, (req, res) => {
     name: teacherName,
     department: teacherDept,
     designation: teacherDesignation,
-    profilePic: teacherPic,
     issuedAt: Date.now()
   };
 

@@ -10,7 +10,7 @@
       "Algorithm",
       "Logic"
     ],
-    "description": "Given N integers, print them in reverse order separated by spaces.",
+    "description": "Given a list of integers on a single line separated by spaces, print the elements in reverse order separated by spaces.",
     "inputFormat": "Standard Input",
     "outputFormat": "Standard Output",
     "constraints": [
@@ -57,7 +57,7 @@
   },
   {
     "id": 2,
-    "title": "Sum of Two Numbers",
+    "title": "Check Even or Odd",
     "difficulty": "Easy",
     "points": 10,
     "timeLimit": "1.5s",
@@ -66,63 +66,7 @@
       "Algorithm",
       "Logic"
     ],
-    "description": "Read two integers and print their sum.",
-    "inputFormat": "Standard Input",
-    "outputFormat": "Standard Output",
-    "constraints": [
-      "1 <= N <= 10^5"
-    ],
-    "optionA": "",
-    "optionB": "",
-    "optionC": "",
-    "optionD": "",
-    "options": {
-      "a": "",
-      "b": "",
-      "c": "",
-      "d": ""
-    },
-    "correctAnswer": "",
-    "sampleCases": [
-      {
-        "input": "12 30",
-        "expected": "42",
-        "explanation": "Sample demonstration"
-      }
-    ],
-    "starterCode": {
-      "c": "// Write your C code here...\n",
-      "cpp": "// Write your C++ code here...\n",
-      "java": "// Write your Java code here...\n",
-      "python": "# Write your Python code here...\n",
-      "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
-      "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
-      "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
-      "php": "<?php\n// Write your PHP code here...\n"
-    },
-    "languages": [
-      "C",
-      "C++",
-      "Java",
-      "Python",
-      "HTML",
-      "JavaScript",
-      "Dart",
-      "PHP"
-    ]
-  },
-  {
-    "id": 3,
-    "title": "Even or Odd",
-    "difficulty": "Easy",
-    "points": 10,
-    "timeLimit": "1.5s",
-    "memoryLimit": "256MB",
-    "tags": [
-      "Algorithm",
-      "Logic"
-    ],
-    "description": "Given an integer N, print 'Even' if it is even, otherwise print 'Odd'.",
+    "description": "Given an integer N, print \"Even\" if N is even, otherwise print \"Odd\".",
     "inputFormat": "Standard Input",
     "outputFormat": "Standard Output",
     "constraints": [
@@ -168,8 +112,8 @@
     ]
   },
   {
-    "id": 4,
-    "title": "Largest of Three Numbers",
+    "id": 3,
+    "title": "Sum of Digits",
     "difficulty": "Easy",
     "points": 10,
     "timeLimit": "1.5s",
@@ -178,7 +122,7 @@
       "Algorithm",
       "Logic"
     ],
-    "description": "Given three integers, print the largest one.",
+    "description": "Given a positive integer N, print the sum of all its digits.",
     "inputFormat": "Standard Input",
     "outputFormat": "Standard Output",
     "constraints": [
@@ -197,8 +141,64 @@
     "correctAnswer": "",
     "sampleCases": [
       {
-        "input": "15 42 8",
-        "expected": "42",
+        "input": "1234",
+        "expected": "10",
+        "explanation": "Sample demonstration"
+      }
+    ],
+    "starterCode": {
+      "c": "// Write your C code here...\n",
+      "cpp": "// Write your C++ code here...\n",
+      "java": "// Write your Java code here...\n",
+      "python": "# Write your Python code here...\n",
+      "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+      "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+      "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+      "php": "<?php\n// Write your PHP code here...\n"
+    },
+    "languages": [
+      "C",
+      "C++",
+      "Java",
+      "Python",
+      "HTML",
+      "JavaScript",
+      "Dart",
+      "PHP"
+    ]
+  },
+  {
+    "id": 4,
+    "title": "Find the Maximum Element",
+    "difficulty": "Easy",
+    "points": 10,
+    "timeLimit": "1.5s",
+    "memoryLimit": "256MB",
+    "tags": [
+      "Algorithm",
+      "Logic"
+    ],
+    "description": "Given a list of integers separated by spaces, print the largest element in the list.",
+    "inputFormat": "Standard Input",
+    "outputFormat": "Standard Output",
+    "constraints": [
+      "1 <= N <= 10^5"
+    ],
+    "optionA": "",
+    "optionB": "",
+    "optionC": "",
+    "optionD": "",
+    "options": {
+      "a": "",
+      "b": "",
+      "c": "",
+      "d": ""
+    },
+    "correctAnswer": "",
+    "sampleCases": [
+      {
+        "input": "3 9 2 7",
+        "expected": "9",
         "explanation": "Sample demonstration"
       }
     ],
@@ -225,7 +225,7 @@
   },
   {
     "id": 5,
-    "title": "Factorial of a Number",
+    "title": "Palindrome String",
     "difficulty": "Easy",
     "points": 10,
     "timeLimit": "1.5s",
@@ -234,7 +234,7 @@
       "Algorithm",
       "Logic"
     ],
-    "description": "Given a non-negative integer N (N <= 12), print N! (N factorial).",
+    "description": "Given a string S (lowercase letters only, no spaces), print \"Yes\" if it reads the same forwards and backwards, otherwise print \"No\".",
     "inputFormat": "Standard Input",
     "outputFormat": "Standard Output",
     "constraints": [
@@ -253,119 +253,7 @@
     "correctAnswer": "",
     "sampleCases": [
       {
-        "input": "5",
-        "expected": "120",
-        "explanation": "Sample demonstration"
-      }
-    ],
-    "starterCode": {
-      "c": "// Write your C code here...\n",
-      "cpp": "// Write your C++ code here...\n",
-      "java": "// Write your Java code here...\n",
-      "python": "# Write your Python code here...\n",
-      "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
-      "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
-      "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
-      "php": "<?php\n// Write your PHP code here...\n"
-    },
-    "languages": [
-      "C",
-      "C++",
-      "Java",
-      "Python",
-      "HTML",
-      "JavaScript",
-      "Dart",
-      "PHP"
-    ]
-  },
-  {
-    "id": 6,
-    "title": "Count Vowels in a String",
-    "difficulty": "Easy",
-    "points": 10,
-    "timeLimit": "1.5s",
-    "memoryLimit": "256MB",
-    "tags": [
-      "Algorithm",
-      "Logic"
-    ],
-    "description": "Given a string, count and print the number of vowels (a, e, i, o, u, case-insensitive).",
-    "inputFormat": "Standard Input",
-    "outputFormat": "Standard Output",
-    "constraints": [
-      "1 <= N <= 10^5"
-    ],
-    "optionA": "",
-    "optionB": "",
-    "optionC": "",
-    "optionD": "",
-    "options": {
-      "a": "",
-      "b": "",
-      "c": "",
-      "d": ""
-    },
-    "correctAnswer": "",
-    "sampleCases": [
-      {
-        "input": "Hello World",
-        "expected": "3",
-        "explanation": "Sample demonstration"
-      }
-    ],
-    "starterCode": {
-      "c": "// Write your C code here...\n",
-      "cpp": "// Write your C++ code here...\n",
-      "java": "// Write your Java code here...\n",
-      "python": "# Write your Python code here...\n",
-      "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
-      "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
-      "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
-      "php": "<?php\n// Write your PHP code here...\n"
-    },
-    "languages": [
-      "C",
-      "C++",
-      "Java",
-      "Python",
-      "HTML",
-      "JavaScript",
-      "Dart",
-      "PHP"
-    ]
-  },
-  {
-    "id": 7,
-    "title": "Palindrome Check",
-    "difficulty": "Medium",
-    "points": 20,
-    "timeLimit": "1.5s",
-    "memoryLimit": "256MB",
-    "tags": [
-      "Algorithm",
-      "Logic"
-    ],
-    "description": "Given a string, print 'Yes' if it reads the same forwards and backwards (ignore case), otherwise print 'No'.",
-    "inputFormat": "Standard Input",
-    "outputFormat": "Standard Output",
-    "constraints": [
-      "1 <= N <= 10^5"
-    ],
-    "optionA": "",
-    "optionB": "",
-    "optionC": "",
-    "optionD": "",
-    "options": {
-      "a": "",
-      "b": "",
-      "c": "",
-      "d": ""
-    },
-    "correctAnswer": "",
-    "sampleCases": [
-      {
-        "input": "Level",
+        "input": "madam",
         "expected": "Yes",
         "explanation": "Sample demonstration"
       }
@@ -392,7 +280,63 @@
     ]
   },
   {
-    "id": 8,
+    "id": 6,
+    "title": "Count Vowels and Consonants",
+    "difficulty": "Medium",
+    "points": 20,
+    "timeLimit": "1.5s",
+    "memoryLimit": "256MB",
+    "tags": [
+      "Algorithm",
+      "Logic"
+    ],
+    "description": "Given a sentence, count the vowels (a, e, i, o, u, case-insensitive) and consonants (all other alphabet letters, ignoring spaces and symbols). Print the vowel count and the consonant count separated by a space.",
+    "inputFormat": "Standard Input",
+    "outputFormat": "Standard Output",
+    "constraints": [
+      "1 <= N <= 10^5"
+    ],
+    "optionA": "",
+    "optionB": "",
+    "optionC": "",
+    "optionD": "",
+    "options": {
+      "a": "",
+      "b": "",
+      "c": "",
+      "d": ""
+    },
+    "correctAnswer": "",
+    "sampleCases": [
+      {
+        "input": "Hello World",
+        "expected": "3 7",
+        "explanation": "Sample demonstration"
+      }
+    ],
+    "starterCode": {
+      "c": "// Write your C code here...\n",
+      "cpp": "// Write your C++ code here...\n",
+      "java": "// Write your Java code here...\n",
+      "python": "# Write your Python code here...\n",
+      "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+      "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+      "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+      "php": "<?php\n// Write your PHP code here...\n"
+    },
+    "languages": [
+      "C",
+      "C++",
+      "Java",
+      "Python",
+      "HTML",
+      "JavaScript",
+      "Dart",
+      "PHP"
+    ]
+  },
+  {
+    "id": 7,
     "title": "Fibonacci Series",
     "difficulty": "Medium",
     "points": 20,
@@ -402,7 +346,7 @@
       "Algorithm",
       "Logic"
     ],
-    "description": "Given N, print the first N Fibonacci numbers starting from 0, separated by spaces.",
+    "description": "Given an integer N, print the first N terms of the Fibonacci series starting from 0, separated by spaces.",
     "inputFormat": "Standard Input",
     "outputFormat": "Standard Output",
     "constraints": [
@@ -448,7 +392,7 @@
     ]
   },
   {
-    "id": 9,
+    "id": 8,
     "title": "Prime Numbers in a Range",
     "difficulty": "Medium",
     "points": 20,
@@ -458,7 +402,7 @@
       "Algorithm",
       "Logic"
     ],
-    "description": "Given two integers L and R, print all prime numbers between L and R (inclusive) separated by spaces.",
+    "description": "Given two integers L and R, print all prime numbers between L and R (both inclusive) in ascending order, separated by spaces.",
     "inputFormat": "Standard Input",
     "outputFormat": "Standard Output",
     "constraints": [
@@ -504,7 +448,7 @@
     ]
   },
   {
-    "id": 10,
+    "id": 9,
     "title": "Second Largest Element",
     "difficulty": "Medium",
     "points": 20,
@@ -514,7 +458,7 @@
       "Algorithm",
       "Logic"
     ],
-    "description": "Given N integers, print the second largest distinct element. If it does not exist, print -1.",
+    "description": "Given a list of integers separated by spaces, print the second largest distinct element. Duplicates of the largest value must not be counted as the second largest.",
     "inputFormat": "Standard Input",
     "outputFormat": "Standard Output",
     "constraints": [
@@ -533,8 +477,8 @@
     "correctAnswer": "",
     "sampleCases": [
       {
-        "input": "5 9 2 9 7",
-        "expected": "7",
+        "input": "12 35 1 10 34 1",
+        "expected": "34",
         "explanation": "Sample demonstration"
       }
     ],
@@ -560,7 +504,7 @@
     ]
   },
   {
-    "id": 11,
+    "id": 10,
     "title": "Anagram Check",
     "difficulty": "Medium",
     "points": 20,
@@ -570,7 +514,7 @@
       "Algorithm",
       "Logic"
     ],
-    "description": "Given two strings, print 'Yes' if they are anagrams of each other (ignore case and spaces), otherwise print 'No'.",
+    "description": "Given two lowercase words separated by a space, print \"Yes\" if they are anagrams of each other (same letters with the same frequency), otherwise print \"No\".",
     "inputFormat": "Standard Input",
     "outputFormat": "Standard Output",
     "constraints": [
@@ -589,7 +533,7 @@
     "correctAnswer": "",
     "sampleCases": [
       {
-        "input": "Listen Silent",
+        "input": "listen silent",
         "expected": "Yes",
         "explanation": "Sample demonstration"
       }
@@ -616,17 +560,17 @@
     ]
   },
   {
-    "id": 12,
-    "title": "Matrix Transpose",
-    "difficulty": "Medium",
-    "points": 20,
+    "id": 11,
+    "title": "Longest Substring Without Repeating Characters",
+    "difficulty": "Hard",
+    "points": 30,
     "timeLimit": "1.5s",
     "memoryLimit": "256MB",
     "tags": [
       "Algorithm",
       "Logic"
     ],
-    "description": "Given an R x C matrix, print its transpose. Input: R and C on the first line, followed by the matrix rows.",
+    "description": "Given a string S, find the length of the longest substring that contains no repeating characters and print that length.",
     "inputFormat": "Standard Input",
     "outputFormat": "Standard Output",
     "constraints": [
@@ -645,8 +589,64 @@
     "correctAnswer": "",
     "sampleCases": [
       {
-        "input": "2 3\n1 2 3\n4 5 6",
-        "expected": "1 4\n2 5\n3 6",
+        "input": "abcabcbb",
+        "expected": "3",
+        "explanation": "Sample demonstration"
+      }
+    ],
+    "starterCode": {
+      "c": "// Write your C code here...\n",
+      "cpp": "// Write your C++ code here...\n",
+      "java": "// Write your Java code here...\n",
+      "python": "# Write your Python code here...\n",
+      "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+      "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+      "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+      "php": "<?php\n// Write your PHP code here...\n"
+    },
+    "languages": [
+      "C",
+      "C++",
+      "Java",
+      "Python",
+      "HTML",
+      "JavaScript",
+      "Dart",
+      "PHP"
+    ]
+  },
+  {
+    "id": 12,
+    "title": "Two Sum",
+    "difficulty": "Hard",
+    "points": 30,
+    "timeLimit": "1.5s",
+    "memoryLimit": "256MB",
+    "tags": [
+      "Algorithm",
+      "Logic"
+    ],
+    "description": "The first line contains N integers separated by spaces. The second line contains a target integer T. Print the 0-based indices of the two elements whose sum equals T, in ascending order, separated by a space. Exactly one valid pair is guaranteed to exist.",
+    "inputFormat": "Standard Input",
+    "outputFormat": "Standard Output",
+    "constraints": [
+      "1 <= N <= 10^5"
+    ],
+    "optionA": "",
+    "optionB": "",
+    "optionC": "",
+    "optionD": "",
+    "options": {
+      "a": "",
+      "b": "",
+      "c": "",
+      "d": ""
+    },
+    "correctAnswer": "",
+    "sampleCases": [
+      {
+        "input": "2 7 11 15\n9",
+        "expected": "0 1",
         "explanation": "Sample demonstration"
       }
     ],
@@ -673,7 +673,7 @@
   },
   {
     "id": 13,
-    "title": "Longest Common Subsequence",
+    "title": "Balanced Brackets",
     "difficulty": "Hard",
     "points": 30,
     "timeLimit": "1.5s",
@@ -682,7 +682,7 @@
       "Algorithm",
       "Logic"
     ],
-    "description": "Given two strings A and B, print the length of their longest common subsequence.",
+    "description": "Given a string containing only the characters ( ) { } [ ], print \"Yes\" if the brackets are balanced and properly nested, otherwise print \"No\".",
     "inputFormat": "Standard Input",
     "outputFormat": "Standard Output",
     "constraints": [
@@ -701,8 +701,8 @@
     "correctAnswer": "",
     "sampleCases": [
       {
-        "input": "AGGTAB GXTXAYB",
-        "expected": "4",
+        "input": "{[()]}",
+        "expected": "Yes",
         "explanation": "Sample demonstration"
       }
     ],
@@ -729,7 +729,7 @@
   },
   {
     "id": 14,
-    "title": "Valid Parentheses Checker",
+    "title": "Maximum Subarray Sum",
     "difficulty": "Hard",
     "points": 30,
     "timeLimit": "1.5s",
@@ -738,7 +738,7 @@
       "Algorithm",
       "Logic"
     ],
-    "description": "Given a string containing only the characters ()[]{}, print 'Valid' if every bracket is closed in the correct order, otherwise print 'Invalid'.",
+    "description": "Given a list of integers (which may include negatives) separated by spaces, find the contiguous subarray with the largest sum and print that sum.",
     "inputFormat": "Standard Input",
     "outputFormat": "Standard Output",
     "constraints": [
@@ -757,8 +757,8 @@
     "correctAnswer": "",
     "sampleCases": [
       {
-        "input": "{[()]}",
-        "expected": "Valid",
+        "input": "-2 1 -3 4 -1 2 1 -5 4",
+        "expected": "6",
         "explanation": "Sample demonstration"
       }
     ],
@@ -785,7 +785,7 @@
   },
   {
     "id": 15,
-    "title": "0/1 Knapsack Problem",
+    "title": "Spiral Matrix Traversal",
     "difficulty": "Hard",
     "points": 30,
     "timeLimit": "1.5s",
@@ -794,7 +794,7 @@
       "Algorithm",
       "Logic"
     ],
-    "description": "Given N items with weights and values and a knapsack capacity W, print the maximum total value that fits. Input: N and W on the first line, then weights, then values.",
+    "description": "The first line contains two integers R and C (rows and columns). The next R lines contain C integers each. Print all elements of the matrix in spiral order (clockwise, starting from the top-left), separated by spaces.",
     "inputFormat": "Standard Input",
     "outputFormat": "Standard Output",
     "constraints": [
@@ -813,176 +813,8 @@
     "correctAnswer": "",
     "sampleCases": [
       {
-        "input": "3 50\n10 20 30\n60 100 120",
-        "expected": "220",
-        "explanation": "Sample demonstration"
-      }
-    ],
-    "starterCode": {
-      "c": "// Write your C code here...\n",
-      "cpp": "// Write your C++ code here...\n",
-      "java": "// Write your Java code here...\n",
-      "python": "# Write your Python code here...\n",
-      "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
-      "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
-      "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
-      "php": "<?php\n// Write your PHP code here...\n"
-    },
-    "languages": [
-      "C",
-      "C++",
-      "Java",
-      "Python",
-      "HTML",
-      "JavaScript",
-      "Dart",
-      "PHP"
-    ]
-  },
-  {
-    "id": 16,
-    "title": "Shortest Path in a Grid",
-    "difficulty": "Hard",
-    "points": 30,
-    "timeLimit": "1.5s",
-    "memoryLimit": "256MB",
-    "tags": [
-      "Algorithm",
-      "Logic"
-    ],
-    "description": "Given an N x M grid of 0 (open) and 1 (blocked), print the minimum steps from the top-left to the bottom-right moving in 4 directions. Print -1 if unreachable.",
-    "inputFormat": "Standard Input",
-    "outputFormat": "Standard Output",
-    "constraints": [
-      "1 <= N <= 10^5"
-    ],
-    "optionA": "",
-    "optionB": "",
-    "optionC": "",
-    "optionD": "",
-    "options": {
-      "a": "",
-      "b": "",
-      "c": "",
-      "d": ""
-    },
-    "correctAnswer": "",
-    "sampleCases": [
-      {
-        "input": "3 3\n0 0 0\n1 1 0\n0 0 0",
-        "expected": "4",
-        "explanation": "Sample demonstration"
-      }
-    ],
-    "starterCode": {
-      "c": "// Write your C code here...\n",
-      "cpp": "// Write your C++ code here...\n",
-      "java": "// Write your Java code here...\n",
-      "python": "# Write your Python code here...\n",
-      "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
-      "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
-      "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
-      "php": "<?php\n// Write your PHP code here...\n"
-    },
-    "languages": [
-      "C",
-      "C++",
-      "Java",
-      "Python",
-      "HTML",
-      "JavaScript",
-      "Dart",
-      "PHP"
-    ]
-  },
-  {
-    "id": 17,
-    "title": "Longest Increasing Subsequence",
-    "difficulty": "Hard",
-    "points": 30,
-    "timeLimit": "1.5s",
-    "memoryLimit": "256MB",
-    "tags": [
-      "Algorithm",
-      "Logic"
-    ],
-    "description": "Given N integers, print the length of the longest strictly increasing subsequence. Aim for O(N log N).",
-    "inputFormat": "Standard Input",
-    "outputFormat": "Standard Output",
-    "constraints": [
-      "1 <= N <= 10^5"
-    ],
-    "optionA": "",
-    "optionB": "",
-    "optionC": "",
-    "optionD": "",
-    "options": {
-      "a": "",
-      "b": "",
-      "c": "",
-      "d": ""
-    },
-    "correctAnswer": "",
-    "sampleCases": [
-      {
-        "input": "10 9 2 5 3 7 101 18",
-        "expected": "4",
-        "explanation": "Sample demonstration"
-      }
-    ],
-    "starterCode": {
-      "c": "// Write your C code here...\n",
-      "cpp": "// Write your C++ code here...\n",
-      "java": "// Write your Java code here...\n",
-      "python": "# Write your Python code here...\n",
-      "html": "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
-      "javascript": "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
-      "dart": "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
-      "php": "<?php\n// Write your PHP code here...\n"
-    },
-    "languages": [
-      "C",
-      "C++",
-      "Java",
-      "Python",
-      "HTML",
-      "JavaScript",
-      "Dart",
-      "PHP"
-    ]
-  },
-  {
-    "id": 18,
-    "title": "N-Queens Count",
-    "difficulty": "Hard",
-    "points": 30,
-    "timeLimit": "1.5s",
-    "memoryLimit": "256MB",
-    "tags": [
-      "Algorithm",
-      "Logic"
-    ],
-    "description": "Given N, print the number of distinct ways to place N queens on an N x N chessboard so that none attack each other.",
-    "inputFormat": "Standard Input",
-    "outputFormat": "Standard Output",
-    "constraints": [
-      "1 <= N <= 10^5"
-    ],
-    "optionA": "",
-    "optionB": "",
-    "optionC": "",
-    "optionD": "",
-    "options": {
-      "a": "",
-      "b": "",
-      "c": "",
-      "d": ""
-    },
-    "correctAnswer": "",
-    "sampleCases": [
-      {
-        "input": "6",
-        "expected": "4",
+        "input": "3 3\n1 2 3\n4 5 6\n7 8 9",
+        "expected": "1 2 3 6 9 8 7 4 5",
         "explanation": "Sample demonstration"
       }
     ],

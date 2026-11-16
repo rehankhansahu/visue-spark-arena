@@ -2540,6 +2540,7 @@ async function handleExcelQuestionImport(event) {
 
   const reader = new FileReader();
   reader.onload = async function(e) {
+    let validRows = [];
     try {
       const data = new Uint8Array(e.target.result);
       const workbook = XLSX.read(data, { type: 'array' });
@@ -2548,7 +2549,7 @@ async function handleExcelQuestionImport(event) {
       const rows = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
 
       // Filter out completely blank rows
-      const validRows = (rows || []).filter(r => {
+      validRows = (rows || []).filter(r => {
         if (!r || typeof r !== 'object') return false;
         return Object.values(r).some(v => v !== null && v !== undefined && v.toString().trim() !== '');
       });
@@ -2558,15 +2559,16 @@ async function handleExcelQuestionImport(event) {
         showToast('Empty Excel File', 'No filled question rows found in file.', 'warning');
         return;
       }
-
-      await sendImportedQuestionsToServer(validRows, token);
     } catch (err) {
       console.error('[Excel Import Error]', err);
       alert('Failed to parse Excel file. Please ensure it follows the downloaded template format or save as .csv.');
       showToast('Import Error', 'Failed to read Excel workbook.', 'error');
+      return;
     } finally {
       event.target.value = '';
     }
+
+    await sendImportedQuestionsToServer(validRows, token);
   };
   reader.readAsArrayBuffer(file);
 }
@@ -2574,22 +2576,34 @@ async function handleExcelQuestionImport(event) {
 async function sendImportedQuestionsToServer(validRows, token) {
   showToast('Importing...', `Processing ${validRows.length} question(s)...`, 'info');
 
-  const res = await fetch('/api/admin/questions/import', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    },
-    body: JSON.stringify({ questions: validRows })
-  });
+  try {
+    const res = await fetch('/api/admin/questions/import', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ questions: validRows })
+    });
 
-  const result = await res.json();
-  if (result.success) {
-    showToast('Questions Imported! 🚀', result.message, 'success');
-    await loadQuestionBank();
-  } else {
-    alert(`Import Error:\n\n${result.message}`);
-    showToast('Import Failed', result.message, 'error');
+    if (res.status === 431) {
+      alert('Session token header is too large. Please logout and login again to Sir Desk to refresh your session.');
+      showToast('Session Expired', 'Please re-login to Sir Desk.', 'error');
+      return;
+    }
+
+    const result = await res.json();
+    if (result.success) {
+      showToast('Questions Imported! 🚀', result.message, 'success');
+      await loadQuestionBank();
+    } else {
+      alert(`Import Error:\n\n${result.message}`);
+      showToast('Import Failed', result.message, 'error');
+    }
+  } catch (netErr) {
+    console.error('[Import Network Error]', netErr);
+    alert('Import request failed: ' + netErr.message);
+    showToast('Import Error', netErr.message, 'error');
   }
 }
 
@@ -2626,39 +2640,31 @@ function updatePasteCsvCount() {
     : 'px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30';
 }
 
-const SAMPLE_18_CSV = `Title,Description,Difficulty,Points,Languages,Sample Input,Sample Output
-Reverse an Array,"Given N integers, print them in reverse order separated by spaces.",Easy,10,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",1 2 3 4 5,5 4 3 2 1
-Sum of Two Numbers,Read two integers and print their sum.,Easy,10,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",12 30,42
-Even or Odd,"Given an integer N, print 'Even' if it is even, otherwise print 'Odd'.",Easy,10,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",7,Odd
-Largest of Three Numbers,"Given three integers, print the largest one.",Easy,10,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",15 42 8,42
-Factorial of a Number,"Given a non-negative integer N (N <= 12), print N! (N factorial).",Easy,10,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",5,120
-Count Vowels in a String,"Given a string, count and print the number of vowels (a, e, i, o, u, case-insensitive).",Easy,10,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",Hello World,3
-Palindrome Check,"Given a string, print 'Yes' if it reads the same forwards and backwards (ignore case), otherwise print 'No'.",Medium,20,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",Level,Yes
-Fibonacci Series,"Given N, print the first N Fibonacci numbers starting from 0, separated by spaces.",Medium,20,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",7,0 1 1 2 3 5 8
-Prime Numbers in a Range,"Given two integers L and R, print all prime numbers between L and R (inclusive) separated by spaces.",Medium,20,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",10 30,11 13 17 19 23 29
-Second Largest Element,"Given N integers, print the second largest distinct element. If it does not exist, print -1.",Medium,20,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",5 9 2 9 7,7
-Anagram Check,"Given two strings, print 'Yes' if they are anagrams of each other (ignore case and spaces), otherwise print 'No'.",Medium,20,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",Listen Silent,Yes
-Matrix Transpose,"Given an R x C matrix, print its transpose. Input: R and C on the first line, followed by the matrix rows.",Medium,20,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP","2 3
+const SAMPLE_15_CSV = `Title,Description,Difficulty,Points,Languages,Sample Input,Sample Output
+Reverse an Array,"Given a list of integers on a single line separated by spaces, print the elements in reverse order separated by spaces.",Easy,10,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",1 2 3 4 5,5 4 3 2 1
+Check Even or Odd,"Given an integer N, print ""Even"" if N is even, otherwise print ""Odd"".",Easy,10,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",7,Odd
+Sum of Digits,"Given a positive integer N, print the sum of all its digits.",Easy,10,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",1234,10
+Find the Maximum Element,"Given a list of integers separated by spaces, print the largest element in the list.",Easy,10,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",3 9 2 7,9
+Palindrome String,"Given a string S (lowercase letters only, no spaces), print ""Yes"" if it reads the same forwards and backwards, otherwise print ""No"".",Easy,10,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",madam,Yes
+Count Vowels and Consonants,"Given a sentence, count the vowels (a, e, i, o, u, case-insensitive) and consonants (all other alphabet letters, ignoring spaces and symbols). Print the vowel count and the consonant count separated by a space.",Medium,20,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",Hello World,3 7
+Fibonacci Series,"Given an integer N, print the first N terms of the Fibonacci series starting from 0, separated by spaces.",Medium,20,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",7,0 1 1 2 3 5 8
+Prime Numbers in a Range,"Given two integers L and R, print all prime numbers between L and R (both inclusive) in ascending order, separated by spaces.",Medium,20,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",10 30,11 13 17 19 23 29
+Second Largest Element,"Given a list of integers separated by spaces, print the second largest distinct element. Duplicates of the largest value must not be counted as the second largest.",Medium,20,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",12 35 1 10 34 1,34
+Anagram Check,"Given two lowercase words separated by a space, print ""Yes"" if they are anagrams of each other (same letters with the same frequency), otherwise print ""No"".",Medium,20,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",listen silent,Yes
+Longest Substring Without Repeating Characters,"Given a string S, find the length of the longest substring that contains no repeating characters and print that length.",Hard,30,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",abcabcbb,3
+Two Sum,"The first line contains N integers separated by spaces. The second line contains a target integer T. Print the 0-based indices of the two elements whose sum equals T, in ascending order, separated by a space. Exactly one valid pair is guaranteed to exist.",Hard,30,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP","2 7 11 15
+9",0 1
+Balanced Brackets,"Given a string containing only the characters ( ) { } [ ], print ""Yes"" if the brackets are balanced and properly nested, otherwise print ""No"".",Hard,30,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",{[()]},Yes
+Maximum Subarray Sum,"Given a list of integers (which may include negatives) separated by spaces, find the contiguous subarray with the largest sum and print that sum.",Hard,30,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",-2 1 -3 4 -1 2 1 -5 4,6
+Spiral Matrix Traversal,"The first line contains two integers R and C (rows and columns). The next R lines contain C integers each. Print all elements of the matrix in spiral order (clockwise, starting from the top-left), separated by spaces.",Hard,30,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP","3 3
 1 2 3
-4 5 6","1 4
-2 5
-3 6"
-Longest Common Subsequence,"Given two strings A and B, print the length of their longest common subsequence.",Hard,30,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",AGGTAB GXTXAYB,4
-Valid Parentheses Checker,"Given a string containing only the characters ()[]{}, print 'Valid' if every bracket is closed in the correct order, otherwise print 'Invalid'.",Hard,30,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",{[()]},Valid
-0/1 Knapsack Problem,"Given N items with weights and values and a knapsack capacity W, print the maximum total value that fits. Input: N and W on the first line, then weights, then values.",Hard,30,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP","3 50
-10 20 30
-60 100 120",220
-Shortest Path in a Grid,"Given an N x M grid of 0 (open) and 1 (blocked), print the minimum steps from the top-left to the bottom-right moving in 4 directions. Print -1 if unreachable.",Hard,30,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP","3 3
-0 0 0
-1 1 0
-0 0 0",4
-Longest Increasing Subsequence,"Given N integers, print the length of the longest strictly increasing subsequence. Aim for O(N log N).",Hard,30,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",10 9 2 5 3 7 101 18,4
-N-Queens Count,"Given N, print the number of distinct ways to place N queens on an N x N chessboard so that none attack each other.",Hard,30,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",6,4`;
+4 5 6
+7 8 9",1 2 3 6 9 8 7 4 5`;
 
 function fillSampleCsvTemplate() {
   const textarea = document.getElementById('pasteCsvTextarea');
   if (textarea) {
-    textarea.value = SAMPLE_18_CSV;
+    textarea.value = SAMPLE_15_CSV;
     updatePasteCsvCount();
   }
 }
