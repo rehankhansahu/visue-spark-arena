@@ -97,7 +97,7 @@ router.post('/login', validateLogin, (req, res) => {
       role: payload.role,
       department: payload.department,
       designation: payload.designation,
-      profilePic: payload.profilePic
+      profilePic: teacherPic
     }
   });
 });
