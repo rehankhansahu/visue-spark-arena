@@ -910,159 +910,159 @@ function renderContestPassView() {
   const p3Solved = currentTeam.solvedProblems && currentTeam.solvedProblems.includes(3);
 
   container.innerHTML = `
-    <div class="holographic-pass rounded-2xl p-6 text-white max-w-md w-full mx-auto relative border ${
+    <div class="holographic-pass rounded-2xl p-3.5 sm:p-4 text-white max-w-md w-full mx-auto relative border ${
       isLeftEarly ? 'border-rose-500/50 shadow-2xl bg-gradient-to-b from-rose-950/20 to-slate-900/40' :
       (isApproved ? 'border-cyan-500/40 shadow-2xl' : (isKicked ? 'border-rose-500/50 shadow-2xl' : 'border-amber-500/50 shadow-2xl'))
     }">
       <!-- Header -->
-      <div class="flex items-center justify-between pb-4 border-b border-white/10">
+      <div class="flex items-center justify-between pb-2.5 border-b border-white/10">
         <div class="min-w-0 flex-1 pr-2">
-          <span class="text-[10px] font-mono tracking-widest text-cyan-300 uppercase">OFFICIAL CONTEST PASS</span>
-          <h3 class="text-base sm:text-lg font-black tracking-tight text-white mt-0.5 truncate max-w-[280px]" title="${(currentArenaInfo && currentArenaInfo.name) ? currentArenaInfo.name : 'V Spark 2026'}">${(currentArenaInfo && currentArenaInfo.name) ? currentArenaInfo.name : 'V Spark 2026'}</h3>
-          ${(currentArenaInfo && currentArenaInfo.description) ? `<div class="text-[10px] font-mono text-cyan-300/80 truncate max-w-[260px]">${currentArenaInfo.description}</div>` : ''}
-          <div class="text-[11px] font-mono text-slate-300 mt-0.5">${currentTeam.university}</div>
+          <span class="text-[9.5px] font-mono tracking-widest text-cyan-300 uppercase">OFFICIAL CONTEST PASS</span>
+          <h3 class="text-sm sm:text-base font-black tracking-tight text-white mt-0.5 truncate max-w-[280px]" title="${(currentArenaInfo && currentArenaInfo.name) ? currentArenaInfo.name : 'V Spark 2026'}">${(currentArenaInfo && currentArenaInfo.name) ? currentArenaInfo.name : 'V Spark 2026'}</h3>
+          ${(currentArenaInfo && currentArenaInfo.description) ? `<div class="text-[9.5px] font-mono text-cyan-300/80 truncate max-w-[260px]">${currentArenaInfo.description}</div>` : ''}
+          <div class="text-[10.5px] font-mono text-slate-300 mt-0.5">${currentTeam.university}</div>
         </div>
         <div class="text-right">
-          <span class="px-2.5 py-0.5 rounded text-[11px] font-mono font-bold ${
+          <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
             isLeftEarly ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40' :
             (isApproved ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' :
             (isKicked ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40' : 'bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse'))
           }">
-            ${isLeftEarly ? '🚪 LEFT EARLY (Incomplete)' : (isApproved ? '● VERIFIED PASS' : (isKicked ? '✕ DISQUALIFIED' : '⏳ PENDING SIR APPROVAL'))}
+            ${isLeftEarly ? '🚪 LEFT EARLY' : (isApproved ? '● VERIFIED PASS' : (isKicked ? '✕ DISQUALIFIED' : '⏳ PENDING APPROVAL'))}
           </span>
-          <div class="text-[10px] font-mono text-slate-400 mt-1 uppercase">${currentTeam.teamType} SQUAD</div>
+          <div class="text-[9.5px] font-mono text-slate-400 mt-0.5 uppercase">${currentTeam.teamType} SQUAD</div>
         </div>
       </div>
 
       <!-- Team Details -->
-      <div class="py-4 space-y-3">
-        <div class="flex items-center gap-3">
-          ${renderTeamAvatarHtml(currentTeam, 'w-12 h-12 text-lg', 'border-2 border-cyan-400/50 shadow-md')}
+      <div class="py-2.5 space-y-2">
+        <div class="flex items-center gap-2.5">
+          ${renderTeamAvatarHtml(currentTeam, 'w-10 h-10 text-base', 'border-2 border-cyan-400/50 shadow-md')}
           <div>
-            <div class="text-[10px] font-mono uppercase text-slate-400 tracking-wider">Team / Alias</div>
-            <div class="text-xl font-black text-slate-100">${currentTeam.teamName}</div>
+            <div class="text-[9.5px] font-mono uppercase text-slate-400 tracking-wider">Team / Alias</div>
+            <div class="text-lg font-black text-slate-100">${currentTeam.teamName}</div>
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-3 text-xs">
-          <div class="bg-black/30 p-2.5 rounded-lg border border-white/5">
-            <div class="text-[10px] font-mono text-cyan-400 uppercase font-semibold">Leader</div>
-            <div class="font-bold text-slate-200 mt-0.5">${currentTeam.leaderName}</div>
-            <div class="font-mono text-[11px] text-slate-400">${currentTeam.leaderRoll}</div>
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <div class="bg-black/30 p-2 rounded-lg border border-white/5">
+            <div class="text-[9.5px] font-mono text-cyan-400 uppercase font-semibold">Leader</div>
+            <div class="font-bold text-slate-200 mt-0.5 truncate">${currentTeam.leaderName}</div>
+            <div class="font-mono text-[10px] text-slate-400">${currentTeam.leaderRoll}</div>
           </div>
           ${currentTeam.teamType === 'duo' && currentTeam.member2Name ? `
-            <div class="bg-black/30 p-2.5 rounded-lg border border-white/5">
-              <div class="text-[10px] font-mono text-cyan-400 uppercase font-semibold">Member 2</div>
-              <div class="font-bold text-slate-200 mt-0.5">${currentTeam.member2Name}</div>
-              <div class="font-mono text-[11px] text-slate-400">${currentTeam.member2Roll}</div>
+            <div class="bg-black/30 p-2 rounded-lg border border-white/5">
+              <div class="text-[9.5px] font-mono text-cyan-400 uppercase font-semibold">Member 2</div>
+              <div class="font-bold text-slate-200 mt-0.5 truncate">${currentTeam.member2Name}</div>
+              <div class="font-mono text-[10px] text-slate-400">${currentTeam.member2Roll}</div>
             </div>
           ` : `
-            <div class="bg-black/30 p-2.5 rounded-lg border border-white/5 flex flex-col justify-center">
-              <div class="text-[10px] font-mono text-slate-500 uppercase font-semibold">Solo Mode</div>
+            <div class="bg-black/30 p-2 rounded-lg border border-white/5 flex flex-col justify-center">
+              <div class="text-[9.5px] font-mono text-slate-500 uppercase font-semibold">Solo Mode</div>
               <div class="font-bold text-slate-400 text-xs mt-0.5">Individual Entry</div>
             </div>
           `}
         </div>
 
-        <div class="flex items-center justify-between text-xs pt-1">
+        <div class="flex items-center justify-between text-xs pt-0.5">
           <div>
-            <span class="text-slate-400 font-mono text-[11px]">Language: </span>
+            <span class="text-slate-400 font-mono text-[10.5px]">Language: </span>
             <span class="font-mono font-bold text-cyan-300 uppercase">${currentTeam.language}</span>
           </div>
           <div class="text-right">
-            <span class="text-slate-400 font-mono text-[11px]">👤 Username: </span>
+            <span class="text-slate-400 font-mono text-[10.5px]">👤 Username: </span>
             <span class="font-mono font-black text-cyan-300 text-xs tracking-wider">@${currentTeam.username || currentTeam.teamName}</span>
           </div>
         </div>
       </div>
 
       <!-- Problem Solved Progress -->
-      <div class="pt-3 border-t border-white/10">
-        <div class="text-[10px] font-mono uppercase text-slate-400 mb-2 flex items-center justify-between">
+      <div class="pt-2 border-t border-white/10">
+        <div class="text-[9.5px] font-mono uppercase text-slate-400 mb-1 flex items-center justify-between">
           <span>Contest Milestones (60 Pts Total)</span>
           <span class="text-amber-400 font-bold font-mono">${currentTeam.score || 0} / 60 pts</span>
         </div>
-        <div class="grid grid-cols-3 gap-2 text-center text-xs font-mono">
-          <div class="p-2 rounded-lg border ${p1Solved ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300' : 'bg-black/30 border-white/5 text-slate-500'}">
-            <div class="text-[10px] uppercase font-bold">Q1 (10pts)</div>
-            <div class="font-bold mt-0.5">${p1Solved ? '✓ SOLVED' : 'PENDING'}</div>
+        <div class="grid grid-cols-3 gap-1.5 text-center text-xs font-mono">
+          <div class="py-1.5 px-1 rounded-lg border ${p1Solved ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300' : 'bg-black/30 border-white/5 text-slate-500'}">
+            <div class="text-[9.5px] uppercase font-bold">Q1 (10pts)</div>
+            <div class="font-bold mt-0.5 text-[11px]">${p1Solved ? '✓ SOLVED' : 'PENDING'}</div>
           </div>
-          <div class="p-2 rounded-lg border ${p2Solved ? 'bg-cyan-500/20 border-cyan-500/40 text-cyan-300' : 'bg-black/30 border-white/5 text-slate-500'}">
-            <div class="text-[10px] uppercase font-bold">Q2 (20pts)</div>
-            <div class="font-bold mt-0.5">${p2Solved ? '✓ SOLVED' : 'PENDING'}</div>
+          <div class="py-1.5 px-1 rounded-lg border ${p2Solved ? 'bg-cyan-500/20 border-cyan-500/40 text-cyan-300' : 'bg-black/30 border-white/5 text-slate-500'}">
+            <div class="text-[9.5px] uppercase font-bold">Q2 (20pts)</div>
+            <div class="font-bold mt-0.5 text-[11px]">${p2Solved ? '✓ SOLVED' : 'PENDING'}</div>
           </div>
-          <div class="p-2 rounded-lg border ${p3Solved ? 'bg-amber-500/20 border-amber-500/40 text-amber-300' : 'bg-black/30 border-white/5 text-slate-500'}">
-            <div class="text-[10px] uppercase font-bold">Q3 (30pts)</div>
-            <div class="font-bold mt-0.5">${p3Solved ? '✓ SOLVED' : 'PENDING'}</div>
+          <div class="py-1.5 px-1 rounded-lg border ${p3Solved ? 'bg-amber-500/20 border-amber-500/40 text-amber-300' : 'bg-black/30 border-white/5 text-slate-500'}">
+            <div class="text-[9.5px] uppercase font-bold">Q3 (30pts)</div>
+            <div class="font-bold mt-0.5 text-[11px]">${p3Solved ? '✓ SOLVED' : 'PENDING'}</div>
           </div>
         </div>
       </div>
 
       <!-- Actions -->
-      <div class="pt-5 flex flex-col items-center gap-2">
+      <div class="pt-3 flex flex-col items-center gap-1.5">
         ${isLeftEarly ? `
           <button 
             onclick="switchView('arena')" 
-            class="btn-cyber w-full py-2.5 rounded-xl text-xs font-black uppercase text-rose-200 bg-rose-950/70 hover:bg-rose-900 border border-rose-500/40 transition flex items-center justify-center gap-1.5 shadow">
+            class="btn-cyber w-full py-2 rounded-xl text-xs font-black uppercase text-rose-200 bg-rose-950/70 hover:bg-rose-900 border border-rose-500/40 transition flex items-center justify-center gap-1.5 shadow">
             <span>🚪 Review Submitted Solutions (Arena)</span>
           </button>
         ` : (isApproved ? `
           <button 
             onclick="switchView('arena')" 
-            class="btn-cyber w-full py-2.5 rounded-xl text-xs font-black uppercase text-slate-950 bg-gradient-to-r from-emerald-400 to-lime-400 hover:from-emerald-300 hover:to-lime-300 transition flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-500/20">
+            class="btn-cyber w-full py-2 rounded-xl text-xs font-black uppercase text-slate-950 bg-gradient-to-r from-emerald-400 to-lime-400 hover:from-emerald-300 hover:to-lime-300 transition flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-500/20">
             <span>🚀 Enter Speed Arena</span>
           </button>
         ` : (isKicked ? `
-          <div class="w-full text-center py-2.5 bg-rose-950/60 border border-rose-500/40 rounded-xl text-xs font-mono text-rose-300">
+          <div class="w-full text-center py-2 bg-rose-950/60 border border-rose-500/40 rounded-xl text-xs font-mono text-rose-300">
             Pass Revoked by Judge
           </div>
         ` : `
-          <div class="w-full text-center py-2.5 bg-amber-950/40 border border-amber-500/30 rounded-xl text-xs font-mono text-amber-300 flex items-center justify-center gap-2">
+          <div class="w-full text-center py-2 bg-amber-950/40 border border-amber-500/30 rounded-xl text-xs font-mono text-amber-300 flex items-center justify-center gap-2">
             <span class="animate-spin text-sm">⏳</span>
             <span>Awaiting Sir's Approval to Unlock Arena...</span>
           </div>
         `))}
 
         <!-- Windows Exam-Lock (.bat Tool Required) -->
-        <div class="w-full pt-2 space-y-2">
+        <div class="w-full pt-1 space-y-1.5">
           <a 
             href="/api/team/exam-lock-script/${encodeURIComponent(currentTeam.username || currentTeam.secretKey || currentTeam.passKey || currentTeam.id)}" 
             download
-            class="btn-cyber w-full py-2.5 rounded-xl text-xs font-mono font-bold text-cyan-200 bg-cyan-950/70 hover:bg-cyan-900/80 border border-cyan-500/50 transition flex items-center justify-center gap-2 shadow-md">
+            class="btn-cyber w-full py-2 rounded-xl text-xs font-mono font-bold text-cyan-200 bg-cyan-950/70 hover:bg-cyan-900/80 border border-cyan-500/50 transition flex items-center justify-center gap-2 shadow-md">
             <span>🛡️</span>
             <span>Download Exam-Lock Tool (.bat)</span>
           </a>
 
           ${currentTeam.pcLockStatus === 'locked' ? `
-            <div class="w-full py-2 px-3 rounded-xl text-xs font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center justify-center gap-1.5 shadow-sm">
+            <div class="w-full py-1.5 px-3 rounded-xl text-xs font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center justify-center gap-1.5 shadow-sm">
               <span>🛡️</span>
               <span>PC Exam-Lock Active (Locked by .bat script)</span>
             </div>
           ` : `
-            <div class="w-full py-2 px-3 rounded-xl text-xs font-mono font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/30 flex items-center justify-center gap-1.5">
+            <div class="w-full py-1.5 px-3 rounded-xl text-xs font-mono font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/30 flex items-center justify-center gap-1.5">
               <span>⏳</span>
-              <span>Awaiting .bat execution (Run as Administrator to Lock PC)</span>
+              <span>Awaiting .bat execution (Run as Admin to Lock PC)</span>
             </div>
           `}
 
-          <p class="text-[10px] text-slate-400 text-center leading-snug">
-            Windows Exam-Lock locks internet to V Spark Arena. You must download and run the .bat script as Administrator before Sir can start the contest.
+          <p class="text-[9px] text-slate-400 text-center leading-tight">
+            Windows Exam-Lock locks internet to V Spark Arena. Run the .bat as Administrator before Sir starts the contest.
           </p>
         </div>
 
         <!-- Multi-Team Quick Actions (Allows multiple teams across tabs/browsers) -->
-        <div class="w-full pt-2 border-t border-white/10 flex items-center justify-between text-xs font-mono">
+        <div class="w-full pt-1.5 border-t border-white/10 flex items-center justify-between text-xs font-mono">
           <button 
             type="button" 
             onclick="handleUnlinkTeam(false)" 
-            class="text-[11px] text-cyan-400 hover:text-cyan-300 transition flex items-center gap-1">
+            class="text-[10.5px] text-cyan-400 hover:text-cyan-300 transition flex items-center gap-1">
             <span>➕</span>
             <span>Register Another Team</span>
           </button>
           <button 
             type="button" 
             onclick="promptStudentLogin()" 
-            class="text-[11px] text-amber-400 hover:text-amber-300 transition flex items-center gap-1">
+            class="text-[10.5px] text-amber-400 hover:text-amber-300 transition flex items-center gap-1">
             <span>🔑</span>
             <span>Switch Team (Log In)</span>
           </button>

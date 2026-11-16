@@ -655,7 +655,11 @@ html.light .visue-toast-close {
   color: var(--pass-text-main) !important;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.2), 0 0 20px rgba(6, 182, 212, 0.15);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.15), 0 0 20px rgba(6, 182, 212, 0.15);
+  max-width: 440px !important;
+  width: 100% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
 }
 html.dark .holographic-pass {
   box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.7), 0 0 20px rgba(6, 182, 212, 0.2);
@@ -1735,9 +1739,11 @@ html, body {
 }
 
 #view-pass {
-  overflow: hidden !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
   height: 100% !important;
   min-height: 0 !important;
+  scrollbar-width: thin;
 }
 
 #view-admin {
