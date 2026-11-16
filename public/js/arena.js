@@ -139,14 +139,14 @@ function refreshArenaState() {
         welcomeStatusText.innerHTML = `
           <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
             <span>⏳</span>
-            <span>Registration Submitted for "${currentTeam.teamName}" • Waiting for Sir's Approval</span>
+            <span>Registration Submitted for "${currentTeam.teamName}" • Waiting for Admin's Approval</span>
           </div>
         `;
       } else if (currentTeam && currentTeam.status === 'kicked_out') {
         welcomeStatusText.innerHTML = `
           <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-mono font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">
             <span>⚠️</span>
-            <span>Your team has been removed / disqualified by Sir.</span>
+            <span>Your team has been removed / disqualified by Admin.</span>
           </div>
         `;
       } else {
@@ -217,7 +217,7 @@ function updateArenaLockedHeroSlots(hasFullBudget = false, isTimerStarted = fals
       status1.className = 'font-bold text-emerald-400 truncate text-xs';
       card1.className = 'p-3 rounded-xl border bg-emerald-500/10 border-emerald-500/30 space-y-1';
     } else {
-      status1.textContent = '⏳ 10 Points • Pending Sir...';
+      status1.textContent = '⏳ 10 Points • Pending Admin...';
       status1.className = 'font-bold text-slate-500 text-xs';
       card1.className = 'p-3 rounded-xl border bg-slate-900/80 border-white/10 space-y-1';
     }
@@ -229,7 +229,7 @@ function updateArenaLockedHeroSlots(hasFullBudget = false, isTimerStarted = fals
       status2.className = 'font-bold text-cyan-400 truncate text-xs';
       card2.className = 'p-3 rounded-xl border bg-cyan-500/10 border-cyan-500/30 space-y-1';
     } else {
-      status2.textContent = '⏳ 20 Points • Pending Sir...';
+      status2.textContent = '⏳ 20 Points • Pending Admin...';
       status2.className = 'font-bold text-slate-500 text-xs';
       card2.className = 'p-3 rounded-xl border bg-slate-900/80 border-white/10 space-y-1';
     }
@@ -241,7 +241,7 @@ function updateArenaLockedHeroSlots(hasFullBudget = false, isTimerStarted = fals
       status3.className = 'font-bold text-amber-400 truncate text-xs';
       card3.className = 'p-3 rounded-xl border bg-amber-500/10 border-amber-500/30 space-y-1';
     } else {
-      status3.textContent = '⏳ 30 Points • Pending Sir...';
+      status3.textContent = '⏳ 30 Points • Pending Admin...';
       status3.className = 'font-bold text-slate-500 text-xs';
       card3.className = 'p-3 rounded-xl border bg-slate-900/80 border-white/10 space-y-1';
     }
@@ -883,7 +883,7 @@ async function submitCode() {
   if (currentTeam.status !== 'approved') {
     showToast(
       'Approval Pending ⏳',
-      'Your registration is still PENDING Sir\'s approval. Please wait for Sir to approve your pass.',
+      'Your registration is still PENDING Admin\'s approval. Please wait for Admin to approve your pass.',
       'warning'
     );
     return;

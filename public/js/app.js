@@ -857,7 +857,7 @@ function updateNavbarStudentBadge() {
             <div class="font-mono text-[10px] ${
               isApproved ? 'text-emerald-400' : (isKicked ? 'text-rose-400' : 'text-amber-400')
             }">
-              ${isApproved ? `${currentTeam.score} / 60 pts • Verified` : (isKicked ? 'Disqualified' : 'Pending Sir Approval')}
+              ${isApproved ? `${currentTeam.score} / 60 pts • Verified` : (isKicked ? 'Disqualified' : 'Pending Admin Approval')}
             </div>
           </div>
         </div>
@@ -1031,7 +1031,7 @@ function renderContestPassView() {
         ` : `
           <div class="w-full text-center py-2 bg-amber-950/40 border border-amber-500/30 rounded-xl text-xs font-mono text-amber-300 flex items-center justify-center gap-2">
             <span class="animate-spin text-sm">⏳</span>
-            <span>Awaiting Sir's Approval to Unlock Arena...</span>
+            <span>Awaiting Admin's Approval to Unlock Arena...</span>
           </div>
         `))}
 

@@ -1699,7 +1699,7 @@ async function assignQuestionToTeamDirectly(questionId) {
   }
   const token = sessionStorage.getItem('sirToken');
   if (!token) {
-    showToast('Unauthorized', 'Please login to Sir Desk.', 'error');
+    showToast('Unauthorized', 'Please login to Admin Desk.', 'error');
     return;
   }
 
@@ -2618,7 +2618,7 @@ async function handleExcelQuestionImport(event) {
 
   const token = sessionStorage.getItem('sirToken');
   if (!token) {
-    showToast('Unauthorized', 'Please login to Sir Desk first.', 'error');
+    showToast('Unauthorized', 'Please login to Admin Desk first.', 'error');
     event.target.value = '';
     return;
   }
@@ -2707,8 +2707,8 @@ async function sendImportedQuestionsToServer(validRows, token) {
     });
 
     if (res.status === 431) {
-      alert('Session token header is too large. Please logout and login again to Sir Desk to refresh your session.');
-      showToast('Session Expired', 'Please re-login to Sir Desk.', 'error');
+      alert('Session token header is too large. Please logout and login again to Admin Desk to refresh your session.');
+      showToast('Session Expired', 'Please re-login to Admin Desk.', 'error');
       return;
     }
 
@@ -2800,7 +2800,7 @@ async function submitPasteCsvImport() {
   }
   const token = sessionStorage.getItem('sirToken');
   if (!token) {
-    showToast('Unauthorized', 'Please login to Sir Desk first.', 'error');
+    showToast('Unauthorized', 'Please login to Admin Desk first.', 'error');
     return;
   }
 

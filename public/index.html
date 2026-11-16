@@ -88,7 +88,7 @@
           <span>🎫</span> Team Pass
         </button>
         <button id="nav-btn-admin" onclick="switchView('admin')" class="px-3 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all text-slate-400 border border-transparent hover:text-white">
-          <span>👨‍🏫</span> Sir's Desk
+          <span>👨‍💼</span> Admin Desk
           <span id="navPendingBadge" class="hidden px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-amber-500 text-slate-950">!</span>
         </button>
         <button id="nav-btn-superadmin" onclick="switchView('superadmin')" class="px-3 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all text-slate-400 border border-transparent hover:text-white">
@@ -139,7 +139,7 @@
       <button onclick="switchView('arena')" class="text-emerald-400 font-bold">Arena</button>
       <button onclick="switchView('leaderboard')" class="text-slate-400">Podium</button>
       <button onclick="switchView('pass')" class="text-slate-400">Pass</button>
-      <button onclick="switchView('admin')" class="text-slate-400">Sir Desk</button>
+      <button onclick="switchView('admin')" class="text-slate-400">Admin Desk</button>
       <button onclick="switchView('superadmin')" class="text-slate-400">Admin</button>
     </div>
   </header>
@@ -177,7 +177,7 @@
             Welcome to the Speed Arena
           </h2>
           <p id="heroArenaDescDisplay" class="text-slate-300 text-xs sm:text-sm max-w-lg mx-auto leading-normal">
-            Welcome participants! Prepare your IDE, review the rules, and get your digital team pass verified by Sir to enter the live coding workspace.
+            Welcome participants! Prepare your IDE, review the rules, and get your digital team pass verified by Admin to enter the live coding workspace.
           </p>
         </div>
 
@@ -217,7 +217,7 @@
               <span class="font-bold text-xs text-slate-100">90 Minutes</span>
             </div>
             <div class="text-[11px] font-mono text-amber-400 mt-0.5">Live Sync Timer</div>
-            <div class="text-[10px] text-slate-400">Controlled by Sir</div>
+            <div class="text-[10px] text-slate-400">Controlled by Admin</div>
           </div>
         </div>
 
@@ -233,7 +233,7 @@
           <button 
             onclick="switchView('admin')" 
             class="px-5 py-2.5 rounded-xl text-xs font-mono font-bold text-slate-300 bg-slate-900 hover:bg-slate-800 hover:text-white border border-white/10 transition flex items-center gap-1.5">
-            <span>👨‍🏫 Sir / Judge Portal</span>
+            <span>👨‍💼 Admin Desk</span>
           </button>
         </div>
 
@@ -267,10 +267,10 @@
             CONTEST ARENA LOCKED
           </span>
           <h2 id="arenaLockedTitle" class="text-xl sm:text-2xl font-black text-white tracking-tight">
-            Awaiting Contest Start from Sir
+            Awaiting Contest Start from Admin
           </h2>
           <p id="arenaLockedDesc" class="text-slate-300 text-xs max-w-md mx-auto leading-relaxed">
-            Your team pass is <strong class="text-emerald-400 font-bold">VERIFIED & ACTIVE</strong>! Challenges totaling 60 points are loaded. The live coding workspace will unlock automatically the moment Sir starts the contest timer!
+            Your team pass is <strong class="text-emerald-400 font-bold">VERIFIED & ACTIVE</strong>! Challenges totaling 60 points are loaded. The live coding workspace will unlock automatically the moment Admin starts the contest timer!
           </p>
         </div>
 
@@ -278,21 +278,21 @@
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 max-w-lg mx-auto text-left font-mono text-xs">
           <div id="arenaLockedSlotEasy" class="p-3 rounded-xl border bg-slate-900/80 border-white/10 space-y-1 transition-all">
             <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Q1 • Easy Challenge</div>
-            <div id="arenaSlotStatusEasy" class="font-bold text-slate-500 text-xs truncate">⏳ 10 Points • Pending Sir...</div>
+            <div id="arenaSlotStatusEasy" class="font-bold text-slate-500 text-xs truncate">⏳ 10 Points • Pending Admin...</div>
           </div>
           <div id="arenaLockedSlotMed" class="p-3 rounded-xl border bg-slate-900/80 border-white/10 space-y-1 transition-all">
             <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Q2 • Medium Challenge</div>
-            <div id="arenaSlotStatusMed" class="font-bold text-slate-500 text-xs truncate">⏳ 20 Points • Pending Sir...</div>
+            <div id="arenaSlotStatusMed" class="font-bold text-slate-500 text-xs truncate">⏳ 20 Points • Pending Admin...</div>
           </div>
           <div id="arenaLockedSlotHard" class="p-3 rounded-xl border bg-slate-900/80 border-white/10 space-y-1 transition-all">
             <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Q3 • Hard Challenge</div>
-            <div id="arenaSlotStatusHard" class="font-bold text-slate-500 text-xs truncate">⏳ 30 Points • Pending Sir...</div>
+            <div id="arenaSlotStatusHard" class="font-bold text-slate-500 text-xs truncate">⏳ 30 Points • Pending Admin...</div>
           </div>
         </div>
 
         <div id="arenaLockedFooterNote" class="p-2 rounded-lg bg-slate-950/60 border border-white/5 max-w-sm mx-auto text-[10px] font-mono text-cyan-400 flex items-center justify-center gap-1.5">
           <span class="live-pulse-dot"></span>
-          <span id="arenaLockedFooterText">🔒 Workspace unlocks automatically once Sir starts the contest timer!</span>
+          <span id="arenaLockedFooterText">🔒 Workspace unlocks automatically once Admin starts the contest timer!</span>
         </div>
       </div>
 
@@ -304,7 +304,7 @@
           <div class="text-3xl sm:text-4xl select-none">🎉</div>
           <h3 id="allCompletedTitle" class="text-lg sm:text-xl font-black text-white">All Contest Challenges Submitted!</h3>
           <p id="allCompletedSubtitle" class="text-xs text-slate-300 max-w-lg mx-auto">
-            Great job! You have submitted code for all active contest challenges. Please wait for Sir / Chief Judge to evaluate the submissions and publish official standings.
+            Great job! You have submitted code for all active contest challenges. Please wait for Admin / Chief Judge to evaluate the submissions and publish official standings.
           </p>
           <div class="flex items-center justify-center gap-2 flex-wrap">
             <div id="arenaCompletedTimeBadge" class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm">
@@ -313,7 +313,7 @@
             </div>
             <div id="resultsWaitBadge" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse">
               <span>⏳</span>
-              <span>Status: Awaiting Official Evaluation & Marks from Sir</span>
+              <span>Status: Awaiting Official Evaluation & Marks from Admin</span>
             </div>
           </div>
           <div id="arenaViewPodiumBtnContainer" class="hidden pt-2">
@@ -427,7 +427,7 @@
           </p>
           <div id="arenaLeftEarlyStatusBadge" class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
             <span>⏳</span>
-            <span id="arenaLeftEarlyStatusText">Sir will evaluate your partial/submitted solutions</span>
+            <span id="arenaLeftEarlyStatusText">Admin will evaluate your partial/submitted solutions</span>
           </div>
         </div>
 
@@ -560,7 +560,7 @@
         </span>
         <h3 class="text-xl font-black text-white">Results are Being Evaluated</h3>
         <p class="text-xs text-slate-300 leading-relaxed max-w-md mx-auto">
-          Sir / Chief Judge is currently evaluating submitted code, verifying test cases, and awarding final marks. Standings and the Podium will be revealed in real time once official results are published!
+          Admin / Chief Judge is currently evaluating submitted code, verifying test cases, and awarding final marks. Standings and the Podium will be revealed in real time once official results are published!
         </p>
         <div class="pt-1">
           <button onclick="switchView('arena')" class="px-4 py-2 rounded-xl text-xs font-mono font-bold text-slate-200 bg-slate-800 hover:bg-slate-700 border border-white/10 transition">
@@ -640,7 +640,7 @@
             <span id="regLockedTitle">REGISTRATION LOCKED</span>
           </div>
           <p id="regLockedMessage" class="text-xs font-mono leading-relaxed">
-            The contest is currently in progress or has ended. Sir / Chief Judge must reset the previous contest before new registrations can be accepted.
+            The contest is currently in progress or has ended. Admin / Chief Judge must reset the previous contest before new registrations can be accepted.
           </p>
           <div class="text-[11px] font-mono opacity-80 pt-0.5">
             🔑 Already registered? Enter your Team Username & Password in the "Resume Session" box below to log in.
@@ -791,7 +791,7 @@
                   </button>
                 </div>
                 <div class="text-[9px] font-mono text-slate-400 mt-0.5 truncate">
-                  Max 5MB • JPG, PNG, WebP (Shows on Podium & Sir Desk)
+                  Max 5MB • JPG, PNG, WebP (Shows on Podium & Admin Desk)
                 </div>
               </div>
             </div>
@@ -854,12 +854,12 @@
             type="submit" 
             id="regSubmitBtn"
             class="btn-cyber w-full py-2.5 rounded-xl text-xs font-black uppercase text-slate-950 bg-gradient-to-r from-emerald-400 to-lime-400 hover:from-emerald-300 hover:to-lime-300 glow-lime transition">
-            🚀 Submit Request for Sir's Approval
+            🚀 Submit Request for Admin Approval
           </button>
         </form>
 
         <div class="text-[10px] text-slate-500 font-mono pt-1 border-t border-white/5 text-center">
-          🔒 Requests must be accepted by Sir / Judge before you can enter Speed Arena.
+          🔒 Requests must be accepted by Admin before you can enter Speed Arena.
         </div>
 
         <!-- Session Recovery Box: Login with Username & Password -->
@@ -933,30 +933,30 @@
           <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30">
             RESTRICTED ACCESS
           </span>
-          <h2 class="text-xl font-black text-white mt-1">Sir / Judge Portal</h2>
+          <h2 class="text-xl font-black text-white mt-1">Admin Desk</h2>
           <p class="text-[11px] text-slate-400">
-            Sign in with authorized judge credentials to control contest timer, question bank, and results.
+            Sign in with authorized admin credentials to control contest timer, question bank, and results.
           </p>
         </div>
 
         <form onsubmit="event.preventDefault(); handleSirLogin(event); return false;" class="space-y-2.5 pt-1">
           <div class="text-left">
-            <label class="block text-[10px] font-mono text-slate-400 uppercase mb-0.5">Judge Username</label>
+            <label class="block text-[10px] font-mono text-slate-400 uppercase mb-0.5">Admin Username</label>
             <input 
               type="text" 
               id="sirUsernameInput" 
               required
-              placeholder="Enter Judge Username" 
+              placeholder="Enter Admin Username" 
               class="w-full bg-slate-900 border border-white/10 text-slate-200 text-xs font-mono rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-amber-500 transition">
           </div>
 
           <div class="text-left">
-            <label class="block text-[10px] font-mono text-slate-400 uppercase mb-0.5">Judge Password</label>
+            <label class="block text-[10px] font-mono text-slate-400 uppercase mb-0.5">Admin Password</label>
             <input 
               type="password" 
               id="sirPasswordInput" 
               required
-              placeholder="Enter Judge Password" 
+              placeholder="Enter Admin Password" 
               class="w-full bg-slate-900 border border-white/10 text-slate-200 text-xs font-mono rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-amber-500 transition">
           </div>
           
@@ -965,7 +965,7 @@
           <button 
             type="submit" 
             class="btn-cyber w-full py-2 rounded-lg text-xs font-black uppercase text-slate-950 bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-200 transition">
-            Unlock Judge Portal
+            Unlock Admin Desk
           </button>
         </form>
       </div>
@@ -987,7 +987,7 @@
             <div>
               <div class="flex items-center gap-2 flex-wrap">
                 <span class="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30 uppercase tracking-wider">
-                  Chief Judge Portal
+                  Admin Desk
                 </span>
                 <span class="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5 shadow-sm">
                   <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -1016,7 +1016,7 @@
               type="button"
               onclick="openSirProfileModal()" 
               class="btn-cyber px-3 py-1.5 rounded-xl text-xs font-bold text-amber-300 bg-amber-950/60 border border-amber-500/40 hover:bg-amber-900/50 transition flex items-center gap-1.5 shadow-sm"
-              title="Edit Sir / Judge Profile Picture and Information">
+              title="Edit Admin Profile Picture and Information">
               <span>✏️</span>
               <span class="hidden md:inline">Edit</span><span>Profile</span>
             </button>
