@@ -1538,28 +1538,43 @@ html.light .developer-badge span.bg-cyan-500\/10 {
 }
 
 /* Add New Question Modal in Light & Dark Mode */
-#newQuestionModal {
+#newQuestionModal,
+#pasteCsvModal {
   z-index: 9999;
 }
 html:not(.dark) #newQuestionModal .glass-panel,
-html.light #newQuestionModal .glass-panel {
+html.light #newQuestionModal .glass-panel,
+html:not(.dark) #pasteCsvModal .glass-panel,
+html.light #pasteCsvModal .glass-panel {
   background: #ffffff !important;
   border: 1px solid rgba(15, 23, 42, 0.16) !important;
   box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.25), 0 0 25px rgba(2, 132, 199, 0.1) !important;
 }
 html:not(.dark) #newQuestionModal .text-white,
-html.light #newQuestionModal .text-white {
+html.light #newQuestionModal .text-white,
+html:not(.dark) #pasteCsvModal .text-white,
+html.light #pasteCsvModal .text-white {
   color: #090d16 !important;
 }
+html:not(.dark) #pasteCsvModal textarea,
+html.light #pasteCsvModal textarea {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
 html:not(.dark) #newQuestionModal button.bg-slate-800,
-html.light #newQuestionModal button.bg-slate-800 {
+html.light #newQuestionModal button.bg-slate-800,
+html:not(.dark) #pasteCsvModal button.bg-slate-800,
+html.light #pasteCsvModal button.bg-slate-800 {
   background-color: #f1f5f9 !important;
   color: #0f172a !important;
   border: 1px solid #cbd5e1 !important;
   font-weight: 600;
 }
 html:not(.dark) #newQuestionModal button.bg-slate-800:hover,
-html.light #newQuestionModal button.bg-slate-800:hover {
+html.light #newQuestionModal button.bg-slate-800:hover,
+html:not(.dark) #pasteCsvModal button.bg-slate-800:hover,
+html.light #pasteCsvModal button.bg-slate-800:hover {
   background-color: #e2e8f0 !important;
   color: #090d16 !important;
 }

@@ -897,9 +897,14 @@ router.put('/admin/questions/:id', verifySirToken, ensureWebsiteNotLocked, ensur
  */
 router.post('/admin/questions/import', verifySirToken, ensureWebsiteNotLocked, ensureContestNotRunning, (req, res) => {
   try {
-    const { questions } = req.body;
-    if (!questions || !Array.isArray(questions)) {
-      return res.status(400).json({ success: false, message: 'Questions array is required for bulk import.' });
+    let { questions, csvText } = req.body || {};
+
+    if ((!questions || !Array.isArray(questions) || questions.length === 0) && csvText && typeof csvText === 'string') {
+      questions = store.parseCSVTextToObjects(csvText);
+    }
+
+    if (!questions || !Array.isArray(questions) || questions.length === 0) {
+      return res.status(400).json({ success: false, message: 'Valid questions array or CSV text is required for bulk import.' });
     }
     const added = store.bulkImportQuestions(questions);
     const io = req.app.get('io');

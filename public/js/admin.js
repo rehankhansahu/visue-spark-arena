@@ -2414,7 +2414,77 @@ function downloadQuestionExcelTemplate() {
   showToast('Template Downloaded! 📥', 'Excel template downloaded with "Write your question here" format. Edit and click Import.', 'success');
 }
 
-// Import Questions from Excel File (.xlsx, .xls, .csv)
+// Pure JavaScript RFC 4180 CSV / TSV Parser (100% Offline, Zero-Dependency)
+function parseCSVTextToObjects(text) {
+  if (!text || typeof text !== 'string') return [];
+  text = text.replace(/^\uFEFF/, '').trim();
+  if (!text) return [];
+
+  const rows = [];
+  let row = [];
+  let field = '';
+  let inQuotes = false;
+  
+  // Auto-detect delimiter if first line has tabs or semicolons
+  const firstLine = text.split(/\r?\n/)[0] || '';
+  let delimiter = ',';
+  if (!firstLine.includes(',') && firstLine.includes('\t')) delimiter = '\t';
+  else if (!firstLine.includes(',') && firstLine.includes(';')) delimiter = ';';
+
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    const next = text[i + 1];
+    
+    if (inQuotes) {
+      if (char === '"' && next === '"') {
+        field += '"';
+        i++;
+      } else if (char === '"') {
+        inQuotes = false;
+      } else {
+        field += char;
+      }
+    } else {
+      if (char === '"') {
+        inQuotes = true;
+      } else if (char === delimiter) {
+        row.push(field.trim());
+        field = '';
+      } else if (char === '\r') {
+        // ignore CR
+      } else if (char === '\n') {
+        row.push(field.trim());
+        field = '';
+        if (row.length > 0 && row.some(c => c !== '')) rows.push(row);
+        row = [];
+      } else {
+        field += char;
+      }
+    }
+  }
+  if (field.length > 0 || row.length > 0) {
+    row.push(field.trim());
+    if (row.some(c => c !== '')) rows.push(row);
+  }
+  
+  if (rows.length < 2) return [];
+  const headers = rows[0].map(h => h.trim());
+  const objects = [];
+  for (let r = 1; r < rows.length; r++) {
+    const rData = rows[r];
+    const obj = {};
+    for (let c = 0; c < headers.length; c++) {
+      obj[headers[c]] = rData[c] !== undefined ? rData[c] : '';
+    }
+    if (Object.values(obj).some(v => v !== '')) {
+      objects.push(obj);
+    }
+  }
+  return objects;
+}
+window.parseCSVTextToObjects = parseCSVTextToObjects;
+
+// Import Questions from Excel / CSV / TSV / TXT File
 async function handleExcelQuestionImport(event) {
   if (checkWebsiteLockForSir()) return;
   const file = event.target.files && event.target.files[0];
@@ -2433,8 +2503,37 @@ async function handleExcelQuestionImport(event) {
     return;
   }
 
+  const fileName = (file.name || '').toLowerCase();
+  const isTextFile = fileName.endsWith('.csv') || fileName.endsWith('.txt') || fileName.endsWith('.tsv');
+
+  if (isTextFile) {
+    // 100% Offline, Pure-JS RFC 4180 parsing for CSV / TSV / TXT
+    const textReader = new FileReader();
+    textReader.onload = async function(e) {
+      try {
+        const text = e.target.result;
+        const rows = parseCSVTextToObjects(text);
+        if (rows.length === 0) {
+          alert('No valid question rows found in this file. Please ensure there is a header row (Title, Description, Difficulty, Points) and at least one question.');
+          showToast('Empty File', 'No question rows found in file.', 'warning');
+          return;
+        }
+        await sendImportedQuestionsToServer(rows, token);
+      } catch (err) {
+        console.error('[CSV Import Error]', err);
+        alert('Failed to parse CSV file: ' + err.message);
+        showToast('Import Error', 'Failed to read CSV file.', 'error');
+      } finally {
+        event.target.value = '';
+      }
+    };
+    textReader.readAsText(file, 'UTF-8');
+    return;
+  }
+
+  // Binary Excel files (.xlsx, .xls)
   if (typeof XLSX === 'undefined') {
-    alert('Excel engine is still loading. Please wait a moment and try again.');
+    alert('Excel engine (SheetJS) is still loading from CDN. If it does not load, save your file as .csv and upload again or use the "Paste CSV" button.');
     event.target.value = '';
     return;
   }
@@ -2460,28 +2559,10 @@ async function handleExcelQuestionImport(event) {
         return;
       }
 
-      showToast('Importing...', `Processing ${validRows.length} question(s) from Excel file...`, 'info');
-
-      const res = await fetch('/api/admin/questions/import', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ questions: validRows })
-      });
-
-      const result = await res.json();
-      if (result.success) {
-        showToast('Questions Imported! 🚀', result.message, 'success');
-        await loadQuestionBank();
-      } else {
-        alert(`Excel Import Error:\n\n${result.message}`);
-        showToast('Import Failed', result.message, 'error');
-      }
+      await sendImportedQuestionsToServer(validRows, token);
     } catch (err) {
       console.error('[Excel Import Error]', err);
-      alert('Failed to parse Excel file. Please ensure it follows the downloaded template format.');
+      alert('Failed to parse Excel file. Please ensure it follows the downloaded template format or save as .csv.');
       showToast('Import Error', 'Failed to read Excel workbook.', 'error');
     } finally {
       event.target.value = '';
@@ -2489,6 +2570,130 @@ async function handleExcelQuestionImport(event) {
   };
   reader.readAsArrayBuffer(file);
 }
+
+async function sendImportedQuestionsToServer(validRows, token) {
+  showToast('Importing...', `Processing ${validRows.length} question(s)...`, 'info');
+
+  const res = await fetch('/api/admin/questions/import', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({ questions: validRows })
+  });
+
+  const result = await res.json();
+  if (result.success) {
+    showToast('Questions Imported! 🚀', result.message, 'success');
+    await loadQuestionBank();
+  } else {
+    alert(`Import Error:\n\n${result.message}`);
+    showToast('Import Failed', result.message, 'error');
+  }
+}
+
+// Paste CSV Modal Functions
+function openPasteCsvModal() {
+  if (checkWebsiteLockForSir()) return;
+  const modal = document.getElementById('pasteCsvModal');
+  if (!modal) return;
+  modal.classList.remove('hidden');
+  updatePasteCsvCount();
+  const textarea = document.getElementById('pasteCsvTextarea');
+  if (textarea) textarea.focus();
+}
+
+function closePasteCsvModal() {
+  const modal = document.getElementById('pasteCsvModal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function updatePasteCsvCount() {
+  const textarea = document.getElementById('pasteCsvTextarea');
+  const badge = document.getElementById('pasteCsvCountBadge');
+  if (!textarea || !badge) return;
+  const text = textarea.value.trim();
+  if (!text) {
+    badge.textContent = '0 Questions Detected';
+    badge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-400 border border-white/10';
+    return;
+  }
+  const rows = parseCSVTextToObjects(text);
+  badge.textContent = `${rows.length} Question(s) Detected`;
+  badge.className = rows.length > 0 
+    ? 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+    : 'px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30';
+}
+
+const SAMPLE_18_CSV = `Title,Description,Difficulty,Points,Languages,Sample Input,Sample Output
+Reverse an Array,"Given N integers, print them in reverse order separated by spaces.",Easy,10,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",1 2 3 4 5,5 4 3 2 1
+Sum of Two Numbers,Read two integers and print their sum.,Easy,10,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",12 30,42
+Even or Odd,"Given an integer N, print 'Even' if it is even, otherwise print 'Odd'.",Easy,10,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",7,Odd
+Largest of Three Numbers,"Given three integers, print the largest one.",Easy,10,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",15 42 8,42
+Factorial of a Number,"Given a non-negative integer N (N <= 12), print N! (N factorial).",Easy,10,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",5,120
+Count Vowels in a String,"Given a string, count and print the number of vowels (a, e, i, o, u, case-insensitive).",Easy,10,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",Hello World,3
+Palindrome Check,"Given a string, print 'Yes' if it reads the same forwards and backwards (ignore case), otherwise print 'No'.",Medium,20,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",Level,Yes
+Fibonacci Series,"Given N, print the first N Fibonacci numbers starting from 0, separated by spaces.",Medium,20,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",7,0 1 1 2 3 5 8
+Prime Numbers in a Range,"Given two integers L and R, print all prime numbers between L and R (inclusive) separated by spaces.",Medium,20,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",10 30,11 13 17 19 23 29
+Second Largest Element,"Given N integers, print the second largest distinct element. If it does not exist, print -1.",Medium,20,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",5 9 2 9 7,7
+Anagram Check,"Given two strings, print 'Yes' if they are anagrams of each other (ignore case and spaces), otherwise print 'No'.",Medium,20,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",Listen Silent,Yes
+Matrix Transpose,"Given an R x C matrix, print its transpose. Input: R and C on the first line, followed by the matrix rows.",Medium,20,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP","2 3
+1 2 3
+4 5 6","1 4
+2 5
+3 6"
+Longest Common Subsequence,"Given two strings A and B, print the length of their longest common subsequence.",Hard,30,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",AGGTAB GXTXAYB,4
+Valid Parentheses Checker,"Given a string containing only the characters ()[]{}, print 'Valid' if every bracket is closed in the correct order, otherwise print 'Invalid'.",Hard,30,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",{[()]},Valid
+0/1 Knapsack Problem,"Given N items with weights and values and a knapsack capacity W, print the maximum total value that fits. Input: N and W on the first line, then weights, then values.",Hard,30,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP","3 50
+10 20 30
+60 100 120",220
+Shortest Path in a Grid,"Given an N x M grid of 0 (open) and 1 (blocked), print the minimum steps from the top-left to the bottom-right moving in 4 directions. Print -1 if unreachable.",Hard,30,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP","3 3
+0 0 0
+1 1 0
+0 0 0",4
+Longest Increasing Subsequence,"Given N integers, print the length of the longest strictly increasing subsequence. Aim for O(N log N).",Hard,30,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",10 9 2 5 3 7 101 18,4
+N-Queens Count,"Given N, print the number of distinct ways to place N queens on an N x N chessboard so that none attack each other.",Hard,30,"C, C++, Java, Python, HTML, JavaScript, Dart, PHP",6,4`;
+
+function fillSampleCsvTemplate() {
+  const textarea = document.getElementById('pasteCsvTextarea');
+  if (textarea) {
+    textarea.value = SAMPLE_18_CSV;
+    updatePasteCsvCount();
+  }
+}
+
+async function submitPasteCsvImport() {
+  if (checkWebsiteLockForSir()) return;
+  const textarea = document.getElementById('pasteCsvTextarea');
+  if (!textarea) return;
+  const text = textarea.value.trim();
+  if (!text) {
+    alert('Please paste CSV or text content first.');
+    return;
+  }
+  const token = sessionStorage.getItem('sirToken');
+  if (!token) {
+    showToast('Unauthorized', 'Please login to Sir Desk first.', 'error');
+    return;
+  }
+
+  const rows = parseCSVTextToObjects(text);
+  if (rows.length === 0) {
+    alert('Could not detect any valid question rows. Please make sure the first line has column headers (e.g. Title, Description, Difficulty, Points).');
+    return;
+  }
+
+  closePasteCsvModal();
+  await sendImportedQuestionsToServer(rows, token);
+}
+
+window.openPasteCsvModal = openPasteCsvModal;
+window.closePasteCsvModal = closePasteCsvModal;
+window.updatePasteCsvCount = updatePasteCsvCount;
+window.fillSampleCsvTemplate = fillSampleCsvTemplate;
+window.submitPasteCsvImport = submitPasteCsvImport;
+
 
 function toggleAllNewQLanguages() {
   const checkboxes = document.querySelectorAll('input[name="newQLangCheckbox"]');

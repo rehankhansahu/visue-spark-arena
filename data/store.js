@@ -1286,6 +1286,74 @@ const store = {
     return existing;
   },
 
+  parseCSVTextToObjects(text) {
+    if (!text || typeof text !== 'string') return [];
+    text = text.replace(/^\uFEFF/, '').trim();
+    if (!text) return [];
+
+    const rows = [];
+    let row = [];
+    let field = '';
+    let inQuotes = false;
+    
+    // Auto-detect delimiter if first line has tabs or semicolons
+    const firstLine = text.split(/\r?\n/)[0] || '';
+    let delimiter = ',';
+    if (!firstLine.includes(',') && firstLine.includes('\t')) delimiter = '\t';
+    else if (!firstLine.includes(',') && firstLine.includes(';')) delimiter = ';';
+
+    for (let i = 0; i < text.length; i++) {
+      const char = text[i];
+      const next = text[i + 1];
+      
+      if (inQuotes) {
+        if (char === '"' && next === '"') {
+          field += '"';
+          i++;
+        } else if (char === '"') {
+          inQuotes = false;
+        } else {
+          field += char;
+        }
+      } else {
+        if (char === '"') {
+          inQuotes = true;
+        } else if (char === delimiter) {
+          row.push(field.trim());
+          field = '';
+        } else if (char === '\r') {
+          // ignore CR
+        } else if (char === '\n') {
+          row.push(field.trim());
+          field = '';
+          if (row.length > 0 && row.some(c => c !== '')) rows.push(row);
+          row = [];
+        } else {
+          field += char;
+        }
+      }
+    }
+    if (field.length > 0 || row.length > 0) {
+      row.push(field.trim());
+      if (row.some(c => c !== '')) rows.push(row);
+    }
+    
+    if (rows.length < 2) return [];
+    const headers = rows[0].map(h => h.trim());
+    const objects = [];
+    for (let r = 1; r < rows.length; r++) {
+      const rData = rows[r];
+      const obj = {};
+      for (let c = 0; c < headers.length; c++) {
+        obj[headers[c]] = rData[c] !== undefined ? rData[c] : '';
+      }
+      if (Object.values(obj).some(v => v !== '')) {
+        objects.push(obj);
+      }
+    }
+    return objects;
+  },
+
   bulkImportQuestions(importedList) {
     if (!Array.isArray(importedList) || importedList.length === 0) {
       throw new Error('Imported data must contain at least one question row.');

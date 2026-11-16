@@ -1246,7 +1246,7 @@
             
             <div class="flex items-center gap-2 flex-wrap">
               <!-- Excel Template Download & Import Controls -->
-              <input type="file" id="excelQuestionFileInput" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleExcelQuestionImport(event)">
+              <input type="file" id="excelQuestionFileInput" accept=".xlsx, .xls, .csv, .tsv, .txt" class="hidden" onchange="handleExcelQuestionImport(event)">
 
               <button 
                 type="button"
@@ -1261,9 +1261,18 @@
                 type="button"
                 onclick="document.getElementById('excelQuestionFileInput').click()" 
                 class="btn-cyber px-3 py-1.5 rounded-lg text-xs font-bold text-amber-300 bg-amber-950/60 border border-amber-500/40 hover:bg-amber-900/50 transition flex items-center gap-1.5 shadow-sm"
-                title="Import Questions from Excel File">
+                title="Import Questions from Excel or CSV File">
                 <span>📤</span>
-                <span>Import Excel</span>
+                <span>Import File</span>
+              </button>
+
+              <button 
+                type="button"
+                onclick="openPasteCsvModal()" 
+                class="btn-cyber px-3 py-1.5 rounded-lg text-xs font-bold text-sky-300 bg-sky-950/60 border border-sky-500/40 hover:bg-sky-900/50 transition flex items-center gap-1.5 shadow-sm"
+                title="Paste CSV text directly to import questions into Question Bank">
+                <span>📋</span>
+                <span>Paste CSV</span>
               </button>
 
               <button 
@@ -1860,6 +1869,53 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Modal: Paste CSV / Quick Bulk Import -->
+  <div id="pasteCsvModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+    <div class="glass-panel rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-4 sm:p-5 border border-white/15 shadow-2xl space-y-3">
+      <div class="flex items-center justify-between border-b border-white/10 pb-2">
+        <h3 class="text-sm font-bold text-white flex items-center gap-1.5">
+          <span>📋</span>
+          <span>Paste CSV / Text to Question Bank</span>
+        </h3>
+        <button type="button" onclick="closePasteCsvModal()" class="text-slate-400 hover:text-white text-base px-1 leading-none">&times;</button>
+      </div>
+
+      <div class="space-y-2">
+        <div class="flex items-center justify-between text-[11px] font-mono text-slate-400">
+          <span>Paste raw CSV or Tab-separated text below:</span>
+          <span id="pasteCsvCountBadge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-400 border border-white/10">0 Questions Detected</span>
+        </div>
+        <textarea 
+          id="pasteCsvTextarea" 
+          rows="12" 
+          placeholder="Title,Description,Difficulty,Points,Languages,Sample Input,Sample Output&#10;Reverse an Array,&quot;Given N integers...&quot;,Easy,10,&quot;C, C++, Java, Python&quot;,1 2 3,3 2 1"
+          oninput="updatePasteCsvCount()"
+          class="w-full bg-slate-900 border border-white/10 text-slate-200 text-xs font-mono rounded-lg p-3 focus:outline-none focus:border-cyan-500 transition leading-relaxed"></textarea>
+        <p class="text-[10px] text-slate-400 font-mono">
+          💡 Header row is auto-detected. Supports quotes, newlines, commas, semicolons, and tabs.
+        </p>
+      </div>
+
+      <div class="pt-2 flex items-center justify-between border-t border-white/10 flex-wrap gap-2">
+        <button 
+          type="button" 
+          onclick="fillSampleCsvTemplate()" 
+          class="px-3 py-1.5 rounded-lg text-xs font-mono text-amber-300 bg-amber-950/50 hover:bg-amber-900/50 border border-amber-500/30 transition">
+          📄 Load 18-Question Template
+        </button>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="closePasteCsvModal()" class="px-3.5 py-1.5 rounded-lg text-xs font-mono text-slate-300 bg-slate-800 hover:bg-slate-700 transition">Cancel</button>
+          <button 
+            type="button" 
+            onclick="submitPasteCsvImport()" 
+            class="btn-cyber px-4 py-1.5 rounded-lg text-xs font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 transition shadow">
+            🚀 Import Questions into Bank
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
