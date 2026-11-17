@@ -7,9 +7,33 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
+const fs = require('fs');
+const path = require('path');
 const store = require('../data/store');
 const { JWT_SECRET } = require('../middleware/auth');
 const { validateLogin } = require('../middleware/validator');
+
+const DEFAULT_TEACHER_PIC = '/img/dr_rashid.svg';
+
+function persistCustomTeacherPic(pic) {
+  if (!pic || typeof pic !== 'string') return pic;
+  if (pic.includes('534528741775')) return DEFAULT_TEACHER_PIC;
+  if (pic.startsWith('data:image/')) {
+    try {
+      const matches = pic.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+      if (matches && matches.length === 3) {
+        const buffer = Buffer.from(matches[2], 'base64');
+        const imgDir = path.join(__dirname, '..', 'public', 'img');
+        if (!fs.existsSync(imgDir)) fs.mkdirSync(imgDir, { recursive: true });
+        const filePath = path.join(imgDir, 'dr_rashid_custom.jpg');
+        fs.writeFileSync(filePath, buffer);
+      }
+    } catch (e) {
+      console.warn('[Auth] Failed to write custom teacher image:', e.message);
+    }
+  }
+  return pic;
+}
 
 // Short, unique, and easy-to-type credentials (never shown in UI)
 const VALID_USERNAMES = [
@@ -46,9 +70,13 @@ router.post('/login', validateLogin, (req, res) => {
   // Always resolve authentic teacher record so custom photo and name are never lost
   const primaryTeacher = matchedTeacher || store.getTeacherByUsername(cleanUser) || store.getTeacherById('teacher-1') || store.getTeachers(true)[0];
   const teacherName = primaryTeacher ? primaryTeacher.name : 'Dr. Rashid Jahangir';
-  const teacherDept = primaryTeacher ? (primaryTeacher.department || 'Department of Computer Science') : 'Department of Computer Science';
+  const teacherDept = primaryTeacher ? (primaryTeacher.department || 'Department of Computer Science • CUI Vehari Campus') : 'Department of Computer Science • CUI Vehari Campus';
   const teacherDesignation = primaryTeacher ? (primaryTeacher.designation || 'Chief Evaluation Judge') : 'Chief Evaluation Judge';
-  const teacherPic = primaryTeacher ? (primaryTeacher.profilePic || null) : null;
+  let teacherPic = primaryTeacher ? (primaryTeacher.profilePic || null) : null;
+  if (!teacherPic || teacherPic.includes('534528741775')) {
+    teacherPic = DEFAULT_TEACHER_PIC;
+    if (primaryTeacher) primaryTeacher.profilePic = teacherPic;
+  }
 
   // Single-Judge Session Management:
   // Seamless takeover: If there was an active session from another tab or before browser restart,
@@ -130,15 +158,20 @@ router.get('/verify-auth', (req, res) => {
     }
 
     const teacher = store.getTeacherByUsername(decoded.username) || store.getTeacherById('teacher-1') || store.getTeachers(false)[0];
+    let resolvedPic = (teacher ? teacher.profilePic : decoded.profilePic) || DEFAULT_TEACHER_PIC;
+    if (resolvedPic.includes('534528741775')) {
+      resolvedPic = DEFAULT_TEACHER_PIC;
+    }
+
     return res.status(200).json({
       success: true,
       judge: {
         username: decoded.username,
         name: (teacher ? teacher.name : decoded.name) || 'Dr. Rashid Jahangir',
         role: decoded.role || 'judge',
-        department: (teacher ? teacher.department : decoded.department) || 'Department of Computer Science',
+        department: (teacher ? teacher.department : decoded.department) || 'Department of Computer Science • CUI Vehari Campus',
         designation: (teacher ? teacher.designation : decoded.designation) || 'Chief Evaluation Judge',
-        profilePic: (teacher ? teacher.profilePic : decoded.profilePic) || null
+        profilePic: resolvedPic
       }
     });
   } catch (err) {
@@ -160,8 +193,9 @@ router.post('/admin/profile', (req, res) => {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     const { name, designation, department, profilePic } = req.body || {};
+    const cleanPic = persistCustomTeacherPic(profilePic);
 
-    const updated = store.syncSirProfile({ name, designation, department, profilePic });
+    const updated = store.syncSirProfile({ name, designation, department, profilePic: cleanPic });
 
     const safeJudge = {
       username: decoded.username,
@@ -199,7 +233,8 @@ router.post('/admin/profile/sync', (req, res) => {
       return res.status(400).json({ success: false, message: 'No profile data provided for sync' });
     }
 
-    const updated = store.syncSirProfile({ name, designation, department, profilePic });
+    const cleanPic = persistCustomTeacherPic(profilePic);
+    const updated = store.syncSirProfile({ name, designation, department, profilePic: cleanPic });
     return res.status(200).json({
       success: true,
       message: 'Judge profile synchronized successfully!',

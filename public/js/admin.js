@@ -17,9 +17,35 @@ let questionMode = 'same';
 let currentResultsPublished = false;
 let currentContestTimer = null;
 
+const DEFAULT_SIR_AVATAR = '/img/dr_rashid.svg';
+
 function updateSirHeaderProfile(judge) {
   if (!judge) return;
-  currentJudge = { ...(currentJudge || {}), ...judge };
+
+  // Retrieve any persistent custom photo uploaded by Sir
+  let customPhoto = null;
+  try {
+    customPhoto = localStorage.getItem('vspark_sir_custom_avatar');
+  } catch (e) {}
+
+  let resolvedPic = judge.profilePic;
+
+  // Filter out any legacy Unsplash placeholder
+  if (resolvedPic && resolvedPic.includes('534528741775')) {
+    resolvedPic = null;
+  }
+
+  // If a custom photo exists on client, prioritize it over server default
+  if (customPhoto && (!resolvedPic || resolvedPic === DEFAULT_SIR_AVATAR)) {
+    resolvedPic = customPhoto;
+  }
+
+  if (!resolvedPic) {
+    resolvedPic = DEFAULT_SIR_AVATAR;
+  }
+
+  currentJudge = { ...(currentJudge || {}), ...judge, profilePic: resolvedPic };
+
   const judgeNameEl = document.getElementById('sirJudgeNameDisplay');
   const judgeHeaderEl = document.getElementById('sirJudgeNameDisplayHeader');
   const designationEl = document.getElementById('sirJudgeDesignationDisplay');
@@ -28,15 +54,11 @@ function updateSirHeaderProfile(judge) {
   if (judgeNameEl && judge.name) judgeNameEl.textContent = judge.name;
   if (judgeHeaderEl && judge.name) judgeHeaderEl.textContent = judge.name;
   if (designationEl && (judge.designation || judge.department)) {
-    designationEl.textContent = `${judge.designation || 'Chief Evaluation Judge'} • ${judge.department || 'Department of Computer Science'}`;
+    designationEl.textContent = `${judge.designation || 'Chief Evaluation Judge'} • ${judge.department || 'Department of Computer Science • CUI Vehari Campus'}`;
   }
 
   if (avatarContainer) {
-    if (judge.profilePic) {
-      avatarContainer.innerHTML = `<img src="${judge.profilePic}" alt="${judge.name || 'Judge'}" class="w-full h-full object-cover rounded-[14px]" onerror="this.onerror=null; this.parentElement.innerHTML='👨‍🏫';" />`;
-    } else {
-      avatarContainer.innerHTML = `<span id="sirJudgeAvatarIcon">👨‍🏫</span>`;
-    }
+    avatarContainer.innerHTML = `<img src="${resolvedPic}" alt="${judge.name || 'Judge'}" class="w-full h-full object-cover rounded-[14px]" onerror="this.onerror=null; this.src='${DEFAULT_SIR_AVATAR}';" />`;
   }
 
   // Permanent Client-side Persistence: Backup teacher data in localStorage
@@ -45,10 +67,13 @@ function updateSirHeaderProfile(judge) {
       username: judge.username || 'sir_visue',
       name: judge.name || 'Dr. Rashid Jahangir',
       designation: judge.designation || 'Chief Evaluation Judge',
-      department: judge.department || 'Department of Computer Science',
-      profilePic: judge.profilePic || null
+      department: judge.department || 'Department of Computer Science • CUI Vehari Campus',
+      profilePic: resolvedPic
     };
     localStorage.setItem('vspark_sir_profile', JSON.stringify(cached));
+    if (resolvedPic && resolvedPic !== DEFAULT_SIR_AVATAR) {
+      localStorage.setItem('vspark_sir_custom_avatar', resolvedPic);
+    }
   } catch (e) {}
 }
 window.updateSirHeaderProfile = updateSirHeaderProfile;
@@ -68,6 +93,11 @@ function openSirProfileModal() {
     } catch (e) {}
   }
 
+  let customPhoto = null;
+  try {
+    customPhoto = localStorage.getItem('vspark_sir_custom_avatar');
+  } catch (e) {}
+
   const nameInput = document.getElementById('sirProfileNameInput');
   const desigInput = document.getElementById('sirProfileDesignationInput');
   const deptInput = document.getElementById('sirProfileDeptInput');
@@ -78,12 +108,14 @@ function openSirProfileModal() {
 
   if (fileInput) fileInput.value = '';
 
-  const pic = (judge && judge.profilePic) ? judge.profilePic : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80';
+  let pic = customPhoto || (judge && judge.profilePic ? judge.profilePic : DEFAULT_SIR_AVATAR);
+  if (pic.includes('534528741775')) pic = DEFAULT_SIR_AVATAR;
+
   if (nameInput) nameInput.value = (judge && judge.name) ? judge.name : 'Dr. Rashid Jahangir';
   if (desigInput) desigInput.value = (judge && judge.designation) ? judge.designation : 'Chief Evaluation Judge';
   if (deptInput) deptInput.value = (judge && judge.department) ? judge.department : 'Department of Computer Science • CUI Vehari Campus';
   if (picInput) picInput.value = pic;
-  if (urlInput) urlInput.value = (pic && !pic.startsWith('data:')) ? pic : '';
+  if (urlInput) urlInput.value = (pic && !pic.startsWith('data:') && pic !== DEFAULT_SIR_AVATAR) ? pic : '';
 
   if (preview) {
     preview.src = pic;
@@ -114,7 +146,7 @@ function updateSirProfileModalPreviewFromUrl() {
 window.updateSirProfileModalPreviewFromUrl = updateSirProfileModalPreviewFromUrl;
 
 function resetSirProfilePic() {
-  const defaultPic = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80';
+  const defaultPic = DEFAULT_SIR_AVATAR;
   const picInput = document.getElementById('sirProfilePicInput');
   const urlInput = document.getElementById('sirProfileUrlInput');
   const preview = document.getElementById('sirProfilePicModalPreview');
@@ -123,6 +155,13 @@ function resetSirProfilePic() {
   if (picInput) picInput.value = defaultPic;
   if (urlInput) urlInput.value = defaultPic;
   if (preview) preview.src = defaultPic;
+  if (fileInput) fileInput.value = '';
+
+  try {
+    localStorage.removeItem('vspark_sir_custom_avatar');
+  } catch (e) {}
+}
+window.resetSirProfilePic = resetSirProfilePic;
   if (fileInput) fileInput.value = '';
 }
 window.resetSirProfilePic = resetSirProfilePic;
@@ -212,6 +251,12 @@ async function handleSaveSirProfile(event) {
     return;
   }
 
+  if (profilePic && profilePic !== DEFAULT_SIR_AVATAR) {
+    try {
+      localStorage.setItem('vspark_sir_custom_avatar', profilePic);
+    } catch (e) {}
+  }
+
   const payload = { name, designation, department, profilePic };
   const token = sessionStorage.getItem('vspark_sir_token') || sessionStorage.getItem('sirToken');
 
@@ -269,23 +314,35 @@ window.handleSaveSirProfile = handleSaveSirProfile;
 // Auto-restore cached teacher profile on script initialization so photo/name never disappear
 (function autoRestoreTeacherProfile() {
   try {
+    const customAvatar = localStorage.getItem('vspark_sir_custom_avatar');
     const cachedSir = localStorage.getItem('vspark_sir_profile');
+    let parsed = null;
     if (cachedSir) {
-      const parsed = JSON.parse(cachedSir);
-      if (parsed && (parsed.profilePic || parsed.name)) {
-        if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', () => {
-            updateSirHeaderProfile(parsed);
-          });
-        } else {
-          updateSirHeaderProfile(parsed);
-        }
+      try { parsed = JSON.parse(cachedSir); } catch(e) {}
+    }
+    if (parsed || customAvatar) {
+      const merged = {
+        name: (parsed && parsed.name) || 'Dr. Rashid Jahangir',
+        designation: (parsed && parsed.designation) || 'Chief Evaluation Judge',
+        department: (parsed && parsed.department) || 'Department of Computer Science • CUI Vehari Campus',
+        profilePic: customAvatar || (parsed && parsed.profilePic) || DEFAULT_SIR_AVATAR
+      };
+      if (merged.profilePic && merged.profilePic.includes('534528741775')) {
+        merged.profilePic = DEFAULT_SIR_AVATAR;
+      }
+      const apply = () => updateSirHeaderProfile(merged);
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', apply);
+      } else {
+        apply();
+      }
 
-        // Background auto-sync to server so server disk remains in sync
+      // Background auto-sync to server so server disk remains in sync
+      if (merged.profilePic && merged.profilePic !== DEFAULT_SIR_AVATAR) {
         fetch('/api/admin/profile/sync', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(parsed)
+          body: JSON.stringify(merged)
         }).catch(() => {});
       }
     }

@@ -107,7 +107,7 @@ const DEFAULT_TEACHER = {
   password: 'spark2026',
   designation: 'Chief Evaluation Judge',
   department: 'Department of Computer Science',
-  profilePic: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80',
+  profilePic: '/img/dr_rashid.svg',
   createdAt: new Date().toISOString()
 };
 
@@ -2363,7 +2363,11 @@ const store = {
     if (name && name.trim()) primary.name = name.trim();
     if (designation !== undefined && designation.trim()) primary.designation = designation.trim();
     if (department !== undefined && department.trim()) primary.department = department.trim();
-    if (profilePic !== undefined && profilePic.trim()) primary.profilePic = profilePic.trim();
+    if (profilePic !== undefined && profilePic.trim()) {
+      primary.profilePic = profilePic.trim().includes('534528741775') ? '/img/dr_rashid.svg' : profilePic.trim();
+    } else if (primary.profilePic && primary.profilePic.includes('534528741775')) {
+      primary.profilePic = '/img/dr_rashid.svg';
+    }
 
     saveTeachersToFile(teachers);
     return primary;
