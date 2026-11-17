@@ -162,9 +162,6 @@ function resetSirProfilePic() {
   } catch (e) {}
 }
 window.resetSirProfilePic = resetSirProfilePic;
-  if (fileInput) fileInput.value = '';
-}
-window.resetSirProfilePic = resetSirProfilePic;
 
 function handleSirProfilePicUpload(event) {
   const file = event.target.files && event.target.files[0];
