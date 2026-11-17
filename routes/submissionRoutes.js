@@ -1339,6 +1339,9 @@ router.post('/admin/assign-team-question', verifySirToken, ensureWebsiteNotLocke
 router.post('/admin/publish-results', verifySirToken, ensureWebsiteNotLocked, (req, res) => {
   try {
     store.publishResults();
+    // Auto-save competition snapshot to History immediately when Sir publishes results!
+    const snapshot = store.saveCurrentCompetitionSnapshot(null, null, true);
+
     const fullLeaderboard = store.getLeaderboard(true);
     const io = req.app.get('io');
     if (io) {
@@ -1351,10 +1354,13 @@ router.post('/admin/publish-results', verifySirToken, ensureWebsiteNotLocked, (r
         leaderboard: fullLeaderboard.leaderboard,
         event: 'RESULTS_PUBLISHED'
       });
+      io.emit('competitionsUpdated', {});
     }
     return res.status(200).json({
       success: true,
-      message: 'Official results and podium published successfully! Visible to all.',
+      message: 'Official results and podium published successfully! Contest saved to Competition History.',
+      snapshotSaved: Boolean(snapshot),
+      snapshotId: snapshot ? snapshot.id : null,
       leaderboard: fullLeaderboard.leaderboard
     });
   } catch (err) {

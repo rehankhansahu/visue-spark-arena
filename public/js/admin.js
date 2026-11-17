@@ -2950,6 +2950,9 @@ async function publishOfficialResults() {
       currentResultsPublished = true;
       showToast('Podium Published! 🏆', data.message, 'success');
       updateResultsPublishBadge(true);
+      if (typeof loadCompetitionHistory === 'function') {
+        loadCompetitionHistory();
+      }
       openResultsPublishedReportModal();
     } else {
       alert(`Cannot Publish Results:\n\n${data.message}`);

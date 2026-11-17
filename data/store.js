@@ -629,6 +629,18 @@ const store = {
   saveCurrentCompetitionSnapshot(customTitle = null, customDescription = null, force = false) {
     try {
       if (isCurrentContestSnapshotSaved && !force) {
+        const latest = competitionHistory[competitionHistory.length - 1];
+        if (latest) {
+          if (customTitle && customTitle.trim()) {
+            latest.title = customTitle.trim();
+            latest.arenaName = customTitle.trim();
+          }
+          if (customDescription !== null && customDescription !== undefined) {
+            latest.description = customDescription.trim();
+          }
+          saveCompetitionHistoryToFile(competitionHistory);
+          return latest;
+        }
         return null;
       }
 
@@ -679,6 +691,11 @@ const store = {
           });
         }
       });
+      if (includedQuestionsMap.size === 0) {
+        STANDARD_DEFAULT_CONTEST_PROBLEMS.forEach(q => {
+          includedQuestionsMap.set(q.id, JSON.parse(JSON.stringify(q)));
+        });
+      }
 
       const questionsSnapshot = Array.from(includedQuestionsMap.values());
 
