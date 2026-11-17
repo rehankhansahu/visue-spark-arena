@@ -28,12 +28,13 @@ document.addEventListener('DOMContentLoaded', () => {
     window.initSocketClient();
   }
 
-  // Restore Team from SessionStorage ONLY (closing the browser automatically logs out)
-  localStorage.removeItem('visue_team');
-  const savedTeam = sessionStorage.getItem('visue_team');
+  // Restore Team from SessionStorage or LocalStorage across browser closes
+  const savedTeam = sessionStorage.getItem('visue_team') || localStorage.getItem('vspark_saved_team') || localStorage.getItem('visue_team');
   if (savedTeam) {
     try {
       currentTeam = JSON.parse(savedTeam);
+      sessionStorage.setItem('visue_team', JSON.stringify(currentTeam));
+      localStorage.setItem('vspark_saved_team', JSON.stringify(currentTeam));
       updateNavbarStudentBadge();
       checkLiveTeamStatus(currentTeam.username || currentTeam.secretKey || currentTeam.passKey || currentTeam.id);
     } catch (e) {
@@ -727,6 +728,7 @@ function handleUnlinkTeam(promptConfirm = true) {
   currentTeam = null;
   sessionStorage.removeItem('visue_team');
   localStorage.removeItem('visue_team');
+  localStorage.removeItem('vspark_saved_team');
   updateNavbarStudentBadge();
   renderContestPassView();
   showToast('Session Cleared', 'Ready for new team registration or login.', 'info');
@@ -795,6 +797,7 @@ async function checkLiveTeamStatus(passKey) {
       currentTeam = null;
       sessionStorage.removeItem('visue_team');
       localStorage.removeItem('visue_team');
+      localStorage.removeItem('vspark_saved_team');
       updateNavbarStudentBadge();
       renderContestPassView();
       if (window.refreshArenaState) window.refreshArenaState();
@@ -806,11 +809,12 @@ function updateTeamProfile(team) {
   currentTeam = team;
   if (team) {
     sessionStorage.setItem('visue_team', JSON.stringify(team));
+    localStorage.setItem('vspark_saved_team', JSON.stringify(team));
   } else {
     sessionStorage.removeItem('visue_team');
+    localStorage.removeItem('vspark_saved_team');
+    localStorage.removeItem('visue_team');
   }
-  // Never persist in localStorage so closing browser acts as logout
-  localStorage.removeItem('visue_team');
   updateNavbarStudentBadge();
   updateStudentPCLockBadge();
   renderContestPassView();

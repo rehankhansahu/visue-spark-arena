@@ -113,6 +113,19 @@ function refreshArenaState() {
   const isTimerStarted = Boolean(timer && (timer.status === 'running' || timer.status === 'paused' || timer.status === 'ended'));
 
   const isEndedOrLeft = Boolean(currentTeam && (currentTeam.leftEarly || currentTeam.status === 'left_early' || currentTeam.isTimeUp || window.isContestTimeUp));
+  const isResultsPublished = Boolean(window.isResultsPublishedGlobally && window.isResultsPublishedGlobally());
+  const resultsCard = document.getElementById('arenaResultsAnnouncedCard');
+
+  if (isResultsPublished && currentTeam && (currentTeam.status === 'approved' || isEndedOrLeft)) {
+    // When results announced: arena empty ho jaye, show results announced card with Team Pass & Podium buttons
+    welcomeHero.classList.add('hidden');
+    if (lockedHero) lockedHero.classList.add('hidden');
+    arenaWorkspace.classList.add('hidden');
+    if (resultsCard) resultsCard.classList.remove('hidden');
+    return;
+  } else {
+    if (resultsCard) resultsCard.classList.add('hidden');
+  }
 
   if (currentTeam && (currentTeam.status === 'approved' || isEndedOrLeft)) {
     if (isEndedOrLeft || (hasFullBudget && isTimerStarted)) {
@@ -1219,6 +1232,7 @@ function showPodiumButtonInArena() {
   const waitBadge = document.getElementById('resultsWaitBadge');
   if (btnContainer) btnContainer.classList.remove('hidden');
   if (waitBadge) waitBadge.classList.add('hidden');
+  refreshArenaState();
 }
 
 function hidePodiumButtonInArena() {
@@ -1226,6 +1240,7 @@ function hidePodiumButtonInArena() {
   const waitBadge = document.getElementById('resultsWaitBadge');
   if (btnContainer) btnContainer.classList.add('hidden');
   if (waitBadge) waitBadge.classList.remove('hidden');
+  refreshArenaState();
 }
 
 async function autoSubmitOnTimeUp() {

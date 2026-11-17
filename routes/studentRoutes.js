@@ -274,12 +274,31 @@ router.post('/team/pc-heartbeat', (req, res) => {
     }
 
     const timer = store.getContestTimer();
+    const assignedProblems = store.getProblemsForTeam(team.id);
+    const allSolved = assignedProblems.length > 0 && assignedProblems.every(p => (team.solvedProblems || []).includes(p.id));
+    const isCompleted = Boolean(team.isCompleted || allSolved);
+    const hasLeftEarly = Boolean(team.leftEarly || team.status === 'left_early');
+    const isTimerExpired = Boolean(timer?.status === 'ended' || (timer?.remainingSeconds !== undefined && timer?.remainingSeconds <= 0 && timer?.status !== 'not_started'));
+    const shouldUnlock = Boolean(hasLeftEarly || isCompleted || isTimerExpired);
+
+    let unlockReason = '';
+    if (hasLeftEarly) {
+      unlockReason = 'You Left the Contest (Session Closed)';
+    } else if (isCompleted) {
+      unlockReason = 'All Challenges Completed! Congratulations!';
+    } else if (isTimerExpired) {
+      unlockReason = 'Contest Time Up (Timer Ended)';
+    }
 
     return res.status(200).json({
       success: true,
       contestStatus: timer ? timer.status : 'not_started',
       remainingSeconds: timer ? timer.remainingSeconds : null,
-      leftArena: Boolean(team.leftEarly || team.status === 'left_early'),
+      leftArena: hasLeftEarly,
+      isCompleted: isCompleted,
+      allSolved: allSolved,
+      shouldUnlock: shouldUnlock,
+      unlockReason: unlockReason,
       teamStatus: team.status
     });
   } catch (err) {

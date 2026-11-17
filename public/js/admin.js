@@ -433,7 +433,7 @@ window.applySirLockState = applySirLockState;
 
 // 1. Check Sir Authentication
 async function checkSirAuth() {
-  const token = sessionStorage.getItem('sirToken');
+  const token = sessionStorage.getItem('sirToken') || localStorage.getItem('vspark_sir_token');
   const loginGate = document.getElementById('sirLoginGate');
   const dashboard = document.getElementById('sirDashboard');
 
@@ -450,6 +450,8 @@ async function checkSirAuth() {
     const data = await res.json();
 
     if (data.success) {
+      sessionStorage.setItem('sirToken', token);
+      localStorage.setItem('vspark_sir_token', token);
       currentJudge = data.judge;
       updateSirHeaderProfile(data.judge);
       if (loginGate) loginGate.classList.add('hidden');
@@ -463,6 +465,7 @@ async function checkSirAuth() {
       return true;
     } else {
       sessionStorage.removeItem('sirToken');
+      localStorage.removeItem('vspark_sir_token');
       if (loginGate) loginGate.classList.remove('hidden');
       if (dashboard) dashboard.classList.add('hidden');
       return false;
@@ -518,6 +521,7 @@ async function performSirLogin(username, password, forceUnlock = false) {
     if (data.success) {
       sessionStorage.setItem('sirToken', data.token);
       sessionStorage.setItem('vspark_sir_token', data.token);
+      localStorage.setItem('vspark_sir_token', data.token);
       currentJudge = data.judge;
       updateSirHeaderProfile(data.judge);
       showToast('Authenticated 🔓', data.message, 'success');
@@ -581,6 +585,8 @@ async function handleSirLogout() {
     }
   }
   sessionStorage.removeItem('sirToken');
+  sessionStorage.removeItem('vspark_sir_token');
+  localStorage.removeItem('vspark_sir_token');
   currentJudge = null;
   const loginGate = document.getElementById('sirLoginGate');
   const dashboard = document.getElementById('sirDashboard');

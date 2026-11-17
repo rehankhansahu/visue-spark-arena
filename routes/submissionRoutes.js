@@ -140,11 +140,15 @@ router.post('/submit', ensureWebsiteNotLocked, validateSubmit, (req, res) => {
         });
 
         if (allApprovedFinished) {
-          const pausedTimer = store.pauseTimer();
-          io.emit('timerStatusChange', { timer: pausedTimer });
+          const endedTimer = store.endTimer();
+          io.emit('timerStatusChange', { timer: endedTimer });
+          io.emit('timerEnded', {
+            reason: 'All approved teams have completed their challenges!',
+            timer: endedTimer
+          });
           io.emit('allTeamsFinished', {
             message: 'All approved teams have completed their challenges! Contest clock stopped.',
-            timer: pausedTimer
+            timer: endedTimer
           });
         }
       }
@@ -229,6 +233,27 @@ router.post('/leave-contest', ensureWebsiteNotLocked, (req, res) => {
         event: 'TEAM_LEFT_EARLY',
         team: result.team
       });
+
+      // Check if all approved teams have finished or left early
+      const approved = store.getApprovedTeams();
+      const allApprovedFinished = approved.length > 0 && approved.every(t => {
+        const tProbs = store.getProblemsForTeam(t.id);
+        const solved = (t.solvedProblems && tProbs.length > 0 && tProbs.every(p => t.solvedProblems.includes(p.id)));
+        return solved || t.leftEarly || t.isCompleted;
+      });
+
+      if (allApprovedFinished) {
+        const endedTimer = store.endTimer();
+        io.emit('timerStatusChange', { timer: endedTimer });
+        io.emit('timerEnded', {
+          reason: 'All approved teams have completed their challenges or left early.',
+          timer: endedTimer
+        });
+        io.emit('allTeamsFinished', {
+          message: 'All approved teams have completed their challenges or left early! Contest timer has ended.',
+          timer: endedTimer
+        });
+      }
     }
 
     return res.status(200).json({

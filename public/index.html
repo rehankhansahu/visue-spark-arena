@@ -296,6 +296,40 @@
         </div>
       </div>
 
+      <!-- STATE D: ARENA RESULTS ANNOUNCED (Empties question workspace when Sir publishes official results) -->
+      <div id="arenaResultsAnnouncedCard" class="hidden max-w-lg mx-auto my-auto glass-panel rounded-2xl p-6 sm:p-8 text-center space-y-4 border border-amber-500/40 bg-gradient-to-b from-slate-900/90 via-slate-950/95 to-slate-900/90 shadow-2xl">
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-300 p-[2px] mx-auto shadow-xl shadow-amber-500/25 flex items-center justify-center text-3xl">
+          🏆
+        </div>
+        <div class="space-y-1.5">
+          <span class="px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
+            CONTEST CONCLUDED • RESULTS ANNOUNCED
+          </span>
+          <h2 class="text-2xl font-black text-white tracking-tight">Official Standings Announced!</h2>
+          <p class="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
+            The Chief Evaluation Judge has evaluated all solutions and announced the official competition standings. Questions have been archived. You can inspect your final score on your Team Pass or celebrate on the Podium!
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+          <button 
+            type="button" 
+            onclick="switchView('pass')" 
+            class="btn-cyber w-full py-2.5 rounded-xl text-xs font-mono font-bold bg-slate-900 hover:bg-slate-800 text-slate-200 border border-white/10 hover:border-amber-500/40 transition flex items-center justify-center gap-2 shadow-md">
+            <span>🎫</span>
+            <span>View Team Pass</span>
+          </button>
+          <button 
+            type="button" 
+            onclick="switchView('leaderboard')" 
+            class="btn-cyber w-full py-2.5 rounded-xl text-xs font-black uppercase text-slate-950 bg-gradient-to-r from-amber-400 to-yellow-300 hover:from-amber-300 hover:to-yellow-200 glow-amber transition flex items-center justify-center gap-2 shadow-xl shadow-amber-500/20">
+            <span>🏆</span>
+            <span>View Podium</span>
+            <span>→</span>
+          </button>
+        </div>
+      </div>
+
       <!-- STATE C: ARENA WORKSPACE (Active once team is approved AND 60 pts questions are assigned) -->
       <div id="arenaWorkspace" class="hidden flex-1 flex flex-col gap-2 min-h-0 overflow-hidden h-full">
         

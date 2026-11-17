@@ -451,6 +451,13 @@ const store = {
     return this.getContestTimer();
   },
 
+  endTimer() {
+    timerStatus = 'ended';
+    elapsedBeforePause = totalDurationSeconds;
+    timerStartTime = null;
+    return this.getContestTimer();
+  },
+
   resetTimer() {
     timerStatus = 'not_started';
     timerStartTime = null;
@@ -1799,6 +1806,7 @@ const store = {
     const allChallengesSolved = assignedProblems.length > 0 && assignedProblems.every(p => team.solvedProblems.includes(p.id));
     if (allChallengesSolved && !team.isCompleted) {
       team.isCompleted = true;
+      team.pcLockStatus = 'unlocked';
       team.finishedAt = new Date().toISOString();
 
       let elapsedSeconds = this.getCurrentContestElapsedSeconds();
@@ -1950,6 +1958,7 @@ const store = {
     team.leftEarly = !isTimeUp;
     team.isTimeUp = Boolean(isTimeUp);
     team.status = 'left_early';
+    team.pcLockStatus = 'unlocked';
     team.leftAt = new Date().toISOString();
     let elapsedSeconds = this.getCurrentContestElapsedSeconds();
     if (elapsedSeconds <= 0) {
