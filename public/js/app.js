@@ -251,6 +251,11 @@ function handleTimerStateUpdate(timer) {
   if (timerInterval) clearInterval(timerInterval);
   updateRegistrationLockUI(timer);
 
+  // If timer is running or paused, contest is active; official results are NOT published!
+  if (timer && (timer.status === 'running' || timer.status === 'paused' || timer.status === 'not_started')) {
+    isOfficialResultsPublished = false;
+  }
+
   const timerContainer = document.getElementById('navbarTimerContainer');
   const timerBadge = document.getElementById('timerStateBadge');
   const timerIcon = document.getElementById('timerIcon');
@@ -1529,6 +1534,9 @@ window.getCurrentTeam = getCurrentTeam;
 window.setCurrentTeam = setCurrentTeam;
 window.updateTeamProfile = updateTeamProfile;
 window.isResultsPublishedGlobally = isResultsPublishedGlobally;
+window.setOfficialResultsPublished = function(val) {
+  isOfficialResultsPublished = Boolean(val);
+};
 window.renderLeaderboard = renderLeaderboard;
 window.handleLeaderboardSearch = handleLeaderboardSearch;
 window.handlePassKeyRestore = handlePassKeyRestore;

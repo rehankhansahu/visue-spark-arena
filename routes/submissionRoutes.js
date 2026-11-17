@@ -477,6 +477,8 @@ router.post('/admin/timer/start', verifySirToken, ensureWebsiteNotLocked, (req, 
     const io = req.app.get('io');
     if (io) {
       io.emit('timerStatusChange', { timer });
+      io.emit('resultsUnpublished', { published: false });
+      io.emit('resultsPublished', { published: false });
       io.emit('questionsUpdated', {});
       io.emit('teamsUpdated', {});
     }

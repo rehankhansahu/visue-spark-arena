@@ -117,6 +117,7 @@ function refreshArenaState() {
 
   const timer = window.timerData;
   const isTimerStarted = Boolean(timer && (timer.status === 'running' || timer.status === 'paused' || timer.status === 'ended'));
+  const isTimerRunning = Boolean(timer && (timer.status === 'running' || timer.status === 'paused'));
 
   const isEndedOrLeft = Boolean(currentTeam && (currentTeam.leftEarly || currentTeam.status === 'left_early' || currentTeam.isTimeUp || window.isContestTimeUp));
   const isResultsPublished = Boolean(window.isResultsPublishedGlobally && window.isResultsPublishedGlobally());
@@ -125,7 +126,8 @@ function refreshArenaState() {
   const isSir = Boolean(sessionStorage.getItem('sirToken') || localStorage.getItem('vspark_sir_token') || (window.isSirLoggedIn && window.isSirLoggedIn()));
   const isApprovedTeam = Boolean(currentTeam && (currentTeam.status === 'approved'));
 
-  if (isResultsPublished && (isApprovedTeam || isEndedOrLeft || isSir)) {
+  // Results Announced card MUST ONLY show if results are officially published AND contest timer is NOT actively running!
+  if (isResultsPublished && !isTimerRunning && (isApprovedTeam || isEndedOrLeft || isSir)) {
     // When results announced: arena empty ho jaye, show results announced card with Team Pass & Podium buttons
     welcomeHero.classList.add('hidden');
     if (lockedHero) lockedHero.classList.add('hidden');

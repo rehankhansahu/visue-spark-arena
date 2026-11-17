@@ -575,6 +575,7 @@ const store = {
     if (timerStatus === 'running') return this.getContestTimer();
     hasContestEverStarted = true;
     isCurrentContestSnapshotSaved = false;
+    resultsPublished = false; // Results are strictly not published while contest is active!
     timerStartTime = Date.now();
     timerStatus = 'running';
     return this.getContestTimer();
@@ -1788,8 +1789,8 @@ const store = {
     team.status = 'approved';
     team.approvedAt = new Date().toISOString();
 
-    // Standings are automatically live & visible when teams are approved
-    resultsPublished = true;
+    // Results are NOT published upon team approval; published only when Sir officially announces them!
+    resultsPublished = false;
 
     // Automatically ensure team has 60 points of assigned questions matching their registered language
     if (!teamSpecificQuestions.has(teamId)) {
