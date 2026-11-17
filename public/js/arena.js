@@ -37,7 +37,7 @@ function removeTeamStorageItem(baseKey) {
 // 1. Fetch Contest Problems from API (Easy 10pts, Medium 20pts, Hard 30pts)
 async function loadProblems() {
   try {
-    if (!window.timerData) {
+    if (!window.timerData || window.timerData.status === 'not_started') {
       try {
         const tRes = await fetch('/api/timer');
         const tData = await tRes.json();
@@ -52,7 +52,7 @@ async function loadProblems() {
     const res = await fetch(`/api/problems${teamParam}`);
     const data = await res.json();
 
-    if (data.success && data.problems.length > 0) {
+    if (data.success && data.problems && data.problems.length > 0) {
       function getDiffRank(p) {
         const d = (p.difficulty || '').toLowerCase();
         const pts = parseInt(p.points, 10) || 0;
@@ -69,6 +69,7 @@ async function loadProblems() {
       });
       contestProblems.forEach((p, idx) => {
         p.slotNumber = idx + 1;
+        p.points = parseInt(p.points, 10) || (p.difficulty === 'Easy' ? 10 : (p.difficulty === 'Medium' ? 20 : 30));
       });
 
       // Automatically sync code editor language to the student's chosen language at registration!
@@ -77,7 +78,11 @@ async function loadProblems() {
       }
 
       renderProblemTabs();
-      selectProblem(contestProblems[0].id);
+      if (!activeProblem || !contestProblems.some(p => p.id === activeProblem.id)) {
+        selectProblem(contestProblems[0].id);
+      } else {
+        selectProblem(activeProblem.id);
+      }
       refreshArenaState();
     } else {
       contestProblems = [];
@@ -106,8 +111,9 @@ function refreshArenaState() {
 
   if (!welcomeHero || !arenaWorkspace) return;
 
-  const totalPoints = (contestProblems || []).reduce((sum, p) => sum + (p.points || 0), 0);
-  const hasFullBudget = Boolean(contestProblems && contestProblems.length > 0 && totalPoints === 60);
+  const totalPoints = (contestProblems || []).reduce((sum, p) => sum + (parseInt(p.points, 10) || 0), 0);
+  const hasProblems = Boolean(contestProblems && contestProblems.length > 0);
+  const hasFullBudget = Boolean(hasProblems && totalPoints === 60);
 
   const timer = window.timerData;
   const isTimerStarted = Boolean(timer && (timer.status === 'running' || timer.status === 'paused' || timer.status === 'ended'));
@@ -116,7 +122,10 @@ function refreshArenaState() {
   const isResultsPublished = Boolean(window.isResultsPublishedGlobally && window.isResultsPublishedGlobally());
   const resultsCard = document.getElementById('arenaResultsAnnouncedCard');
 
-  if (isResultsPublished && currentTeam && (currentTeam.status === 'approved' || isEndedOrLeft)) {
+  const isSir = Boolean(sessionStorage.getItem('sirToken') || localStorage.getItem('vspark_sir_token') || (window.isSirLoggedIn && window.isSirLoggedIn()));
+  const isApprovedTeam = Boolean(currentTeam && (currentTeam.status === 'approved'));
+
+  if (isResultsPublished && (isApprovedTeam || isEndedOrLeft || isSir)) {
     // When results announced: arena empty ho jaye, show results announced card with Team Pass & Podium buttons
     welcomeHero.classList.add('hidden');
     if (lockedHero) lockedHero.classList.add('hidden');
@@ -127,19 +136,34 @@ function refreshArenaState() {
     if (resultsCard) resultsCard.classList.add('hidden');
   }
 
-  if (currentTeam && (currentTeam.status === 'approved' || isEndedOrLeft)) {
-    if (isEndedOrLeft || (hasFullBudget && isTimerStarted)) {
-      // Both approved AND 60 points of questions assigned AND Sir has started the timer (or read-only review mode after time/exit)!
+  // Sir / Judge previewing Arena: always show workspace if problems exist!
+  if (isSir && hasProblems) {
+    welcomeHero.classList.add('hidden');
+    if (lockedHero) lockedHero.classList.add('hidden');
+    arenaWorkspace.classList.remove('hidden');
+    return;
+  }
+
+  if (isApprovedTeam || isEndedOrLeft) {
+    // UNLOCK ARENA WORKSPACE if:
+    // 1. Contest timer has started and problems exist (LIVE CONTEST IS RUNNING!)
+    // 2. Or contest ended / team left early (Read-only review mode)
+    // 3. Or full budget and timer started
+    if (isEndedOrLeft || (isTimerStarted && hasProblems) || (hasFullBudget && isTimerStarted)) {
       welcomeHero.classList.add('hidden');
       if (lockedHero) lockedHero.classList.add('hidden');
       arenaWorkspace.classList.remove('hidden');
     } else {
-      // Approved, but either Sir hasn't started timer yet OR budget isn't 60 pts -> Arena Locked!
+      // Approved, but Sir hasn't started timer yet -> Show Arena Locked Hero
       welcomeHero.classList.add('hidden');
       arenaWorkspace.classList.add('hidden');
       if (lockedHero) {
         lockedHero.classList.remove('hidden');
         updateArenaLockedHeroSlots(hasFullBudget, isTimerStarted, totalPoints);
+      }
+      // If timer is running but problems aren't in memory yet, immediately load problems
+      if (isTimerStarted && !hasProblems && window.loadProblems) {
+        window.loadProblems();
       }
     }
   } else {

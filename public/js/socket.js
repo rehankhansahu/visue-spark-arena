@@ -41,23 +41,28 @@ function initSocketClient() {
     });
 
     // Contest Timer Status Change (Start, Pause, Reset by Sir)
-    socket.on('timerStatusChange', (data) => {
+    socket.on('timerStatusChange', async (data) => {
       console.log('[Socket.IO] Timer status changed:', data);
-      if (window.handleTimerStateUpdate && data.timer) {
-        window.handleTimerStateUpdate(data.timer);
+      if (data && data.timer) {
+        window.timerData = data.timer;
+        if (window.handleTimerStateUpdate) {
+          window.handleTimerStateUpdate(data.timer);
+        }
       }
       if (window.loadProblems) {
-        window.loadProblems();
+        await window.loadProblems();
       }
       if (window.refreshArenaState) {
         window.refreshArenaState();
       }
-      if (data.timer.status === 'running') {
-        showToast('⏳ Contest Started!', 'The 90-minute countdown is now running.', 'info');
-      } else if (data.timer.status === 'paused') {
-        showToast('⏸️ Timer Paused', 'Contest timer has been paused by Sir/Judge.', 'warning');
-      } else if (data.timer.status === 'not_started') {
-        showToast('🔄 Timer Reset', 'Contest timer has been reset by Sir/Judge.', 'info');
+      if (data && data.timer) {
+        if (data.timer.status === 'running') {
+          showToast('⏳ Contest Started!', 'The contest countdown is now running. Good luck!', 'info');
+        } else if (data.timer.status === 'paused') {
+          showToast('⏸️ Timer Paused', 'Contest timer has been paused by Sir/Judge.', 'warning');
+        } else if (data.timer.status === 'not_started') {
+          showToast('🔄 Timer Reset', 'Contest timer has been reset by Sir/Judge.', 'info');
+        }
       }
     });
 
@@ -293,9 +298,12 @@ function initSocketClient() {
     });
 
     // Questions updated in Bank
-    socket.on('questionsUpdated', () => {
+    socket.on('questionsUpdated', async () => {
       if (window.loadProblems) {
-        window.loadProblems();
+        await window.loadProblems();
+      }
+      if (window.refreshArenaState) {
+        window.refreshArenaState();
       }
       if (window.loadQuestionBank) {
         window.loadQuestionBank();
@@ -303,14 +311,17 @@ function initSocketClient() {
     });
 
     // Custom Team Questions updated by Sir
-    socket.on('teamQuestionsUpdated', (data) => {
+    socket.on('teamQuestionsUpdated', async (data) => {
       console.log('[Socket.IO] Custom team questions updated:', data);
       const currentTeam = window.getCurrentTeam ? window.getCurrentTeam() : null;
       if (currentTeam && currentTeam.id === data.teamId) {
         showToast('🎯 Challenge Update', 'Sir has assigned customized contest questions to your team!', 'info');
       }
       if (window.loadProblems) {
-        window.loadProblems();
+        await window.loadProblems();
+      }
+      if (window.refreshArenaState) {
+        window.refreshArenaState();
       }
       if (window.loadApprovedTeams) {
         window.loadApprovedTeams();

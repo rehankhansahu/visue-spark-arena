@@ -34,14 +34,26 @@ function saveProblemsToFile(problems) {
 // Question Bank: Initialized from problems.json (starts empty by default)
 let questionBank = loadProblemsFromFile();
 
-// Active Contest Question IDs (Must sum up to exactly 60 points)
-let activeContestQuestionIds = questionBank.map(q => q.id);
+// Standard 60-point preset helper (1 Easy 10p + 1 Medium 20p + 1 Hard 30p = 60 pts)
+function getStandard60PointPresetIds(bank = questionBank) {
+  const easyQ = bank.find(q => q.difficulty === 'Easy' || q.points === 10);
+  const medQ = bank.find(q => q.difficulty === 'Medium' || q.points === 20);
+  const hardQ = bank.find(q => q.difficulty === 'Hard' || q.points === 30);
+  const ids = [];
+  if (easyQ) ids.push(easyQ.id);
+  if (medQ) ids.push(medQ.id);
+  if (hardQ) ids.push(hardQ.id);
+  return ids.length > 0 ? ids : (bank.slice(0, 3).map(q => q.id));
+}
+
+// Active Contest Question IDs (Strictly 60 points: 1 Easy [10p] + 1 Medium [20p] + 1 Hard [30p])
+let activeContestQuestionIds = getStandard60PointPresetIds();
 
 // Active Global Problem Slots for backwards compatibility
 let activeGlobalSlots = {
-  easyId: questionBank[0] ? questionBank[0].id : null,
-  mediumId: questionBank[1] ? questionBank[1].id : null,
-  hardId: questionBank[2] ? questionBank[2].id : null
+  easyId: activeContestQuestionIds[0] || (questionBank[0] ? questionBank[0].id : null),
+  mediumId: activeContestQuestionIds[1] || (questionBank[1] ? questionBank[1].id : null),
+  hardId: activeContestQuestionIds[2] || (questionBank[2] ? questionBank[2].id : null)
 };
 
 // Question Distribution Mode: 'same' vs 'different'
@@ -676,12 +688,12 @@ const store = {
     teams.clear();
     submissions.length = 0;
     teamSpecificQuestions.clear();
-    // Do NOT reload default questions; keep questionBank as is
-    activeContestQuestionIds = questionBank.map(q => q.id);
+    // Reset active contest questions to standard 60-point preset
+    activeContestQuestionIds = getStandard60PointPresetIds();
     activeGlobalSlots = {
-      easyId: questionBank[0] ? questionBank[0].id : null,
-      mediumId: questionBank[1] ? questionBank[1].id : null,
-      hardId: questionBank[2] ? questionBank[2].id : null
+      easyId: activeContestQuestionIds[0] || (questionBank[0] ? questionBank[0].id : null),
+      mediumId: activeContestQuestionIds[1] || (questionBank[1] ? questionBank[1].id : null),
+      hardId: activeContestQuestionIds[2] || (questionBank[2] ? questionBank[2].id : null)
     };
     return {
       timer: this.getContestTimer(),
@@ -709,12 +721,12 @@ const store = {
     teams.clear();
     submissions.length = 0;
     teamSpecificQuestions.clear();
-    // Do NOT reload default questions; keep questionBank as is
-    activeContestQuestionIds = questionBank.map(q => q.id);
+    // Reset active contest questions to standard 60-point preset
+    activeContestQuestionIds = getStandard60PointPresetIds();
     activeGlobalSlots = {
-      easyId: questionBank[0] ? questionBank[0].id : null,
-      mediumId: questionBank[1] ? questionBank[1].id : null,
-      hardId: questionBank[2] ? questionBank[2].id : null
+      easyId: activeContestQuestionIds[0] || (questionBank[0] ? questionBank[0].id : null),
+      mediumId: activeContestQuestionIds[1] || (questionBank[1] ? questionBank[1].id : null),
+      hardId: activeContestQuestionIds[2] || (questionBank[2] ? questionBank[2].id : null)
     };
     archivedLeaderboard = [];
     archivedPodium = [];
@@ -1126,7 +1138,7 @@ const store = {
     let team = null;
 
     if (teamId) {
-      team = this.getTeamById(teamId) || this.getTeamByPassKey(teamId) || this.getTeamByRoll(teamId);
+      team = this.getTeamById(teamId) || this.getTeamByUsername(teamId) || this.getTeamByPassKey(teamId) || this.getTeamByRoll(teamId);
     }
 
     if (questionMode === 'different' && team && teamSpecificQuestions.has(team.id)) {
@@ -1154,6 +1166,18 @@ const store = {
     let matchingProblems = allProblems;
     if (team && team.language) {
       matchingProblems = allProblems.filter(q => this.doesQuestionMatchLanguage(q, team.language));
+      if (matchingProblems.length === 0) {
+        // Fallback: If assigned qIds didn't match team's language, find 1E + 1M + 1H matching questions from questionBank!
+        const bankMatching = questionBank.filter(q => this.doesQuestionMatchLanguage(q, team.language));
+        const eQ = bankMatching.find(q => q.difficulty === 'Easy' || q.points === 10);
+        const mQ = bankMatching.find(q => q.difficulty === 'Medium' || q.points === 20);
+        const hQ = bankMatching.find(q => q.difficulty === 'Hard' || q.points === 30);
+        if (eQ || mQ || hQ) {
+          matchingProblems = [eQ, mQ, hQ].filter(Boolean);
+        } else {
+          matchingProblems = allProblems;
+        }
+      }
     }
 
     // Sort strictly in difficulty sequence: Easy (10p, #1) -> Medium (20p, #2) -> Hard (30p, #3)
@@ -1620,9 +1644,18 @@ const store = {
     // Standings are automatically live & visible when teams are approved
     resultsPublished = true;
 
-    // Automatically ensure team has 60 points of assigned questions if not already assigned
-    if (activeContestQuestionIds.length > 0 && !teamSpecificQuestions.has(teamId)) {
-      teamSpecificQuestions.set(teamId, [...activeContestQuestionIds]);
+    // Automatically ensure team has 60 points of assigned questions matching their registered language
+    if (!teamSpecificQuestions.has(teamId)) {
+      const teamLang = (team.language || 'cpp').toLowerCase();
+      const langQs = questionBank.filter(q => this.doesQuestionMatchLanguage(q, teamLang));
+      const eQ = langQs.find(q => q.difficulty === 'Easy' || q.points === 10);
+      const mQ = langQs.find(q => q.difficulty === 'Medium' || q.points === 20);
+      const hQ = langQs.find(q => q.difficulty === 'Hard' || q.points === 30);
+      if (eQ && mQ && hQ) {
+        teamSpecificQuestions.set(teamId, [eQ.id, mQ.id, hQ.id]);
+      } else if (activeContestQuestionIds.length > 0) {
+        teamSpecificQuestions.set(teamId, [...activeContestQuestionIds]);
+      }
     }
     return team;
   },
