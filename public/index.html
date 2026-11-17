@@ -2010,6 +2010,106 @@
   </div>
 
   <!-- =========================================================================
+       4c. Results Published - Report Download Popup Modal (Sir / Admin)
+       ========================================================================= -->
+  <div id="resultsPublishedReportModal" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5">
+    <div class="glass-panel rounded-2xl max-w-lg w-full border border-amber-500/40 bg-gradient-to-b from-slate-900/95 via-slate-950/98 to-slate-900/95 shadow-2xl p-5 sm:p-6 space-y-4 text-center">
+      
+      <!-- Icon & Header -->
+      <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-300 p-[2px] mx-auto shadow-xl shadow-amber-500/25 flex items-center justify-center text-3xl">
+        📢
+      </div>
+
+      <div class="space-y-1.5">
+        <span class="px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 uppercase tracking-wider">
+          Official Results Published
+        </span>
+        <h3 class="text-xl sm:text-2xl font-black text-white tracking-tight">
+          Competition Results Announced!
+        </h3>
+        <p class="text-xs text-slate-300 leading-relaxed max-w-md mx-auto">
+          The official competition standings and podium have been released to all teams and screens.
+        </p>
+      </div>
+
+      <!-- Explanatory Notice: Download now or from Competition History -->
+      <div class="p-3.5 rounded-xl bg-purple-950/40 border border-purple-500/30 text-left space-y-1.5 text-xs font-mono">
+        <div class="flex items-center gap-1.5 text-purple-300 font-bold text-[11px]">
+          <span>ℹ️</span>
+          <span>Official Report Download Options</span>
+        </div>
+        <p class="text-slate-300 text-[11px] leading-relaxed">
+          Would you like to download the official competition report now? You can download it directly in any format below, or download it anytime later from <strong>Competition History</strong> on your Admin Desk.
+        </p>
+      </div>
+
+      <!-- 4 Format Download Buttons -->
+      <div class="grid grid-cols-2 gap-2.5 pt-1 font-mono text-xs">
+        <button 
+          type="button" 
+          onclick="exportResultsPDF()" 
+          class="btn-cyber p-3 rounded-xl bg-rose-950/50 hover:bg-rose-900/60 border border-rose-500/40 text-rose-200 transition flex items-center justify-center gap-2 shadow-md">
+          <span class="text-base">📄</span>
+          <div class="text-left leading-tight">
+            <span class="block font-bold">PDF Report</span>
+            <span class="text-[10px] text-rose-300/80">Printable Standings</span>
+          </div>
+        </button>
+
+        <button 
+          type="button" 
+          onclick="exportResultsExcel()" 
+          class="btn-cyber p-3 rounded-xl bg-emerald-950/50 hover:bg-emerald-900/60 border border-emerald-500/40 text-emerald-200 transition flex items-center justify-center gap-2 shadow-md">
+          <span class="text-base">📊</span>
+          <div class="text-left leading-tight">
+            <span class="block font-bold">Excel (.xlsx)</span>
+            <span class="text-[10px] text-emerald-300/80">Full Sheets Audit</span>
+          </div>
+        </button>
+
+        <button 
+          type="button" 
+          onclick="exportResultsCSV()" 
+          class="btn-cyber p-3 rounded-xl bg-cyan-950/50 hover:bg-cyan-900/60 border border-cyan-500/40 text-cyan-200 transition flex items-center justify-center gap-2 shadow-md">
+          <span class="text-base">📑</span>
+          <div class="text-left leading-tight">
+            <span class="block font-bold">CSV Report</span>
+            <span class="text-[10px] text-cyan-300/80">Raw Tabular Data</span>
+          </div>
+        </button>
+
+        <button 
+          type="button" 
+          onclick="exportResultsTxt()" 
+          class="btn-cyber p-3 rounded-xl bg-amber-950/50 hover:bg-amber-900/60 border border-amber-500/40 text-amber-200 transition flex items-center justify-center gap-2 shadow-md">
+          <span class="text-base">📝</span>
+          <div class="text-left leading-tight">
+            <span class="block font-bold">TXT Report</span>
+            <span class="text-[10px] text-amber-300/80">Plain Text Summary</span>
+          </div>
+        </button>
+      </div>
+
+      <!-- Dismiss Button & History Link -->
+      <div class="pt-2 border-t border-white/10 flex items-center justify-between gap-3">
+        <button 
+          type="button" 
+          onclick="openCompetitionHistoryModal(); closeResultsPublishedReportModal();" 
+          class="text-[11px] font-mono text-purple-400 hover:text-purple-300 underline underline-offset-4 flex items-center gap-1">
+          <span>📜</span>
+          <span>Open Competition History</span>
+        </button>
+        <button 
+          type="button" 
+          onclick="closeResultsPublishedReportModal()" 
+          class="px-5 py-2 rounded-xl text-xs font-mono font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/10 transition shadow">
+          Close / Dismiss
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
        5. Leave Contest Early Confirmation Modal (Yes / No)
        ========================================================================= -->
   <div id="leaveContestModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">

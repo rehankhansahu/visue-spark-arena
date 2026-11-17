@@ -2944,6 +2944,7 @@ async function publishOfficialResults() {
       currentResultsPublished = true;
       showToast('Podium Published! 🏆', data.message, 'success');
       updateResultsPublishBadge(true);
+      openResultsPublishedReportModal();
     } else {
       alert(`Cannot Publish Results:\n\n${data.message}`);
       showToast('Cannot Publish Results', data.message, 'error');
@@ -3745,6 +3746,268 @@ async function downloadHistoryReportTxt(id) {
   }
 }
 
+// Download Historical Competition Audit Report in PDF Format
+async function downloadHistoryReportPDF(id) {
+  if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
+    alert('PDF export engine is loading. Please try again in a few moments.');
+    return;
+  }
+  const token = sessionStorage.getItem('sirToken') || sessionStorage.getItem('superAdminToken');
+  if (!token) return;
+
+  try {
+    const res = await fetch(`/api/admin/competitions/${id}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+    if (!data.success || !data.competition) {
+      showToast('Error', 'Unable to load competition for report download.', 'error');
+      return;
+    }
+
+    const comp = data.competition;
+    const teams = comp.teams || [];
+    const questions = comp.questions || [];
+    const safeTitle = (comp.title || 'Competition').replace(/[^a-zA-Z0-9_-]/g, '_').replace(/_+/g, '_').slice(0, 36);
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({
+      orientation: 'landscape',
+      unit: 'pt',
+      format: 'a4'
+    });
+
+    const pageW = doc.internal.pageSize.getWidth();
+    const pageH = doc.internal.pageSize.getHeight();
+
+    // Header Branded Banner
+    doc.setFillColor(10, 13, 22);
+    doc.rect(0, 0, pageW, 85, 'F');
+
+    // Neon Accent Line
+    doc.setFillColor(16, 185, 129);
+    doc.rect(0, 85, pageW, 3, 'F');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.setTextColor(255, 255, 255);
+    doc.text((comp.title || 'V SPARK 2026 COMPETITION ARCHIVE').toUpperCase().slice(0, 52), 40, 32);
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(16, 185, 129);
+    doc.text(comp.description ? comp.description.slice(0, 78) : 'OFFICIAL HISTORICAL COMPETITION AUDIT REPORT', 40, 48);
+
+    doc.setFontSize(8.5);
+    doc.setTextColor(148, 163, 184);
+    doc.text(`Archive ID: ${comp.id}  |  Session Date: ${comp.dateFormatted || comp.timestamp}  |  Evaluation Judge: Dr. Rashid Jahangir`, 40, 66);
+
+    // Table Data
+    const tableRows = teams.map((t, idx) => {
+      const rank = idx + 1;
+      const award = rank === 1 ? 'Champion (1st)' : (rank === 2 ? 'Runner Up (2nd)' : (rank === 3 ? '3rd Place' : 'Qualified'));
+      const totalContestPts = comp.totalPoints || t.totalContestPoints || 60;
+      const percentage = totalContestPts > 0 ? Math.round((t.score / totalContestPts) * 100) : 0;
+      const duration = t.timeTakenWords || t.timeTakenFormatted || (t.timeTakenSeconds ? `${Math.floor(t.timeTakenSeconds / 60)}m` : 'N/A');
+
+      return [
+        `#${rank}`,
+        t.teamName || 'Solo',
+        t.username ? `@${t.username}` : (t.teamName || 'N/A'),
+        `${t.leaderName} (${t.leaderRoll || t.rollNo || ''})`,
+        t.university || 'COMSATS',
+        (t.language || 'cpp').toUpperCase(),
+        `${(t.solvedProblems || []).length} / ${questions.length || 3}`,
+        duration,
+        `${t.score} / ${totalContestPts} (${percentage}%)`,
+        award
+      ];
+    });
+
+    if (tableRows.length === 0) {
+      tableRows.push(['-', 'No Teams', 'N/A', 'N/A', 'N/A', 'N/A', '0/3', 'N/A', '0 / 60', 'No Records']);
+    }
+
+    if (typeof doc.autoTable === 'function') {
+      doc.autoTable({
+        startY: 105,
+        head: [['Rank', 'Team Name', 'Username', 'Leader (Roll #)', 'University', 'Lang', 'Solved', 'Time', 'Score (%)', 'Award']],
+        body: tableRows,
+        theme: 'grid',
+        styles: {
+          font: 'helvetica',
+          fontSize: 9,
+          cellPadding: 5,
+          textColor: [30, 41, 59]
+        },
+        headStyles: {
+          fillColor: [15, 23, 42],
+          textColor: [255, 255, 255],
+          fontStyle: 'bold',
+          halign: 'left'
+        },
+        alternateRowStyles: {
+          fillColor: [248, 250, 252]
+        },
+        margin: { left: 40, right: 40 }
+      });
+    }
+
+    // Footer Credit
+    doc.setFontSize(8.5);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(148, 163, 184);
+    doc.text('Visue Spark Arena 2026  •  Department of Computer Science  •  COMSATS University Islamabad, Vehari Campus', 40, pageH - 20);
+
+    doc.save(`${safeTitle}_Report_${comp.id}.pdf`);
+    showToast('PDF Exported! 📄', `Official report for "${comp.title}" downloaded as PDF.`, 'success');
+  } catch (err) {
+    showToast('Download Error', err.message, 'error');
+  }
+}
+
+// Download Historical Competition Audit Report in Excel (.xlsx) Format
+async function downloadHistoryReportExcel(id) {
+  if (typeof XLSX === 'undefined') {
+    alert('Excel export engine is loading. Please try again.');
+    return;
+  }
+  const token = sessionStorage.getItem('sirToken') || sessionStorage.getItem('superAdminToken');
+  if (!token) return;
+
+  try {
+    const res = await fetch(`/api/admin/competitions/${id}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+    if (!data.success || !data.competition) {
+      showToast('Error', 'Unable to load competition for report download.', 'error');
+      return;
+    }
+
+    const comp = data.competition;
+    const teams = comp.teams || [];
+    const questions = comp.questions || [];
+    const safeTitle = (comp.title || 'Competition').replace(/[^a-zA-Z0-9_-]/g, '_').replace(/_+/g, '_').slice(0, 36);
+
+    // Sheet 1: Leaderboard & Official Results
+    const resultsData = teams.map((t, idx) => {
+      const rank = idx + 1;
+      const award = rank === 1 ? 'Winner / Champion 🏆' : (rank === 2 ? '1st Runner Up 🥈' : (rank === 3 ? '2nd Runner Up 🥉' : 'Qualified Participant'));
+      const totalContestPts = comp.totalPoints || t.totalContestPoints || 60;
+      const percentage = totalContestPts > 0 ? Math.round((t.score / totalContestPts) * 100) : 0;
+      const duration = t.timeTakenWords || t.timeTakenFormatted || (t.timeTakenSeconds ? `${Math.floor(t.timeTakenSeconds / 60)}m ${t.timeTakenSeconds % 60}s` : 'N/A');
+
+      return {
+        'Rank': rank,
+        'Standing / Award': award,
+        'Team Name': t.teamName,
+        'Team Username': t.username ? `@${t.username}` : (t.teamName || 'N/A'),
+        'Team Type': (t.teamType || 'solo').toUpperCase(),
+        'University / College': t.university,
+        'Primary Language': (t.language || 'cpp').toUpperCase(),
+        'Score': t.score,
+        'Max Points': totalContestPts,
+        'Percentage (%)': `${percentage}%`,
+        'Challenges Solved': (t.solvedProblems || []).length,
+        'Duration': duration,
+        'Leader Name': t.leaderName,
+        'Leader Roll No': t.leaderRoll || t.rollNo || 'N/A',
+        'Member 2 Name': t.member2Name || 'N/A',
+        'Member 2 Roll No': t.member2Roll || 'N/A',
+        'Bonus Marks': t.bonusMarks ? `+${t.bonusMarks}` : '0',
+        'Status': t.leftEarly ? 'Left Early (Incomplete)' : 'Completed'
+      };
+    });
+
+    // Sheet 2: Questions Included
+    const questionsData = questions.map((q, idx) => ({
+      '#': idx + 1,
+      'Question ID': `#${q.id}`,
+      'Title': q.title,
+      'Difficulty': q.difficulty || 'Easy',
+      'Points': q.points || 10,
+      'Allowed Languages': Array.isArray(q.languages) ? q.languages.join(', ') : 'All',
+      'Description': q.description || ''
+    }));
+
+    const wb = XLSX.utils.book_new();
+    const wsResults = XLSX.utils.json_to_sheet(resultsData.length > 0 ? resultsData : [{ 'Status': 'No teams recorded' }]);
+    XLSX.utils.book_append_sheet(wb, wsResults, 'Leaderboard');
+
+    if (questionsData.length > 0) {
+      const wsQuestions = XLSX.utils.json_to_sheet(questionsData);
+      XLSX.utils.book_append_sheet(wb, wsQuestions, 'Contest Questions');
+    }
+
+    XLSX.writeFile(wb, `${safeTitle}_Report_${comp.id}.xlsx`);
+    showToast('Excel Exported! 📊', `Official report for "${comp.title}" downloaded as Excel.`, 'success');
+  } catch (err) {
+    showToast('Download Error', err.message, 'error');
+  }
+}
+
+// Download Historical Competition Audit Report in CSV Format
+async function downloadHistoryReportCSV(id) {
+  const token = sessionStorage.getItem('sirToken') || sessionStorage.getItem('superAdminToken');
+  if (!token) return;
+
+  try {
+    const res = await fetch(`/api/admin/competitions/${id}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+    if (!data.success || !data.competition) {
+      showToast('Error', 'Unable to load competition for report download.', 'error');
+      return;
+    }
+
+    const comp = data.competition;
+    const teams = comp.teams || [];
+    const safeTitle = (comp.title || 'Competition').replace(/[^a-zA-Z0-9_-]/g, '_').replace(/_+/g, '_').slice(0, 36);
+
+    const headers = ['Rank', 'Team Name', 'Team Username', 'Team Type', 'University', 'Primary Language', 'Score', 'Total Points', 'Challenges Solved', 'Duration', 'Leader Name', 'Leader Roll No', 'Member 2 Name', 'Member 2 Roll No', 'Bonus Marks', 'Status'];
+    const rows = teams.map((t, idx) => {
+      const rank = idx + 1;
+      const duration = t.timeTakenWords || t.timeTakenFormatted || (t.timeTakenSeconds ? `${Math.floor(t.timeTakenSeconds / 60)}m ${t.timeTakenSeconds % 60}s` : 'N/A');
+      return [
+        rank,
+        `"${(t.teamName || '').replace(/"/g, '""')}"`,
+        `"${(t.username ? `@${t.username}` : (t.teamName || '')).replace(/"/g, '""')}"`,
+        `"${(t.teamType || 'solo').toUpperCase()}"`,
+        `"${(t.university || '').replace(/"/g, '""')}"`,
+        `"${(t.language || 'cpp').toUpperCase()}"`,
+        t.score || 0,
+        comp.totalPoints || t.totalContestPoints || 60,
+        (t.solvedProblems || []).length,
+        `"${duration}"`,
+        `"${(t.leaderName || '').replace(/"/g, '""')}"`,
+        `"${(t.leaderRoll || t.rollNo || '').replace(/"/g, '""')}"`,
+        `"${(t.member2Name || 'N/A').replace(/"/g, '""')}"`,
+        `"${(t.member2Roll || 'N/A').replace(/"/g, '""')}"`,
+        t.bonusMarks || 0,
+        `"${t.leftEarly ? 'Left Early' : 'Completed'}"`
+      ].join(',');
+    });
+
+    const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\r\n');
+    triggerFileDownload(`${safeTitle}_Report_${comp.id}.csv`, csvContent, 'text/csv;charset=utf-8;');
+    showToast('CSV Exported! 📑', `Official results for "${comp.title}" downloaded as CSV.`, 'success');
+  } catch (err) {
+    showToast('Download Error', err.message, 'error');
+  }
+}
+
+function openResultsPublishedReportModal() {
+  const modal = document.getElementById('resultsPublishedReportModal');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeResultsPublishedReportModal() {
+  const modal = document.getElementById('resultsPublishedReportModal');
+  if (modal) modal.classList.add('hidden');
+}
+
 // Export Official Student Results in Excel (.xlsx) Format
 function exportResultsExcel() {
   if (typeof XLSX === 'undefined') {
@@ -4057,7 +4320,40 @@ async function loadCompetitionHistory() {
               <div class="text-[11px] text-slate-400">
                 ${winner ? `🏆 Winner: <strong>${winner.teamName}</strong> (${winner.university || 'COMSATS'}) - ${winner.score}/60 pts` : 'Podium archived'}
               </div>
-              <div class="flex items-center gap-1.5">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <!-- Report Download Formats (PDF, Excel, CSV, TXT) -->
+                <div class="inline-flex items-center gap-1 bg-slate-950/80 p-1 rounded-lg border border-white/10">
+                  <span class="text-[10px] font-mono text-slate-400 font-bold px-1">Report:</span>
+                  <button 
+                    type="button" 
+                    onclick="downloadHistoryReportPDF('${comp.id}')"
+                    class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 border border-rose-500/30 transition flex items-center gap-1 shadow-sm"
+                    title="Download official PDF report for ${comp.title}">
+                    <span>📄</span><span>PDF</span>
+                  </button>
+                  <button 
+                    type="button" 
+                    onclick="downloadHistoryReportExcel('${comp.id}')"
+                    class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 border border-emerald-500/30 transition flex items-center gap-1 shadow-sm"
+                    title="Download Excel (.xlsx) report for ${comp.title}">
+                    <span>📊</span><span>Excel</span>
+                  </button>
+                  <button 
+                    type="button" 
+                    onclick="downloadHistoryReportCSV('${comp.id}')"
+                    class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30 border border-cyan-500/30 transition flex items-center gap-1 shadow-sm"
+                    title="Download CSV report for ${comp.title}">
+                    <span>📑</span><span>CSV</span>
+                  </button>
+                  <button 
+                    type="button" 
+                    onclick="downloadHistoryReportTxt('${comp.id}')"
+                    class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-500/30 transition flex items-center gap-1 shadow-sm"
+                    title="Download TXT report for ${comp.title}">
+                    <span>📝</span><span>TXT</span>
+                  </button>
+                </div>
+
                 <button 
                   type="button" 
                   onclick="promptEditHistoryItem('${comp.id}')"
@@ -4069,7 +4365,7 @@ async function loadCompetitionHistory() {
                 <button 
                   type="button" 
                   onclick="viewCompetitionSnapshot('${comp.id}')"
-                  class="btn-cyber px-3.5 py-1.5 rounded-lg text-xs font-bold text-purple-300 bg-purple-950/60 border border-purple-500/40 hover:bg-purple-900/50 transition flex items-center gap-1.5 shadow-sm">
+                  class="btn-cyber px-3 py-1.5 rounded-lg text-xs font-bold text-purple-300 bg-purple-950/60 border border-purple-500/40 hover:bg-purple-900/50 transition flex items-center gap-1.5 shadow-sm">
                   <span>🔍</span>
                   <span>View Details</span>
                 </button>
@@ -4208,14 +4504,39 @@ async function viewCompetitionSnapshot(id) {
             <span>← Back to Competitions List</span>
           </button>
 
-          <div class="flex items-center gap-2 flex-wrap">
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <span class="text-[10px] font-mono text-slate-400 font-bold mr-1">Download Report:</span>
+            <button 
+              type="button" 
+              onclick="downloadHistoryReportPDF('${comp.id}')"
+              class="px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 border border-rose-500/30 transition flex items-center gap-1.5 shadow-sm"
+              title="Download official PDF report">
+              <span>📄</span>
+              <span>PDF</span>
+            </button>
+            <button 
+              type="button" 
+              onclick="downloadHistoryReportExcel('${comp.id}')"
+              class="px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 border border-emerald-500/30 transition flex items-center gap-1.5 shadow-sm"
+              title="Download official Excel (.xlsx) report">
+              <span>📊</span>
+              <span>Excel</span>
+            </button>
+            <button 
+              type="button" 
+              onclick="downloadHistoryReportCSV('${comp.id}')"
+              class="px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30 border border-cyan-500/30 transition flex items-center gap-1.5 shadow-sm"
+              title="Download official CSV report">
+              <span>📑</span>
+              <span>CSV</span>
+            </button>
             <button 
               type="button" 
               onclick="downloadHistoryReportTxt('${comp.id}')"
-              class="btn-cyber px-3 py-1.5 rounded-lg text-xs font-mono font-bold text-slate-200 bg-slate-800 hover:bg-slate-700 border border-white/10 transition flex items-center gap-1.5 shadow-sm"
-              title="Download historical audit report (.txt)">
-              <span>📄</span>
-              <span>Download Report (.txt)</span>
+              class="px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-500/30 transition flex items-center gap-1.5 shadow-sm"
+              title="Download official TXT report">
+              <span>📝</span>
+              <span>TXT</span>
             </button>
             <button 
               type="button" 
@@ -5061,3 +5382,8 @@ window.promptSaveCompetitionSnapshot = promptSaveCompetitionSnapshot;
 window.loadArenaInfo = loadArenaInfo;
 window.updateArenaInfoUI = updateArenaInfoUI;
 window.promptEditHistoryItem = promptEditHistoryItem;
+window.downloadHistoryReportPDF = downloadHistoryReportPDF;
+window.downloadHistoryReportExcel = downloadHistoryReportExcel;
+window.downloadHistoryReportCSV = downloadHistoryReportCSV;
+window.openResultsPublishedReportModal = openResultsPublishedReportModal;
+window.closeResultsPublishedReportModal = closeResultsPublishedReportModal;
