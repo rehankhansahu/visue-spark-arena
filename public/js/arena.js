@@ -125,7 +125,7 @@ function refreshArenaState() {
   const isSir = Boolean(sessionStorage.getItem('sirToken') || localStorage.getItem('vspark_sir_token') || (window.isSirLoggedIn && window.isSirLoggedIn()));
   const isApprovedTeam = Boolean(currentTeam && (currentTeam.status === 'approved'));
 
-  if (isResultsPublished && (isApprovedTeam || isEndedOrLeft)) {
+  if (isResultsPublished && (isApprovedTeam || isEndedOrLeft || isSir)) {
     // When results announced: arena empty ho jaye, show results announced card with Team Pass & Podium buttons
     welcomeHero.classList.add('hidden');
     if (lockedHero) lockedHero.classList.add('hidden');
@@ -137,23 +137,21 @@ function refreshArenaState() {
   }
 
   // Active coding workspace MUST ONLY unlock when:
-  // Contest timer has actually started by Sir (isTimerStarted === true) AND team is approved (or ended/left early)
-  if (isApprovedTeam || isEndedOrLeft) {
-    if (isEndedOrLeft || (isTimerStarted && hasProblems)) {
-      welcomeHero.classList.add('hidden');
-      if (lockedHero) lockedHero.classList.add('hidden');
-      arenaWorkspace.classList.remove('hidden');
-    } else {
-      // Timer NOT started yet -> Arena is LOCKED! (Questions & Code Editor stay hidden)
-      welcomeHero.classList.add('hidden');
-      arenaWorkspace.classList.add('hidden');
-      if (lockedHero) {
-        lockedHero.classList.remove('hidden');
-        updateArenaLockedHeroSlots(hasFullBudget, isTimerStarted, totalPoints);
-      }
-      if (isTimerStarted && !hasProblems && window.loadProblems) {
-        window.loadProblems();
-      }
+  // Contest timer has actually started by Sir (isTimerStarted === true) AND problems exist (or ended/left early)
+  if (isEndedOrLeft || (isTimerStarted && hasProblems)) {
+    welcomeHero.classList.add('hidden');
+    if (lockedHero) lockedHero.classList.add('hidden');
+    arenaWorkspace.classList.remove('hidden');
+  } else if (isApprovedTeam || isSir) {
+    // Timer NOT started yet -> Arena is LOCKED! (Questions & Code Editor stay hidden)
+    welcomeHero.classList.add('hidden');
+    arenaWorkspace.classList.add('hidden');
+    if (lockedHero) {
+      lockedHero.classList.remove('hidden');
+      updateArenaLockedHeroSlots(hasFullBudget, isTimerStarted, totalPoints);
+    }
+    if (isTimerStarted && !hasProblems && window.loadProblems) {
+      window.loadProblems();
     }
   } else {
     // Not logged in as approved team -> Welcome Hero (Workspace is hidden)

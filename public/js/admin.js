@@ -812,6 +812,12 @@ async function startContestTimer() {
     if (data.success) {
       showToast('Timer Started', 'Contest timer is now running!', 'success');
       updateAdminTimerBadge(data.timer);
+      if (data.timer) {
+        window.timerData = data.timer;
+        if (window.handleTimerStateUpdate) window.handleTimerStateUpdate(data.timer);
+      }
+      if (window.loadProblems) await window.loadProblems();
+      if (window.refreshArenaState) window.refreshArenaState();
       loadApprovedTeams();
     } else {
       alert(data.message || 'Cannot start competition. Please ensure all requirements are met.');

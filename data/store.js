@@ -31,6 +31,131 @@ function saveProblemsToFile(problems) {
   }
 }
 
+// Standard 60-Point Contest Challenges (Fallback when bank is clean / not configured)
+const STANDARD_DEFAULT_CONTEST_PROBLEMS = [
+  {
+    id: 1,
+    title: "Reverse an Array",
+    difficulty: "Easy",
+    points: 10,
+    timeLimit: "1.5s",
+    memoryLimit: "256MB",
+    tags: ["Algorithm", "Logic", "Arrays"],
+    description: "Given a list of integers on a single line separated by spaces, print the elements in reverse order separated by spaces.",
+    inputFormat: "First line contains an integer N (number of elements). Second line contains N space-separated integers.",
+    outputFormat: "Print the N integers in reverse order separated by a single space.",
+    constraints: ["1 <= N <= 10^5", "-10^9 <= A[i] <= 10^9"],
+    optionA: "",
+    optionB: "",
+    optionC: "",
+    optionD: "",
+    options: { a: "", b: "", c: "", d: "" },
+    correctAnswer: "",
+    sampleCases: [
+      {
+        input: "5\n1 2 3 4 5",
+        expected: "5 4 3 2 1",
+        explanation: "The elements in reverse order are 5, 4, 3, 2, 1."
+      }
+    ],
+    starterCode: {
+      c: "// Write your C code here...\n#include <stdio.h>\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int arr[n];\n    for (int i = 0; i < n; i++) scanf(\"%d\", &arr[i]);\n    for (int i = n - 1; i >= 0; i--) printf(\"%d%c\", arr[i], (i == 0 ? '\\n' : ' '));\n    return 0;\n}\n",
+      cpp: "// Write your C++ code here...\n#include <iostream>\n#include <vector>\nusing namespace std;\n\nint main() {\n    int n;\n    if (!(cin >> n)) return 0;\n    vector<int> a(n);\n    for (int i = 0; i < n; i++) cin >> a[i];\n    for (int i = n - 1; i >= 0; i--) cout << a[i] << (i == 0 ? \"\" : \" \");\n    cout << endl;\n    return 0;\n}\n",
+      java: "// Write your Java code here...\nimport java.util.Scanner;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextInt()) return;\n        int n = sc.nextInt();\n        int[] arr = new int[n];\n        for (int i = 0; i < n; i++) arr[i] = sc.nextInt();\n        for (int i = n - 1; i >= 0; i--) System.out.print(arr[i] + (i == 0 ? \"\" : \" \"));\n        System.out.println();\n    }\n}\n",
+      python: "# Write your Python code here...\nimport sys\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    nums = data[1:n+1]\n    print(*(nums[::-1]))\n\nif __name__ == '__main__':\n    main()\n",
+      html: "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+      javascript: "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+      dart: "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+      php: "<?php\n// Write your PHP code here...\n"
+    },
+    languages: ["C", "C++", "Java", "Python", "HTML", "JavaScript", "Dart", "PHP"]
+  },
+  {
+    id: 2,
+    title: "Longest Substring Without Repeating Characters",
+    difficulty: "Medium",
+    points: 20,
+    timeLimit: "1.5s",
+    memoryLimit: "256MB",
+    tags: ["String", "Sliding Window", "Hash Table"],
+    description: "Given a string S, find the length of the longest contiguous substring without any repeating characters.",
+    inputFormat: "A single line containing the string S.",
+    outputFormat: "Print a single integer: the length of the longest substring without repeating characters.",
+    constraints: ["1 <= |S| <= 10^5", "S consists of English letters, digits, symbols and spaces."],
+    optionA: "",
+    optionB: "",
+    optionC: "",
+    optionD: "",
+    options: { a: "", b: "", c: "", d: "" },
+    correctAnswer: "",
+    sampleCases: [
+      {
+        input: "abcabcbb",
+        expected: "3",
+        explanation: "The answer is 'abc', with length 3."
+      },
+      {
+        input: "bbbbb",
+        expected: "1",
+        explanation: "The answer is 'b', with length 1."
+      }
+    ],
+    starterCode: {
+      c: "// Write your C code here...\n#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[100005];\n    if (fgets(s, sizeof(s), stdin)) {\n        // Implementation\n    }\n    return 0;\n}\n",
+      cpp: "// Write your C++ code here...\n#include <iostream>\n#include <string>\nusing namespace std;\n\nint main() {\n    string s;\n    if (getline(cin, s)) {\n        // Implementation\n    }\n    return 0;\n}\n",
+      java: "// Write your Java code here...\nimport java.util.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (sc.hasNextLine()) {\n            String s = sc.nextLine();\n            // Implementation\n        }\n    }\n}\n",
+      python: "# Write your Python code here...\nimport sys\n\ndef main():\n    line = sys.stdin.readline().rstrip('\\r\\n')\n    # Implementation\n\nif __name__ == '__main__':\n    main()\n",
+      html: "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+      javascript: "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+      dart: "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+      php: "<?php\n// Write your PHP code here...\n"
+    },
+    languages: ["C", "C++", "Java", "Python", "HTML", "JavaScript", "Dart", "PHP"]
+  },
+  {
+    id: 3,
+    title: "Valid Parentheses & Balanced Brackets",
+    difficulty: "Hard",
+    points: 30,
+    timeLimit: "1.5s",
+    memoryLimit: "256MB",
+    tags: ["Stack", "Data Structures", "Strings"],
+    description: "Given a string S containing only the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid and properly balanced.\n\nAn input string is valid if:\n1. Open brackets must be closed by the same type of brackets.\n2. Open brackets must be closed in the correct order.\n3. Every close bracket has a corresponding open bracket of the same type.\n\nPrint 'Yes' if balanced, otherwise print 'No'.",
+    inputFormat: "A single line containing the bracket string S.",
+    outputFormat: "Print 'Yes' if balanced, otherwise print 'No'.",
+    constraints: ["1 <= |S| <= 10^5", "S consists of brackets only: ()[]{}"],
+    optionA: "",
+    optionB: "",
+    optionC: "",
+    optionD: "",
+    options: { a: "", b: "", c: "", d: "" },
+    correctAnswer: "",
+    sampleCases: [
+      {
+        input: "{[()]}",
+        expected: "Yes",
+        explanation: "All brackets are properly nested and balanced."
+      },
+      {
+        input: "{[(])}",
+        expected: "No",
+        explanation: "Brackets are mismatched and not closed in order."
+      }
+    ],
+    starterCode: {
+      c: "// Write your C code here...\n#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[100005];\n    if (scanf(\"%s\", s) == 1) {\n        // Implementation\n    }\n    return 0;\n}\n",
+      cpp: "// Write your C++ code here...\n#include <iostream>\n#include <string>\n#include <stack>\nusing namespace std;\n\nint main() {\n    string s;\n    if (cin >> s) {\n        // Implementation\n    }\n    return 0;\n}\n",
+      java: "// Write your Java code here...\nimport java.util.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (sc.hasNext()) {\n            String s = sc.next();\n            // Implementation\n        }\n    }\n}\n",
+      python: "# Write your Python code here...\nimport sys\n\ndef main():\n    s = sys.stdin.readline().strip()\n    # Implementation\n\nif __name__ == '__main__':\n    main()\n",
+      html: "<!-- Write your HTML code here -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Solution</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+      javascript: "// Write your JavaScript code here...\nfunction solve(input) {\n  // Implementation\n}\n",
+      dart: "// Write your Dart code here...\nvoid main() {\n  // Implementation\n}\n",
+      php: "<?php\n// Write your PHP code here...\n"
+    },
+    languages: ["C", "C++", "Java", "Python", "HTML", "JavaScript", "Dart", "PHP"]
+  }
+];
+
 // Question Bank: Initialized from problems.json (starts empty by default)
 let questionBank = loadProblemsFromFile();
 
@@ -43,7 +168,8 @@ function getStandard60PointPresetIds(bank = questionBank) {
   if (easyQ) ids.push(easyQ.id);
   if (medQ) ids.push(medQ.id);
   if (hardQ) ids.push(hardQ.id);
-  return ids.length > 0 ? ids : (bank.slice(0, 3).map(q => q.id));
+  if (ids.length === 3) return ids;
+  return STANDARD_DEFAULT_CONTEST_PROBLEMS.map(q => q.id);
 }
 
 // Active Contest Question IDs (starts empty; Sir assigns questions or selects preset in Admin Desk)
@@ -800,7 +926,7 @@ const store = {
 
   getQuestionById(id) {
     const numId = parseInt(id, 10);
-    return questionBank.find(p => p.id === numId) || null;
+    return questionBank.find(p => p.id === numId) || STANDARD_DEFAULT_CONTEST_PROBLEMS.find(p => p.id === numId) || null;
   },
 
   getActiveContestQuestionIds() {
@@ -1146,6 +1272,22 @@ const store = {
       if (Array.isArray(custom) && custom.length > 0) {
         qIds = custom;
       }
+    } else if (team && teamSpecificQuestions.has(team.id)) {
+      const custom = teamSpecificQuestions.get(team.id);
+      if (Array.isArray(custom) && custom.length > 0) {
+        qIds = custom;
+      }
+    }
+
+    // If qIds is empty:
+    // 1. If questionBank has questions, try standard preset from questionBank
+    // 2. Otherwise use guaranteed standard 60-point contest problems (1 Easy 10p, 1 Medium 20p, 1 Hard 30p)
+    if (qIds.length === 0) {
+      if (questionBank.length > 0) {
+        qIds = getStandard60PointPresetIds(questionBank);
+      } else {
+        qIds = STANDARD_DEFAULT_CONTEST_PROBLEMS.map(q => q.id);
+      }
     }
 
     // Ensure qIds contains unique, valid question IDs
@@ -1162,15 +1304,27 @@ const store = {
       }
     });
 
-    // If no questions assigned yet, return empty list (Sir assigns questions)
     if (allProblems.length === 0) {
-      return [];
+      allProblems.push(...STANDARD_DEFAULT_CONTEST_PROBLEMS.map(q => ({ ...q })));
     }
 
     // If team has a registered language, filter questions so ONLY questions matching their language are shown!
     let matchingProblems = allProblems;
     if (team && team.language) {
       matchingProblems = allProblems.filter(q => this.doesQuestionMatchLanguage(q, team.language));
+      if (matchingProblems.length === 0) {
+        const pool = questionBank.length > 0 ? questionBank : STANDARD_DEFAULT_CONTEST_PROBLEMS;
+        const poolMatching = pool.filter(q => this.doesQuestionMatchLanguage(q, team.language));
+        if (poolMatching.length > 0) {
+          const eQ = poolMatching.find(q => q.difficulty === 'Easy' || q.points === 10);
+          const mQ = poolMatching.find(q => q.difficulty === 'Medium' || q.points === 20);
+          const hQ = poolMatching.find(q => q.difficulty === 'Hard' || q.points === 30);
+          const fallbackSet = [eQ, mQ, hQ].filter(Boolean);
+          if (fallbackSet.length > 0) matchingProblems = fallbackSet;
+        } else {
+          matchingProblems = allProblems;
+        }
+      }
     }
 
     // Sort strictly in difficulty sequence: Easy (10p, #1) -> Medium (20p, #2) -> Hard (30p, #3)
@@ -1636,6 +1790,23 @@ const store = {
 
     // Standings are automatically live & visible when teams are approved
     resultsPublished = true;
+
+    // Automatically ensure team has 60 points of assigned questions matching their registered language
+    if (!teamSpecificQuestions.has(teamId)) {
+      const teamLang = (team.language || 'cpp').toLowerCase();
+      const pool = questionBank.length > 0 ? questionBank : STANDARD_DEFAULT_CONTEST_PROBLEMS;
+      const langQs = pool.filter(q => this.doesQuestionMatchLanguage(q, teamLang));
+      const eQ = langQs.find(q => q.difficulty === 'Easy' || q.points === 10);
+      const mQ = langQs.find(q => q.difficulty === 'Medium' || q.points === 20);
+      const hQ = langQs.find(q => q.difficulty === 'Hard' || q.points === 30);
+      if (eQ && mQ && hQ) {
+        teamSpecificQuestions.set(teamId, [eQ.id, mQ.id, hQ.id]);
+      } else if (activeContestQuestionIds.length > 0) {
+        teamSpecificQuestions.set(teamId, [...activeContestQuestionIds]);
+      } else {
+        teamSpecificQuestions.set(teamId, STANDARD_DEFAULT_CONTEST_PROBLEMS.map(q => q.id));
+      }
+    }
     return team;
   },
 
