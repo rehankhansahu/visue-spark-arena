@@ -46,14 +46,14 @@ function getStandard60PointPresetIds(bank = questionBank) {
   return ids.length > 0 ? ids : (bank.slice(0, 3).map(q => q.id));
 }
 
-// Active Contest Question IDs (Strictly 60 points: 1 Easy [10p] + 1 Medium [20p] + 1 Hard [30p])
-let activeContestQuestionIds = getStandard60PointPresetIds();
+// Active Contest Question IDs (starts empty; Sir assigns questions or selects preset in Admin Desk)
+let activeContestQuestionIds = [];
 
 // Active Global Problem Slots for backwards compatibility
 let activeGlobalSlots = {
-  easyId: activeContestQuestionIds[0] || (questionBank[0] ? questionBank[0].id : null),
-  mediumId: activeContestQuestionIds[1] || (questionBank[1] ? questionBank[1].id : null),
-  hardId: activeContestQuestionIds[2] || (questionBank[2] ? questionBank[2].id : null)
+  easyId: null,
+  mediumId: null,
+  hardId: null
 };
 
 // Question Distribution Mode: 'same' vs 'different'
@@ -688,12 +688,12 @@ const store = {
     teams.clear();
     submissions.length = 0;
     teamSpecificQuestions.clear();
-    // Reset active contest questions to standard 60-point preset
-    activeContestQuestionIds = getStandard60PointPresetIds();
+    // Reset active contest questions to empty (Sir assigns questions per contest)
+    activeContestQuestionIds = [];
     activeGlobalSlots = {
-      easyId: activeContestQuestionIds[0] || (questionBank[0] ? questionBank[0].id : null),
-      mediumId: activeContestQuestionIds[1] || (questionBank[1] ? questionBank[1].id : null),
-      hardId: activeContestQuestionIds[2] || (questionBank[2] ? questionBank[2].id : null)
+      easyId: null,
+      mediumId: null,
+      hardId: null
     };
     return {
       timer: this.getContestTimer(),
@@ -721,12 +721,12 @@ const store = {
     teams.clear();
     submissions.length = 0;
     teamSpecificQuestions.clear();
-    // Reset active contest questions to standard 60-point preset
-    activeContestQuestionIds = getStandard60PointPresetIds();
+    // Reset active contest questions to empty (Sir assigns questions per contest)
+    activeContestQuestionIds = [];
     activeGlobalSlots = {
-      easyId: activeContestQuestionIds[0] || (questionBank[0] ? questionBank[0].id : null),
-      mediumId: activeContestQuestionIds[1] || (questionBank[1] ? questionBank[1].id : null),
-      hardId: activeContestQuestionIds[2] || (questionBank[2] ? questionBank[2].id : null)
+      easyId: null,
+      mediumId: null,
+      hardId: null
     };
     archivedLeaderboard = [];
     archivedPodium = [];
@@ -1162,22 +1162,15 @@ const store = {
       }
     });
 
+    // If no questions assigned yet, return empty list (Sir assigns questions)
+    if (allProblems.length === 0) {
+      return [];
+    }
+
     // If team has a registered language, filter questions so ONLY questions matching their language are shown!
     let matchingProblems = allProblems;
     if (team && team.language) {
       matchingProblems = allProblems.filter(q => this.doesQuestionMatchLanguage(q, team.language));
-      if (matchingProblems.length === 0) {
-        // Fallback: If assigned qIds didn't match team's language, find 1E + 1M + 1H matching questions from questionBank!
-        const bankMatching = questionBank.filter(q => this.doesQuestionMatchLanguage(q, team.language));
-        const eQ = bankMatching.find(q => q.difficulty === 'Easy' || q.points === 10);
-        const mQ = bankMatching.find(q => q.difficulty === 'Medium' || q.points === 20);
-        const hQ = bankMatching.find(q => q.difficulty === 'Hard' || q.points === 30);
-        if (eQ || mQ || hQ) {
-          matchingProblems = [eQ, mQ, hQ].filter(Boolean);
-        } else {
-          matchingProblems = allProblems;
-        }
-      }
     }
 
     // Sort strictly in difficulty sequence: Easy (10p, #1) -> Medium (20p, #2) -> Hard (30p, #3)
@@ -1643,20 +1636,6 @@ const store = {
 
     // Standings are automatically live & visible when teams are approved
     resultsPublished = true;
-
-    // Automatically ensure team has 60 points of assigned questions matching their registered language
-    if (!teamSpecificQuestions.has(teamId)) {
-      const teamLang = (team.language || 'cpp').toLowerCase();
-      const langQs = questionBank.filter(q => this.doesQuestionMatchLanguage(q, teamLang));
-      const eQ = langQs.find(q => q.difficulty === 'Easy' || q.points === 10);
-      const mQ = langQs.find(q => q.difficulty === 'Medium' || q.points === 20);
-      const hQ = langQs.find(q => q.difficulty === 'Hard' || q.points === 30);
-      if (eQ && mQ && hQ) {
-        teamSpecificQuestions.set(teamId, [eQ.id, mQ.id, hQ.id]);
-      } else if (activeContestQuestionIds.length > 0) {
-        teamSpecificQuestions.set(teamId, [...activeContestQuestionIds]);
-      }
-    }
     return team;
   },
 

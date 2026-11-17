@@ -28,17 +28,26 @@ document.addEventListener('DOMContentLoaded', () => {
     window.initSocketClient();
   }
 
-  // Restore Team from SessionStorage or LocalStorage across browser closes
-  const savedTeam = sessionStorage.getItem('visue_team') || localStorage.getItem('vspark_saved_team') || localStorage.getItem('visue_team');
-  if (savedTeam) {
-    try {
-      currentTeam = JSON.parse(savedTeam);
-      sessionStorage.setItem('visue_team', JSON.stringify(currentTeam));
-      localStorage.setItem('vspark_saved_team', JSON.stringify(currentTeam));
-      updateNavbarStudentBadge();
-      checkLiveTeamStatus(currentTeam.username || currentTeam.secretKey || currentTeam.passKey || currentTeam.id);
-    } catch (e) {
-      currentTeam = null;
+  // Restore Team from SessionStorage or LocalStorage across browser closes (only if not Sir session)
+  const isSirSession = Boolean(sessionStorage.getItem('sirToken') || localStorage.getItem('vspark_sir_token'));
+  if (isSirSession) {
+    currentTeam = null;
+    sessionStorage.removeItem('visue_team');
+    localStorage.removeItem('vspark_saved_team');
+    localStorage.removeItem('visue_team');
+    updateNavbarStudentBadge();
+  } else {
+    const savedTeam = sessionStorage.getItem('visue_team') || localStorage.getItem('vspark_saved_team') || localStorage.getItem('visue_team');
+    if (savedTeam) {
+      try {
+        currentTeam = JSON.parse(savedTeam);
+        sessionStorage.setItem('visue_team', JSON.stringify(currentTeam));
+        localStorage.setItem('vspark_saved_team', JSON.stringify(currentTeam));
+        updateNavbarStudentBadge();
+        checkLiveTeamStatus(currentTeam.username || currentTeam.secretKey || currentTeam.passKey || currentTeam.id);
+      } catch (e) {
+        currentTeam = null;
+      }
     }
   }
 

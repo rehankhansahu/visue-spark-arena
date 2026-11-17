@@ -125,7 +125,7 @@ function refreshArenaState() {
   const isSir = Boolean(sessionStorage.getItem('sirToken') || localStorage.getItem('vspark_sir_token') || (window.isSirLoggedIn && window.isSirLoggedIn()));
   const isApprovedTeam = Boolean(currentTeam && (currentTeam.status === 'approved'));
 
-  if (isResultsPublished && (isApprovedTeam || isEndedOrLeft || isSir)) {
+  if (isResultsPublished && (isApprovedTeam || isEndedOrLeft)) {
     // When results announced: arena empty ho jaye, show results announced card with Team Pass & Podium buttons
     welcomeHero.classList.add('hidden');
     if (lockedHero) lockedHero.classList.add('hidden');
@@ -136,37 +136,27 @@ function refreshArenaState() {
     if (resultsCard) resultsCard.classList.add('hidden');
   }
 
-  // Sir / Judge previewing Arena: always show workspace if problems exist!
-  if (isSir && hasProblems) {
-    welcomeHero.classList.add('hidden');
-    if (lockedHero) lockedHero.classList.add('hidden');
-    arenaWorkspace.classList.remove('hidden');
-    return;
-  }
-
+  // Active coding workspace MUST ONLY unlock when:
+  // Contest timer has actually started by Sir (isTimerStarted === true) AND team is approved (or ended/left early)
   if (isApprovedTeam || isEndedOrLeft) {
-    // UNLOCK ARENA WORKSPACE if:
-    // 1. Contest timer has started and problems exist (LIVE CONTEST IS RUNNING!)
-    // 2. Or contest ended / team left early (Read-only review mode)
-    // 3. Or full budget and timer started
-    if (isEndedOrLeft || (isTimerStarted && hasProblems) || (hasFullBudget && isTimerStarted)) {
+    if (isEndedOrLeft || (isTimerStarted && hasProblems)) {
       welcomeHero.classList.add('hidden');
       if (lockedHero) lockedHero.classList.add('hidden');
       arenaWorkspace.classList.remove('hidden');
     } else {
-      // Approved, but Sir hasn't started timer yet -> Show Arena Locked Hero
+      // Timer NOT started yet -> Arena is LOCKED! (Questions & Code Editor stay hidden)
       welcomeHero.classList.add('hidden');
       arenaWorkspace.classList.add('hidden');
       if (lockedHero) {
         lockedHero.classList.remove('hidden');
         updateArenaLockedHeroSlots(hasFullBudget, isTimerStarted, totalPoints);
       }
-      // If timer is running but problems aren't in memory yet, immediately load problems
       if (isTimerStarted && !hasProblems && window.loadProblems) {
         window.loadProblems();
       }
     }
   } else {
+    // Not logged in as approved team -> Welcome Hero (Workspace is hidden)
     welcomeHero.classList.remove('hidden');
     if (lockedHero) lockedHero.classList.add('hidden');
     arenaWorkspace.classList.add('hidden');
