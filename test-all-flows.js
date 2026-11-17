@@ -268,6 +268,19 @@ async function runTests() {
     assert(teamProblemsRes.status === 200 && teamProblemsRes.data.problems.length > 0, 'Student can retrieve assigned problems');
     const testProblem = teamProblemsRes.data.problems[0];
 
+    // Submission while PAUSED must be blocked (403)
+    const pausedSubRes = await request(testServer, 'POST', '/api/submit', {
+      username: team.username,
+      problemId: testProblem.id,
+      language: 'cpp',
+      code: '#include <iostream>\nusing namespace std;\nint main() { return 0; }'
+    });
+    assert(pausedSubRes.status === 403, 'POST /api/submit is strictly blocked with 403 when contest timer is paused');
+
+    // Resume timer for active submissions
+    const resumeRes = await request(testServer, 'POST', '/api/admin/timer/start', {}, authHeaders);
+    assert(resumeRes.status === 200 && resumeRes.data.timer.status === 'running', 'Timer resumed successfully');
+
     const subRes = await request(testServer, 'POST', '/api/submit', {
       username: team.username,
       problemId: testProblem.id,
@@ -298,6 +311,9 @@ async function runTests() {
     // 11. COMPETITION SNAPSHOT & HISTORY
     // -------------------------------------------------------------
     console.log('\n--- 11. Testing Competition History Snapshot ---');
+    // Pause/conclude contest timer so it can be snapshotted to history
+    await request(testServer, 'POST', '/api/admin/timer/pause', {}, authHeaders);
+
     const snapshotRes = await request(testServer, 'POST', '/api/admin/competitions/snapshot', {
       title: 'Automated Test Round 1',
       description: 'Detailed test description for history'

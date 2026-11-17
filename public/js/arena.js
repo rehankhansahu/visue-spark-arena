@@ -187,6 +187,16 @@ function refreshArenaState() {
     }
   }
 
+  if (activeProblem && typeof updateEditorAndControlsForProblem === 'function') {
+    const isSolved = Boolean(currentTeam && currentTeam.solvedProblems && currentTeam.solvedProblems.includes(activeProblem.id));
+    const allSolved = Boolean(currentTeam && (
+      currentTeam.isCompleted ||
+      (currentTeam.solvedProblems && contestProblems.length > 0 && contestProblems.every(p => currentTeam.solvedProblems.includes(p.id))) ||
+      ((currentTeam.score || 0) >= 60)
+    ));
+    updateEditorAndControlsForProblem(activeProblem, isSolved, allSolved);
+  }
+
   checkAllProblemsCompleted();
 }
 
@@ -560,8 +570,51 @@ function updateEditorAndControlsForProblem(p, isSolved, allSolved) {
     return;
   }
 
-  // Case C: Contest Time Expired / Ended -> Full Read-Only for Students (Can only read questions & view code)
+  // Case C-PAUSE: Contest is PAUSED by Sir -> Strict Read-Only Mode for all teams
   const timer = window.timerData;
+  const isContestPaused = Boolean(timer && timer.status === 'paused');
+  if (isContestPaused) {
+    if (actionControls) actionControls.classList.remove('hidden');
+    if (readOnlyBanner) {
+      readOnlyBanner.classList.add('hidden');
+      readOnlyBanner.classList.remove('flex');
+    }
+    if (btnSubmit) {
+      btnSubmit.disabled = true;
+      btnSubmit.classList.add('opacity-50', 'cursor-not-allowed');
+      btnSubmit.innerHTML = '<span>⏸️</span> <span>Contest Paused</span>';
+    }
+    if (btnTest) {
+      btnTest.disabled = true;
+      btnTest.classList.add('opacity-50', 'cursor-not-allowed');
+    }
+    if (btnReset) btnReset.classList.add('hidden');
+    if (editorTitleLabel) editorTitleLabel.textContent = `Source Editor (${p.difficulty} - Paused)`;
+    if (editorReadOnlyBadge) {
+      editorReadOnlyBadge.textContent = '⏸️ CONTEST PAUSED • READ ONLY';
+      editorReadOnlyBadge.classList.remove('hidden');
+    }
+    if (editorSubtitle) editorSubtitle.textContent = 'Contest Paused by Sir • Workspace in Read-Only Mode';
+    if (copyBtn) copyBtn.classList.remove('hidden');
+    if (codeEditor) {
+      codeEditor.readOnly = true;
+      codeEditor.setAttribute('readonly', 'true');
+    }
+    if (langSelect) langSelect.disabled = true;
+
+    // Load draft into editor for viewing
+    const draftKey = `visue_code_${currentTeam ? currentTeam.id : 'anon'}_${p.id}`;
+    const saved = localStorage.getItem(draftKey);
+    const teamLang = (currentTeam ? currentTeam.language : 'cpp') || 'cpp';
+    if (saved && codeEditor) {
+      codeEditor.value = saved;
+    } else if (p.starterCode && p.starterCode[teamLang] && codeEditor) {
+      codeEditor.value = p.starterCode[teamLang];
+    }
+    return;
+  }
+
+  // Case C: Contest Time Expired / Ended -> Full Read-Only for Students (Can only read questions & view code)
   const isContestEnded = Boolean(timer && (timer.status === 'ended' || (timer.remainingSeconds !== undefined && timer.remainingSeconds <= 0 && timer.status !== 'not_started')));
   if (isContestEnded) {
     if (actionControls) actionControls.classList.remove('hidden');
@@ -842,6 +895,11 @@ async function printTerminalLine(text, delayMs = 20) {
 
 // 6. Interactive Test Runner Simulation
 async function runTestCases() {
+  const timer = window.timerData;
+  if (timer && timer.status === 'paused') {
+    showToast('Contest Paused ⏸️', 'The contest is currently paused by Sir. Workspace is in read-only mode.', 'warning');
+    return;
+  }
   if (isRunningTests || !activeProblem) return;
   isRunningTests = true;
 
@@ -899,6 +957,12 @@ async function runTestCases() {
 
 // 7. Submit Solution
 async function submitCode() {
+  const timer = window.timerData;
+  if (timer && timer.status === 'paused') {
+    showToast('Contest Paused ⏸️', 'The contest is currently paused by Sir. Workspace is in read-only mode and submissions are disabled.', 'warning');
+    return;
+  }
+
   const currentTeam = window.getCurrentTeam ? window.getCurrentTeam() : null;
 
   if (!currentTeam) {

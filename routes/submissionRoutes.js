@@ -89,6 +89,13 @@ router.post('/submit', ensureWebsiteNotLocked, validateSubmit, (req, res) => {
     }
 
     const contestTimer = store.getContestTimer();
+    if (contestTimer.status === 'paused') {
+      return res.status(403).json({
+        success: false,
+        message: 'Contest is currently PAUSED by Sir! Workspace is in read-only mode. Submissions are temporarily paused.'
+      });
+    }
+
     if (contestTimer.status === 'ended' || (contestTimer.remainingSeconds !== undefined && contestTimer.remainingSeconds <= 0 && contestTimer.status !== 'not_started')) {
       return res.status(403).json({
         success: false,
