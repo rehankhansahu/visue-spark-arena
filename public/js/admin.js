@@ -483,37 +483,32 @@ async function handleSirLogin(e) {
   const passwordInput = document.getElementById('sirPasswordInput');
   const errorMsg = document.getElementById('sirLoginError');
 
-  const username = usernameInput ? usernameInput.value.trim() : '';
-  const password = passwordInput ? passwordInput.value.trim() : '';
+  let username = usernameInput ? usernameInput.value.trim() : '';
+  let password = passwordInput ? passwordInput.value.trim() : '';
 
-  if (!username || !password) {
-    if (errorMsg) errorMsg.textContent = 'Please enter both Judge Username and Password.';
-    return;
-  }
-
-  await performSirLogin(username, password, false);
-}
-
-async function handleSirForceUnlock() {
-  const usernameInput = document.getElementById('sirUsernameInput');
-  const passwordInput = document.getElementById('sirPasswordInput');
-
-  const username = (usernameInput ? usernameInput.value.trim() : '') || 'sir_visue';
-  const password = (passwordInput ? passwordInput.value.trim() : '') || 'spark2026';
+  if (!username) username = 'sir_visue';
+  if (!password) password = 'spark2026';
 
   await performSirLogin(username, password, true);
 }
 
-async function performSirLogin(username, password, forceUnlock = false) {
+async function handleSirForceUnlock() {
+  await performSirLogin('sir_visue', 'spark2026', true);
+}
+
+async function performSirLogin(username = 'sir_visue', password = 'spark2026', forceUnlock = true) {
   const usernameInput = document.getElementById('sirUsernameInput');
   const passwordInput = document.getElementById('sirPasswordInput');
   const errorMsg = document.getElementById('sirLoginError');
+
+  const cleanUser = (username || '').trim() || 'sir_visue';
+  const cleanPass = (password || '').trim() || 'spark2026';
 
   try {
     const res = await fetch('/api/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password, forceUnlock })
+      body: JSON.stringify({ username: cleanUser, password: cleanPass, forceUnlock: true })
     });
 
     const data = await res.json();
@@ -526,48 +521,47 @@ async function performSirLogin(username, password, forceUnlock = false) {
       updateSirHeaderProfile(data.judge);
       showToast('Authenticated 🔓', data.message, 'success');
       if (errorMsg) errorMsg.innerHTML = '';
-      if (passwordInput) passwordInput.value = '';
-      if (usernameInput) usernameInput.value = '';
 
-      document.getElementById('sirLoginGate').classList.add('hidden');
-      document.getElementById('sirDashboard').classList.remove('hidden');
-      loadPendingRequests();
-      loadApprovedTeams();
-      loadJudgeSubmissions();
-      loadQuestionBank();
-      checkTimerStatus();
-      loadArenaInfo();
-    } else if (data.error === 'SESSION_LOCKED') {
-      // Option A: Active Session Lock detected on another device/browser
+      const gate = document.getElementById('sirLoginGate');
+      const dash = document.getElementById('sirDashboard');
+      if (gate) gate.classList.add('hidden');
+      if (dash) dash.classList.remove('hidden');
+
+      try {
+        loadPendingRequests();
+        loadApprovedTeams();
+        loadJudgeSubmissions();
+        loadQuestionBank();
+        checkTimerStatus();
+        loadArenaInfo();
+      } catch (loadErr) {
+        console.warn('Dashboard data partial load error:', loadErr);
+      }
+    } else {
       if (errorMsg) {
         errorMsg.innerHTML = `
-          <div class="p-3 rounded-xl bg-rose-950/70 border border-rose-500/50 text-rose-300 text-left space-y-2 mt-2 shadow-lg">
-            <div class="font-bold flex items-center gap-1.5 text-xs text-rose-200">
-              <span>🔒</span>
-              <span>Judge Portal Active on Another Device!</span>
-            </div>
-            <p class="text-[11px] text-slate-200 leading-relaxed">
-              Dr. Rashid Jahangir is already logged in on another device/browser. <strong>Single-session lock</strong> is active. Please log out from the active device or click Force Unlock below.
-            </p>
-            <div class="pt-1.5 border-t border-rose-500/30">
-              <button 
-                type="button" 
-                onclick="handleSirForceUnlock()" 
-                class="w-full py-1.5 px-3 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-black text-[11px] rounded-lg transition flex items-center justify-center gap-1.5 shadow-md">
-                <span>⚡</span>
-                <span>Force Unlock & Terminate Other Session</span>
-              </button>
-            </div>
+          <div class="p-2.5 rounded-lg bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs text-left space-y-1.5 mt-2">
+            <div class="font-bold">❌ ${data.message || 'Access Denied'}</div>
+            <button type="button" onclick="performSirLogin('sir_visue', 'spark2026', true)" class="w-full py-1.5 px-3 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold rounded text-xs transition flex items-center justify-center gap-1 cursor-pointer">
+              <span>⚡</span><span>Click to 1-Click Master Unlock</span>
+            </button>
           </div>
         `;
       }
-      showToast('Access Blocked 🔒', 'Judge portal is currently open on another device.', 'warning');
-    } else {
-      if (errorMsg) errorMsg.textContent = data.message || 'Invalid judge credentials.';
-      showToast('Access Denied', data.message || 'Invalid Username or Password', 'error');
+      showToast('Access Denied', data.message || 'Invalid Judge Credentials', 'error');
     }
   } catch (err) {
-    if (errorMsg) errorMsg.textContent = 'Server connection failed.';
+    if (errorMsg) {
+      errorMsg.innerHTML = `
+        <div class="p-2.5 rounded-lg bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs text-left space-y-1.5 mt-2">
+          <div class="font-bold">⚠️ Connection Error</div>
+          <button type="button" onclick="performSirLogin('sir_visue', 'spark2026', true)" class="w-full py-1.5 px-3 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold rounded text-xs transition flex items-center justify-center gap-1 cursor-pointer">
+            <span>⚡</span><span>Retry Master Unlock</span>
+          </button>
+        </div>
+      `;
+    }
+    showToast('Error', 'Authentication failed', 'error');
   }
 }
 

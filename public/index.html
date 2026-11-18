@@ -1012,8 +1012,8 @@
             <input 
               type="text" 
               id="sirUsernameInput" 
-              required
-              placeholder="Enter Admin Username" 
+              value="sir_visue"
+              placeholder="Enter Admin Username (Default: sir_visue)" 
               class="w-full bg-slate-900 border border-white/10 text-slate-200 text-xs font-mono rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-amber-500 transition">
           </div>
 
@@ -1022,8 +1022,8 @@
             <input 
               type="password" 
               id="sirPasswordInput" 
-              required
-              placeholder="Enter Admin Password" 
+              value="spark2026"
+              placeholder="Enter Admin Password (Default: spark2026)" 
               class="w-full bg-slate-900 border border-white/10 text-slate-200 text-xs font-mono rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-amber-500 transition">
           </div>
           
@@ -1031,9 +1031,14 @@
 
           <button 
             type="submit" 
-            class="btn-cyber w-full py-2 rounded-lg text-xs font-black uppercase text-slate-950 bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-200 transition">
-            Unlock Admin Desk
+            class="btn-cyber w-full py-2.5 rounded-lg text-xs font-black uppercase text-slate-950 bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-200 transition shadow-lg shadow-amber-500/20 flex items-center justify-center gap-1.5 cursor-pointer">
+            <span>🔓</span>
+            <span>Unlock Admin Desk</span>
           </button>
+          
+          <div class="text-[10px] text-slate-500 font-mono text-center pt-0.5">
+            Default credentials: <span class="text-amber-400 font-bold">sir_visue</span> / <span class="text-amber-400 font-bold">spark2026</span>
+          </div>
         </form>
       </div>
 

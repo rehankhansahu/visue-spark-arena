@@ -384,44 +384,9 @@ function initSocketClient() {
       }
     });
 
-    // Judge Session Force-Unlocked or Changed from another device (Option A)
+    // Judge Session Changed notification
     socket.on('judgeSessionChanged', (data) => {
-      console.log('[Socket.IO] Judge session changed:', data);
-      const token = sessionStorage.getItem('sirToken');
-      if (token) {
-        fetch('/api/verify-auth', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        })
-        .then(res => res.json())
-        .then(authData => {
-          if (!authData.success) {
-            sessionStorage.removeItem('sirToken');
-            if (window.currentJudge) window.currentJudge = null;
-            const gate = document.getElementById('sirLoginGate');
-            const dash = document.getElementById('sirDashboard');
-            if (gate) gate.classList.remove('hidden');
-            if (dash) dash.classList.add('hidden');
-            const errEl = document.getElementById('sirLoginError');
-            if (errEl) {
-              errEl.innerHTML = `
-                <div class="p-3 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 text-left text-xs space-y-1">
-                  <div class="font-bold flex items-center gap-1">
-                    <span>⚠️</span>
-                    <span>Session Ended</span>
-                  </div>
-                  <p class="text-[11px] text-slate-300">
-                    Your Judge session has ended because the portal was unlocked on another device.
-                  </p>
-                </div>
-              `;
-            }
-            if (window.showToast) {
-              window.showToast('Session Ended ⚠️', 'Judge Portal was unlocked on another device.', 'warning');
-            }
-          }
-        })
-        .catch(() => {});
-      }
+      console.log('[Socket.IO] Judge session update:', data);
     });
 
     // All 3 Challenges Completed by a Team

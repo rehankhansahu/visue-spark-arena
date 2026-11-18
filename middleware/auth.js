@@ -43,19 +43,6 @@ function verifySirToken(req, res, next) {
       });
     }
 
-    // Option A: Single-Judge Active Session Lock (applies to judges)
-    if (decoded.role === 'judge' && decoded.sessionId) {
-      const active = store.getActiveJudgeSession();
-      if (!active || active.sessionId !== decoded.sessionId) {
-        return res.status(403).json({
-          success: false,
-          error: 'SESSION_SUPERSEDED',
-          message: 'Access Denied: Your judge session has ended because another session was unlocked or logged out.'
-        });
-      }
-      store.touchJudgeSession();
-    }
-
     req.user = decoded;
     next();
   } catch (err) {
