@@ -7,7 +7,7 @@ const express = require('express');
 const router = express.Router();
 const store = require('../data/store');
 const { validateRegister, validateStudentLogin } = require('../middleware/validator');
-const { generateExamLockScript } = require('../data/examLockGenerator');
+const { generateExamLockScript, generateExamUnlockScript } = require('../data/examLockGenerator');
 
 /**
  * POST /api/register
@@ -275,11 +275,34 @@ router.post('/team/pc-heartbeat', (req, res) => {
 
     const timer = store.getContestTimer();
     const assignedProblems = store.getProblemsForTeam(team.id);
-    const allSolved = assignedProblems.length > 0 && assignedProblems.every(p => (team.solvedProblems || []).includes(p.id));
+    const allSolved = Boolean(
+      team.isCompleted ||
+      (assignedProblems.length > 0 && assignedProblems.every(p => (team.solvedProblems || []).includes(p.id))) ||
+      ((team.score || 0) >= 60)
+    );
     const isCompleted = Boolean(team.isCompleted || allSolved);
     const hasLeftEarly = Boolean(team.leftEarly || team.status === 'left_early');
     const isTimerExpired = Boolean(timer?.status === 'ended' || (timer?.remainingSeconds !== undefined && timer?.remainingSeconds <= 0 && timer?.status !== 'not_started'));
     const shouldUnlock = Boolean(hasLeftEarly || isCompleted || isTimerExpired);
+
+    if (shouldUnlock && team.pcLockStatus !== 'unlocked') {
+      team.pcLockStatus = 'unlocked';
+      const io = req.app.get('io');
+      if (io) {
+        io.emit('teamLockStatusChanged', {
+          teamId: team.id,
+          teamName: team.teamName,
+          leaderName: team.leaderName,
+          leaderRoll: team.leaderRoll,
+          university: team.university,
+          username: team.username,
+          pcLockStatus: 'unlocked',
+          isCompleted: isCompleted,
+          leftEarly: hasLeftEarly,
+          shouldUnlock: true
+        });
+      }
+    }
 
     let unlockReason = '';
     if (hasLeftEarly) {
@@ -345,6 +368,40 @@ router.get('/team/exam-lock-script/:passKey', (req, res) => {
     return res.send(batContent);
   } catch (err) {
     return res.status(500).send('Error generating exam lock script: ' + err.message);
+  }
+});
+
+/**
+ * GET /api/team/exam-unlock-script/:passKey
+ * Download 1-Click Windows Internet Restoration (.bat) script for the team
+ */
+router.get('/team/exam-unlock-script/:passKey', (req, res) => {
+  try {
+    const passKey = (req.params.passKey || '').trim();
+    const team = store.getTeamByUsername(passKey) || store.getTeamByPassKey(passKey) || store.getTeamById(passKey) || store.getTeamByRoll(passKey);
+
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
+    const host = req.get('host') || 'visue-spark-arena.onrender.com';
+    const serverUrl = `${protocol}://${host}`;
+    const cleanPassKey = team ? (team.username || team.secretKey || team.passKey || passKey) : passKey;
+
+    const arenaInfo = (store.getArenaInfo ? store.getArenaInfo() : null) || {};
+    const arenaName = arenaInfo.name || 'V Spark 2026';
+    const cleanArenaFilePrefix = arenaName.replace(/[^a-zA-Z0-9_-]/g, '_').replace(/_+/g, '_').slice(0, 24);
+
+    const batContent = generateExamUnlockScript({
+      passKey: cleanPassKey,
+      serverUrl,
+      arenaName: arenaName
+    });
+
+    const filename = `${cleanArenaFilePrefix}-Restore-Internet.bat`;
+
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    return res.send(batContent);
+  } catch (err) {
+    return res.status(500).send('Error generating exam unlock script: ' + err.message);
   }
 });
 

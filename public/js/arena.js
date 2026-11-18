@@ -1068,6 +1068,22 @@ async function submitCode() {
           window.freezeTeamTimer(updatedTeam.timeTakenFormatted, updatedTeam.timeTakenWords);
         }
         showToast('ALL CHALLENGES SOLVED! 🏆', `Contest completed in ${updatedTeam.timeTakenWords || updatedTeam.timeTakenFormatted}! Review mode unlocked.`, 'success');
+
+        // Immediately notify server that PC is unlocked
+        try {
+          fetch('/api/team/pc-lock', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              teamId: currentTeam.id,
+              username: currentTeam.username,
+              passKey: currentTeam.passKey || currentTeam.username,
+              status: 'unlocked'
+            })
+          }).catch(() => {});
+        } catch (e) {}
+
+        showToast('Internet Restored 🌐', 'Normal internet access has been restored on your PC! Great job!', 'info');
       }
 
     } else {
@@ -1276,12 +1292,26 @@ async function executeLeaveContest() {
       }
     }
 
+    // Immediately notify server that PC is unlocked
+    try {
+      fetch('/api/team/pc-lock', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          teamId: currentTeam.id,
+          username: currentTeam.username,
+          passKey: currentTeam.passKey || currentTeam.username,
+          status: 'unlocked'
+        })
+      }).catch(() => {});
+    } catch (e) {}
+
     toggleLeaveContestModal(false);
 
     if (window.showToast) {
       window.showToast(
         'Contest Left 🚪',
-        'Your work has been submitted to the Chief Judge (Marked: Left Early / Incomplete).',
+        'Your work has been submitted to the Chief Judge (Marked: Left Early / Incomplete). Internet access has been restored.',
         'warning'
       );
     }
@@ -1420,3 +1450,11 @@ window.checkAllProblemsCompleted = checkAllProblemsCompleted;
 window.toggleLeaveContestModal = toggleLeaveContestModal;
 window.executeLeaveContest = executeLeaveContest;
 window.autoSubmitOnTimeUp = autoSubmitOnTimeUp;
+
+function downloadNetRestoreTool(e) {
+  if (e && e.preventDefault) e.preventDefault();
+  const currentTeam = window.getCurrentTeam ? window.getCurrentTeam() : null;
+  const key = currentTeam ? (currentTeam.username || currentTeam.secretKey || currentTeam.passKey || currentTeam.id) : 'team';
+  window.location.href = `/api/team/exam-unlock-script/${encodeURIComponent(key)}`;
+}
+window.downloadNetRestoreTool = downloadNetRestoreTool;

@@ -125,8 +125,10 @@ router.post('/submit', ensureWebsiteNotLocked, validateSubmit, (req, res) => {
       // Stream to Sir's Desk
       io.emit('newSubmission', result.submission);
 
-      // If team finished all challenges, broadcast milestone alert
+      // If team finished all challenges, broadcast milestone alert & unlock PC
       if (result.allChallengesSolved || result.allThreeSolved) {
+        team.pcLockStatus = 'unlocked';
+        team.isCompleted = true;
         io.emit('allChallengesCompleted', {
           teamId: team.id,
           teamName: team.teamName,
@@ -136,6 +138,19 @@ router.post('/submit', ensureWebsiteNotLocked, validateSubmit, (req, res) => {
           timeTakenSeconds: result.team.timeTakenSeconds,
           timeTakenFormatted: result.team.timeTakenFormatted,
           timeTakenWords: result.team.timeTakenWords
+        });
+
+        io.emit('teamLockStatusChanged', {
+          teamId: team.id,
+          teamName: team.teamName,
+          leaderName: team.leaderName,
+          leaderRoll: team.leaderRoll,
+          university: team.university,
+          username: team.username,
+          pcLockStatus: 'unlocked',
+          isCompleted: true,
+          shouldUnlock: true,
+          unlockReason: 'All Challenges Completed! Congratulations!'
         });
 
         // Check if all approved teams have finished (or single team in testing)
@@ -222,6 +237,19 @@ router.post('/leave-contest', ensureWebsiteNotLocked, (req, res) => {
         solvedCount: (result.team.solvedProblems || []).length,
         score: result.team.score,
         leftAt: result.team.leftAt
+      });
+
+      io.emit('teamLockStatusChanged', {
+        teamId: result.team.id,
+        teamName: result.team.teamName,
+        leaderName: result.team.leaderName,
+        leaderRoll: result.team.leaderRoll,
+        university: result.team.university,
+        username: result.team.username,
+        pcLockStatus: 'unlocked',
+        leftEarly: true,
+        shouldUnlock: true,
+        unlockReason: isTimeUp ? 'Contest Time Up (Timer Ended)' : 'You Left the Contest (Session Closed)'
       });
 
       // Stream recorded partial submissions to Sir's desk

@@ -213,6 +213,12 @@ async function runTests() {
     assert(batRes.data.includes('Emergency_Unlock.bat'), 'Script configures hidden emergency unlock path');
     assert(batRes.data.includes(team.username), 'Script contains team username identifier');
 
+    // Test Internet Restoration (.bat) script generation
+    const unlockBatRes = await request(testServer, 'GET', `/api/team/exam-unlock-script/${team.username}`);
+    assert(unlockBatRes.status === 200, 'GET /api/team/exam-unlock-script returns 200');
+    assert(typeof unlockBatRes.data === 'string' && unlockBatRes.data.includes('RESTORING'), 'Restore script contains restore message');
+    assert(unlockBatRes.data.includes('netsh advfirewall set allprofiles firewallpolicy blockinbound,allowoutbound'), 'Restore script resets firewall');
+
     // -------------------------------------------------------------
     // 7. TIMER START BLOCK CHECK 1: UNLOCKED PC GUARD & QUESTIONS GUARD
     // -------------------------------------------------------------

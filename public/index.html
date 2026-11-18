@@ -435,11 +435,19 @@
           </div>
 
           <!-- All 3 Completed / Read-Only Status Indicator (Replaces submission buttons when all 3 submitted) -->
-          <div id="arenaAllCompletedBadge" class="hidden items-center gap-2 ml-auto">
+          <div id="arenaAllCompletedBadge" class="hidden items-center gap-2 ml-auto flex-wrap">
             <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-mono font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/40 shadow-sm">
               <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span>🔒 All Challenges Submitted • Read-Only Review Mode</span>
+              <span>🔒 All Challenges Solved • Review Mode</span>
             </div>
+            <div class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm">
+              <span>🌐</span>
+              <span>Internet Restored</span>
+            </div>
+            <a href="#" onclick="downloadNetRestoreTool(event)" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30 border border-cyan-500/40 transition" title="1-Click Windows Restore Net (.bat)">
+              <span>⬇️</span>
+              <span>Restore Net (.bat)</span>
+            </a>
           </div>
 
           <!-- Left Early Status Indicator (Shown if team leaves early) -->
@@ -459,9 +467,19 @@
           <p id="arenaLeftEarlySubtitle" class="text-xs text-slate-300 max-w-lg mx-auto">
             You have left the contest early. All code written so far has been submitted to the Chief Judge for evaluation in read-only review mode.
           </p>
-          <div id="arenaLeftEarlyStatusBadge" class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
-            <span>⏳</span>
-            <span id="arenaLeftEarlyStatusText">Admin will evaluate your partial/submitted solutions</span>
+          <div class="flex items-center justify-center gap-2 flex-wrap pt-1">
+            <div id="arenaLeftEarlyStatusBadge" class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+              <span>⏳</span>
+              <span id="arenaLeftEarlyStatusText">Admin will evaluate your partial/submitted solutions</span>
+            </div>
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm">
+              <span>🌐</span>
+              <span>Internet 100% Restored</span>
+            </div>
+            <a id="btnLeftEarlyRestoreNet" href="#" onclick="downloadNetRestoreTool(event)" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30 border border-cyan-500/40 transition" title="1-Click Windows Restore Net Tool (.bat)">
+              <span>⬇️</span>
+              <span>Restore Net Tool (.bat)</span>
+            </a>
           </div>
         </div>
 

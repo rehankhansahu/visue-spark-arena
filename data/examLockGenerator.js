@@ -95,6 +95,7 @@ function generateExamLockScript({ passKey, teamName, university, serverUrl, aren
     '  echo netsh advfirewall firewall delete rule name="VSpark_Block_Outbound" ^>nul 2^>^&1',
     '  echo Restoring hosts configuration...',
     '  echo if exist "%LOCALAPPDATA%\\VSpark\\hosts.vspark.bak" copy /y "%LOCALAPPDATA%\\VSpark\\hosts.vspark.bak" "%SystemRoot%\\System32\\drivers\\etc\\hosts" ^>nul 2^>^&1',
+    '  echo powershell -NoProfile -Command "if (Test-Path $env:SystemRoot\\System32\\drivers\\etc\\hosts) { (Get-Content $env:SystemRoot\\System32\\drivers\\etc\\hosts) | Where-Object { $_ -notmatch \'V SPARK 2026 STRICT EXAM LOCK\' -and $_ -notmatch \'chatgpt\\.com\' -and $_ -notmatch \'claude\\.ai\' -and $_ -notmatch \'deepseek\\.com\' -and $_ -notmatch \'github\\.com\' -and $_ -notmatch \'stackoverflow\\.com\' -and $_ -notmatch \'whatsapp\\.com\' -and $_ -notmatch \'youtube\\.com\' } | Set-Content $env:SystemRoot\\System32\\drivers\\etc\\hosts -Force -ErrorAction SilentlyContinue }" ^>nul 2^>^&1',
     '  echo ipconfig /flushdns ^>nul 2^>^&1',
     '  echo Notifying server...',
     '  echo powershell -NoProfile -Command "try { Invoke-RestMethod -Uri \'' + cleanServerUrl + '/api/team/pc-lock\' -Method Post -Body \'{\\"passKey\\":\\"' + cleanPassKey + '\\",\\"status\\":\\"unlocked\\"}\' -ContentType \'application/json\' -TimeoutSec 5 } catch {}" ^>nul 2^>^&1',
@@ -129,7 +130,7 @@ function generateExamLockScript({ passKey, teamName, university, serverUrl, aren
     'timeout /t 3 >nul 2>&1',
     '',
     ':: 7. Launch Background Watchdog and Exit Visible Console',
-    'powershell -WindowStyle Hidden -NoProfile -ExecutionPolicy Bypass -Command "& { Add-Type -AssemblyName System.Windows.Forms; $pKey = \'' + cleanPassKey + '\'; $sUrl = \'' + cleanServerUrl + '\'; $self = \'%~f0\'; $running = $true; $reason = \'Contest Finished\'; try { Invoke-RestMethod -Uri \\"$sUrl/api/team/pc-heartbeat\\" -Method Post -Body (@{ passKey = $pKey } | ConvertTo-Json) -ContentType \'application/json\' -TimeoutSec 6 | Out-Null; } catch {}; while ($running) { Start-Sleep -Seconds 3; if (Test-Path \\"$env:LOCALAPPDATA\\VSpark\\unlock.signal\\") { $reason = \'Emergency Unlock Activated\'; $running = $false; break; }; try { $body = @{ passKey = $pKey } | ConvertTo-Json; $res = Invoke-RestMethod -Uri \\"$sUrl/api/team/pc-heartbeat\\" -Method Post -Body $body -ContentType \'application/json\' -TimeoutSec 6; if ($res.success) { if ($res.shouldUnlock -eq $true -or $res.isCompleted -eq $true -or $res.allSolved -eq $true -or $res.leftArena -eq $true -or $res.teamStatus -eq \'left_early\' -or $res.contestStatus -eq \'ended\' -or ($res.remainingSeconds -ne $null -and $res.remainingSeconds -le 0)) { $reason = if ($res.unlockReason) { $res.unlockReason } elseif ($res.leftArena -eq $true -or $res.teamStatus -eq \'left_early\') { \'You Left the Contest (Session Closed)\' } elseif ($res.isCompleted -eq $true -or $res.allSolved -eq $true) { \'All Challenges Completed! Congratulations!\' } else { \'Contest Time Up (Timer Ended)\' }; $running = $false; } } } catch {} }; netsh advfirewall set allprofiles firewallpolicy blockinbound,allowoutbound | Out-Null; netsh advfirewall firewall delete rule name=\'VSpark_Allow_DNS\' | Out-Null; netsh advfirewall firewall delete rule name=\'VSpark_Allow_DNS_TCP\' | Out-Null; netsh advfirewall firewall delete rule name=\'VSpark_Allow_DHCP\' | Out-Null; netsh advfirewall firewall delete rule name=\'VSpark_Allow_Loopback\' | Out-Null; netsh advfirewall firewall delete rule name=\'VSpark_Allow_Arena\' | Out-Null; netsh advfirewall firewall delete rule name=\'VSpark_Block_Outbound\' | Out-Null; $hBak = \\"$env:LOCALAPPDATA\\VSpark\\hosts.vspark.bak\\"; $hDst = \\"$env:SystemRoot\\System32\\drivers\\etc\\hosts\\"; if (Test-Path $hBak) { Copy-Item -Path $hBak -Destination $hDst -Force -ErrorAction SilentlyContinue; ipconfig /flushdns | Out-Null; }; try { $unBody = @{ passKey = $pKey; status = \'unlocked\' } | ConvertTo-Json; Invoke-RestMethod -Uri \\"$sUrl/api/team/pc-lock\\" -Method Post -Body $unBody -ContentType \'application/json\' -TimeoutSec 6 | Out-Null; } catch {}; [System.Windows.Forms.MessageBox]::Show(\\"🎉 ' + cleanArenaName + ': $reason`n`nInternet access has been 100% restored and the exam lock tool has been removed from your PC.\\", \'' + cleanArenaName + ' Strict Exam Mode\', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information); try { Remove-Item \\"$env:USERPROFILE\\Desktop\\Emergency_Unlock.bat\\" -Force -ErrorAction SilentlyContinue; Remove-Item \\"$env:LOCALAPPDATA\\VSpark\\Emergency_Unlock.bat\\" -Force -ErrorAction SilentlyContinue; Remove-Item \\"$env:LOCALAPPDATA\\VSpark\\" -Force -Recurse -ErrorAction SilentlyContinue; Remove-Item $self -Force -ErrorAction SilentlyContinue; } catch {} }"',
+    'powershell -WindowStyle Hidden -NoProfile -ExecutionPolicy Bypass -Command "& { Add-Type -AssemblyName System.Windows.Forms; $pKey = \'' + cleanPassKey + '\'; $sUrl = \'' + cleanServerUrl + '\'; $self = \'%~f0\'; $running = $true; $reason = \'Contest Finished\'; try { Invoke-RestMethod -Uri \\"$sUrl/api/team/pc-heartbeat\\" -Method Post -Body (@{ passKey = $pKey } | ConvertTo-Json) -ContentType \'application/json\' -TimeoutSec 5 | Out-Null; } catch {}; while ($running) { Start-Sleep -Seconds 2; if (Test-Path \\"$env:LOCALAPPDATA\\VSpark\\unlock.signal\\") { $reason = \'Manual Unlock Signal Received\'; $running = $false; break; }; try { $body = @{ passKey = $pKey } | ConvertTo-Json; $res = Invoke-RestMethod -Uri \\"$sUrl/api/team/pc-heartbeat\\" -Method Post -Body $body -ContentType \'application/json\' -TimeoutSec 5; if ($res.success) { if ($res.shouldUnlock -eq $true -or $res.isCompleted -eq $true -or $res.allSolved -eq $true -or $res.leftArena -eq $true -or $res.teamStatus -eq \'left_early\' -or $res.contestStatus -eq \'ended\' -or ($res.remainingSeconds -ne $null -and $res.remainingSeconds -le 0)) { $reason = if ($res.unlockReason) { $res.unlockReason } elseif ($res.leftArena -eq $true -or $res.teamStatus -eq \'left_early\') { \'You Left the Contest (Session Closed)\' } elseif ($res.isCompleted -eq $true -or $res.allSolved -eq $true) { \'All Challenges Completed! Congratulations!\' } else { \'Contest Time Up (Timer Ended)\' }; $running = $false; } } } catch {} }; netsh advfirewall set allprofiles firewallpolicy blockinbound,allowoutbound | Out-Null; netsh advfirewall firewall delete rule name=\'VSpark_Allow_DNS\' | Out-Null; netsh advfirewall firewall delete rule name=\'VSpark_Allow_DNS_TCP\' | Out-Null; netsh advfirewall firewall delete rule name=\'VSpark_Allow_DHCP\' | Out-Null; netsh advfirewall firewall delete rule name=\'VSpark_Allow_Loopback\' | Out-Null; netsh advfirewall firewall delete rule name=\'VSpark_Allow_Arena\' | Out-Null; netsh advfirewall firewall delete rule name=\'VSpark_Block_Outbound\' | Out-Null; $hBak = \\"$env:LOCALAPPDATA\\VSpark\\hosts.vspark.bak\\"; $hDst = \\"$env:SystemRoot\\System32\\drivers\\etc\\hosts\\"; if (Test-Path $hBak) { Copy-Item -Path $hBak -Destination $hDst -Force -ErrorAction SilentlyContinue; }; try { if (Test-Path $hDst) { $hc = Get-Content $hDst -ErrorAction SilentlyContinue; if ($hc) { $hc | Where-Object { $_ -notmatch \'V SPARK 2026 STRICT EXAM LOCK\' -and $_ -notmatch \'chatgpt\\.com\' -and $_ -notmatch \'claude\\.ai\' -and $_ -notmatch \'deepseek\\.com\' -and $_ -notmatch \'github\\.com\' -and $_ -notmatch \'stackoverflow\\.com\' -and $_ -notmatch \'whatsapp\\.com\' -and $_ -notmatch \'youtube\\.com\' } | Set-Content $hDst -Force -ErrorAction SilentlyContinue; } } } catch {}; ipconfig /flushdns | Out-Null; try { $unBody = @{ passKey = $pKey; status = \'unlocked\' } | ConvertTo-Json; Invoke-RestMethod -Uri \\"$sUrl/api/team/pc-lock\\" -Method Post -Body $unBody -ContentType \'application/json\' -TimeoutSec 5 | Out-Null; } catch {}; [System.Windows.Forms.MessageBox]::Show(\\"🎉 ' + cleanArenaName + ': $reason`n`nNormal Internet access has been 100% restored! Exam-Lock removed from PC.\\", \'' + cleanArenaName + ' Exam Mode\', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information); try { Remove-Item \\"$env:USERPROFILE\\Desktop\\Emergency_Unlock.bat\\" -Force -ErrorAction SilentlyContinue; Remove-Item \\"$env:LOCALAPPDATA\\VSpark\\Emergency_Unlock.bat\\" -Force -ErrorAction SilentlyContinue; Remove-Item \\"$env:LOCALAPPDATA\\VSpark\\" -Force -Recurse -ErrorAction SilentlyContinue; Remove-Item $self -Force -ErrorAction SilentlyContinue; } catch {} }"',
     '',
     'exit /b'
   ];
@@ -137,4 +138,73 @@ function generateExamLockScript({ passKey, teamName, university, serverUrl, aren
   return batTemplate.join('\r\n');
 }
 
-module.exports = { generateExamLockScript };
+function generateExamUnlockScript({ passKey, serverUrl, arenaName }) {
+  const cleanPassKey = (passKey || '').replace(/[^a-zA-Z0-9_-]/g, '');
+  const cleanServerUrl = (serverUrl || 'https://visue-spark-arena.onrender.com').replace(/\/+$/, '');
+  const cleanArenaName = (arenaName || 'V Spark 2026').replace(/[^a-zA-Z0-9 _-]/g, '');
+
+  const batTemplate = [
+    '@echo off',
+    'setlocal EnableDelayedExpansion',
+    'title ' + cleanArenaName + ' - Internet Restoration Tool',
+    '',
+    ':: 1. Self-Elevation Check (Run as Administrator)',
+    'net session >nul 2>&1',
+    'if %errorLevel% neq 0 (',
+    '    echo ========================================================',
+    '    echo   [' + cleanArenaName.toUpperCase() + '] RESTORING INTERNET ACCESS',
+    '    echo   Administrator privileges required to restore network settings.',
+    '    echo   Prompting Windows for administrator permission...',
+    '    echo ========================================================',
+    '    powershell -NoProfile -Command "Start-Process cmd -ArgumentList \'/c \\"\\"%~f0\\"\\"\' -Verb RunAs"',
+    '    exit /b',
+    ')',
+    '',
+    'echo ========================================================',
+    'echo   [' + cleanArenaName.toUpperCase() + '] RESTORING 100%% INTERNET ACCESS...',
+    'echo ========================================================',
+    'echo.',
+    'echo [1/5] Stopping background exam watchdog processes...',
+    'if exist "%LOCALAPPDATA%\\VSpark" type nul > "%LOCALAPPDATA%\\VSpark\\unlock.signal" 2>nul',
+    'powershell -NoProfile -Command "Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like \'*pc-heartbeat*\' -or $_.CommandLine -like \'*ExamLock*\' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }" >nul 2>&1',
+    '',
+    'echo [2/5] Resetting Windows Firewall to normal allow outbound policy...',
+    'netsh advfirewall set allprofiles firewallpolicy blockinbound,allowoutbound >nul 2>&1',
+    'netsh advfirewall firewall delete rule name="VSpark_Allow_DNS" >nul 2>&1',
+    'netsh advfirewall firewall delete rule name="VSpark_Allow_DNS_TCP" >nul 2>&1',
+    'netsh advfirewall firewall delete rule name="VSpark_Allow_DHCP" >nul 2>&1',
+    'netsh advfirewall firewall delete rule name="VSpark_Allow_Loopback" >nul 2>&1',
+    'netsh advfirewall firewall delete rule name="VSpark_Allow_Arena" >nul 2>&1',
+    'netsh advfirewall firewall delete rule name="VSpark_Block_Outbound" >nul 2>&1',
+    '',
+    'echo [3/5] Restoring hosts file & clearing DNS blocklists...',
+    'if exist "%LOCALAPPDATA%\\VSpark\\hosts.vspark.bak" (',
+    '    copy /y "%LOCALAPPDATA%\\VSpark\\hosts.vspark.bak" "%SystemRoot%\\System32\\drivers\\etc\\hosts" >nul 2>&1',
+    ')',
+    'powershell -NoProfile -Command "if (Test-Path $env:SystemRoot\\System32\\drivers\\etc\\hosts) { (Get-Content $env:SystemRoot\\System32\\drivers\\etc\\hosts) | Where-Object { $_ -notmatch \'V SPARK 2026 STRICT EXAM LOCK\' -and $_ -notmatch \'chatgpt\\.com\' -and $_ -notmatch \'claude\\.ai\' -and $_ -notmatch \'deepseek\\.com\' -and $_ -notmatch \'github\\.com\' -and $_ -notmatch \'stackoverflow\\.com\' -and $_ -notmatch \'whatsapp\\.com\' -and $_ -notmatch \'youtube\\.com\' } | Set-Content $env:SystemRoot\\System32\\drivers\\etc\\hosts -Force -ErrorAction SilentlyContinue }"',
+    'ipconfig /flushdns >nul 2>&1',
+    '',
+    'echo [4/5] Notifying Arena server of PC unlocked status...',
+    'powershell -NoProfile -Command "try { Invoke-RestMethod -Uri \'' + cleanServerUrl + '/api/team/pc-lock\' -Method Post -Body \'{\\"passKey\\":\\"' + cleanPassKey + '\\",\\"status\\":\\"unlocked\\"}\' -ContentType \'application/json\' -TimeoutSec 5 } catch {}" >nul 2>&1',
+    '',
+    'echo [5/5] Cleaning up temporary files...',
+    'if exist "%LOCALAPPDATA%\\VSpark\\script.path" (',
+    '    set /p ORIG_SCRIPT=<"%LOCALAPPDATA%\\VSpark\\script.path"',
+    '    if exist "!ORIG_SCRIPT!" del /f /q "!ORIG_SCRIPT!" >nul 2>&1',
+    ')',
+    'del /f /q "%USERPROFILE%\\Desktop\\Emergency_Unlock.bat" >nul 2>&1',
+    'rd /s /q "%LOCALAPPDATA%\\VSpark" >nul 2>&1',
+    '',
+    'echo ========================================================',
+    'echo   [SUCCESS] Normal Internet Access has been 100%% Restored!',
+    'echo   All V Spark exam locks and firewall rules have been removed.',
+    'echo ========================================================',
+    'powershell -NoProfile -Command "Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show(\\"Internet access has been 100% restored!`n`nAll websites and services are fully accessible.\\", \\"' + cleanArenaName + ' - Net Restored\\", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)"',
+    'timeout /t 3 >nul 2>&1',
+    'exit /b'
+  ];
+
+  return batTemplate.join('\r\n');
+}
+
+module.exports = { generateExamLockScript, generateExamUnlockScript };

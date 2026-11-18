@@ -2004,7 +2004,7 @@ const store = {
     };
 
     // Check if team solved all assigned challenges in contest
-    const allChallengesSolved = assignedProblems.length > 0 && assignedProblems.every(p => team.solvedProblems.includes(p.id));
+    const allChallengesSolved = (assignedProblems.length > 0 && assignedProblems.every(p => team.solvedProblems.includes(p.id))) || ((team.score || 0) >= 60);
     if (allChallengesSolved && !team.isCompleted) {
       team.isCompleted = true;
       team.pcLockStatus = 'unlocked';
@@ -2725,7 +2725,7 @@ const store = {
     const alerts = [];
 
     for (const team of teams.values()) {
-      if (team.status === 'approved' && !team.leftEarly && team.pcLockStatus === 'locked') {
+      if (team.status === 'approved' && !team.leftEarly && !team.isCompleted && team.pcLockStatus === 'locked') {
         // If contest is actively running and heartbeat has stopped for more than 20 seconds:
         if (isRunning && team.pcLastHeartbeat && (now - team.pcLastHeartbeat > 20000)) {
           if (!team.pcTamperAlert) {
