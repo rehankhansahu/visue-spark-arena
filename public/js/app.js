@@ -1055,45 +1055,29 @@ function renderContestPassView() {
 
         <!-- Windows Exam-Lock (.bat Tool Required) -->
         <div class="w-full pt-1 space-y-1.5">
-          ${(currentTeam.isCompleted || currentTeam.leftEarly || currentTeam.pcLockStatus === 'unlocked') ? `
-            <div class="space-y-1.5">
-              <div class="w-full py-1.5 px-3 rounded-xl text-xs font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center justify-center gap-1.5 shadow-sm">
-                <span>🌐</span>
-                <span>Normal Internet Restored (Exam-Lock Deactivated)</span>
-              </div>
-              <a 
-                href="/api/team/exam-unlock-script/${encodeURIComponent(currentTeam.username || currentTeam.secretKey || currentTeam.passKey || currentTeam.id)}" 
-                download
-                class="btn-cyber w-full py-1.5 rounded-xl text-xs font-mono font-bold text-cyan-200 bg-cyan-950/70 hover:bg-cyan-900/80 border border-cyan-500/50 transition flex items-center justify-center gap-2 shadow-sm">
-                <span>⬇️</span>
-                <span>Download Restore Internet Tool (.bat)</span>
-              </a>
+          <a 
+            href="/api/team/exam-lock-script/${encodeURIComponent(currentTeam.username || currentTeam.secretKey || currentTeam.passKey || currentTeam.id)}" 
+            download
+            class="btn-cyber w-full py-2 rounded-xl text-xs font-mono font-bold text-cyan-200 bg-cyan-950/70 hover:bg-cyan-900/80 border border-cyan-500/50 transition flex items-center justify-center gap-2 shadow-md">
+            <span>🛡️</span>
+            <span>Download Exam-Lock Tool (.bat)</span>
+          </a>
+
+          ${currentTeam.pcLockStatus === 'locked' ? `
+            <div class="w-full py-1.5 px-3 rounded-xl text-xs font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center justify-center gap-1.5 shadow-sm">
+              <span>🛡️</span>
+              <span>PC Exam-Lock Active (Locked by .bat script)</span>
             </div>
           ` : `
-            <a 
-              href="/api/team/exam-lock-script/${encodeURIComponent(currentTeam.username || currentTeam.secretKey || currentTeam.passKey || currentTeam.id)}" 
-              download
-              class="btn-cyber w-full py-2 rounded-xl text-xs font-mono font-bold text-cyan-200 bg-cyan-950/70 hover:bg-cyan-900/80 border border-cyan-500/50 transition flex items-center justify-center gap-2 shadow-md">
-              <span>🛡️</span>
-              <span>Download Exam-Lock Tool (.bat)</span>
-            </a>
-
-            ${currentTeam.pcLockStatus === 'locked' ? `
-              <div class="w-full py-1.5 px-3 rounded-xl text-xs font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center justify-center gap-1.5 shadow-sm">
-                <span>🛡️</span>
-                <span>PC Exam-Lock Active (Locked by .bat script)</span>
-              </div>
-            ` : `
-              <div class="w-full py-1.5 px-3 rounded-xl text-xs font-mono font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/30 flex items-center justify-center gap-1.5">
-                <span>⏳</span>
-                <span>Awaiting .bat execution (Run as Admin to Lock PC)</span>
-              </div>
-            `}
-
-            <p class="text-[9px] text-slate-400 text-center leading-tight">
-              Windows Exam-Lock locks internet to V Spark Arena. Run the .bat as Administrator before Sir starts the contest.
-            </p>
+            <div class="w-full py-1.5 px-3 rounded-xl text-xs font-mono font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/30 flex items-center justify-center gap-1.5">
+              <span>⏳</span>
+              <span>Awaiting .bat execution (Run as Admin to Lock PC)</span>
+            </div>
           `}
+
+          <p class="text-[9px] text-slate-400 text-center leading-tight">
+            Windows Exam-Lock locks internet to V Spark Arena. Run the .bat as Administrator before Sir starts the contest.
+          </p>
         </div>
 
         <!-- Multi-Team Quick Actions (Allows multiple teams across tabs/browsers) -->
