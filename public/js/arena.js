@@ -351,15 +351,7 @@ function selectProblem(id) {
   document.getElementById('problemPointsBadge').textContent = `${p.points} Points`;
   const langBadge = document.getElementById('problemLanguagesBadge');
   if (langBadge) {
-    const qLangs = (p.languages && Array.isArray(p.languages) && p.languages.length > 0)
-      ? p.languages
-      : ['C', 'C++', 'Java', 'Python'];
-
-    if (qLangs.length >= 4) {
-      langBadge.textContent = '🌐 Languages: C • C++ • Java • Python';
-    } else {
-      langBadge.textContent = `🌐 Language: ${qLangs.join(' • ')}`;
-    }
+    langBadge.classList.add('hidden');
   }
 
   // Ensure current editor language defaults to student's chosen language if supported
@@ -374,8 +366,12 @@ function selectProblem(id) {
     }
   }
 
-  document.getElementById('problemTimeLimit').textContent = p.timeLimit || '1.0s';
-  document.getElementById('problemMemoryLimit').textContent = p.memoryLimit || '256MB';
+  const timeMemContainer = document.getElementById('problemTimeMemoryContainer');
+  if (timeMemContainer) timeMemContainer.classList.add('hidden');
+  const elTime = document.getElementById('problemTimeLimit');
+  if (elTime) elTime.textContent = p.timeLimit || '1.0s';
+  const elMem = document.getElementById('problemMemoryLimit');
+  if (elMem) elMem.textContent = p.memoryLimit || '256MB';
   document.getElementById('problemDescription').textContent = p.description;
   const elInput = document.getElementById('problemInputFormat');
   if (elInput) elInput.textContent = p.inputFormat || '';
@@ -402,15 +398,14 @@ function selectProblem(id) {
     `).join('');
   }
 
-  // Tags
+  // Tags (Hidden from student arena view per requirement)
   const tagsContainer = document.getElementById('problemTagsContainer');
-  if (tagsContainer && p.tags) {
-    tagsContainer.innerHTML = p.tags.map(t => `
-      <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-cyan-950/60 text-cyan-400 border border-cyan-800/40">${t}</span>
-    `).join('');
+  if (tagsContainer) {
+    tagsContainer.classList.add('hidden');
+    tagsContainer.innerHTML = '';
   }
 
-  // Test Cases (Unboxed, spacious, crystal clear typography)
+  // Test Cases (Clean typography: no Copy Input button or Sample demonstration text)
   const samplesContainer = document.getElementById('problemSamplesContainer');
   if (samplesContainer && p.sampleCases) {
     samplesContainer.innerHTML = p.sampleCases.map((s, idx) => `
@@ -420,14 +415,6 @@ function selectProblem(id) {
             <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 inline-block shadow-sm"></span>
             <span class="font-bold font-mono text-slate-200 text-xs sm:text-sm">Test Case #${idx + 1}</span>
           </div>
-          <button 
-            type="button" 
-            onclick="copySampleInput('${encodeURIComponent(s.input)}')" 
-            class="px-2.5 py-1 text-xs text-cyan-400 hover:text-cyan-200 bg-cyan-950/50 hover:bg-cyan-900/60 rounded-lg border border-cyan-800/40 font-mono transition flex items-center gap-1 shadow-sm"
-            title="Copy test case input">
-            <span>📋</span>
-            <span>Copy Input</span>
-          </button>
         </div>
 
         <div class="space-y-2 font-mono text-xs sm:text-sm pt-0.5 pl-0.5">
@@ -440,13 +427,6 @@ function selectProblem(id) {
             <span class="test-case-output text-emerald-400 font-bold select-all tracking-wide text-xs sm:text-sm whitespace-pre-wrap">${s.expected}</span>
           </div>
         </div>
-
-        ${s.explanation ? `
-          <div class="text-[11px] text-slate-400 italic font-sans pt-1 border-t border-white/5 flex items-center gap-1.5">
-            <span>💡</span>
-            <span>${s.explanation}</span>
-          </div>
-        ` : ''}
       </div>
     `).join('');
   }

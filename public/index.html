@@ -513,20 +513,20 @@
                 <span id="problemPointsBadge" class="px-2 py-0.2 rounded text-[10px] font-mono font-bold bg-amber-500/20 text-amber-400 border border-amber-500/40">
                   10 Points
                 </span>
-                <span id="problemLanguagesBadge" class="px-2 py-0.2 rounded text-[10px] font-mono font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40">
+                <span id="problemLanguagesBadge" class="hidden px-2 py-0.2 rounded text-[10px] font-mono font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40">
                   🌐 C • C++ • Java • Python
                 </span>
                 <span id="problemSolvedStatusBadge" class="hidden px-2 py-0.2 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
                   ✅ SOLVED
                 </span>
-                <div id="problemTagsContainer" class="flex items-center gap-1 ml-auto">
+                <div id="problemTagsContainer" class="hidden flex items-center gap-1 ml-auto">
                   <!-- Tags -->
                 </div>
               </div>
-              <h2 id="problemTitle" class="text-lg font-extrabold text-white tracking-tight">
+              <h2 id="problemTitle" class="text-lg font-extrabold text-white tracking-tight pb-2 border-b border-white/5">
                 Loading Challenge...
               </h2>
-              <div class="flex items-center gap-3 text-[11px] font-mono text-slate-400 mt-1 pb-2 border-b border-white/5">
+              <div id="problemTimeMemoryContainer" class="hidden flex items-center gap-3 text-[11px] font-mono text-slate-400 mt-1 pb-2 border-b border-white/5">
                 <span>Time: <b id="problemTimeLimit" class="text-slate-200">1.0s</b></span>
                 <span>Memory: <b id="problemMemoryLimit" class="text-slate-200">256MB</b></span>
               </div>
