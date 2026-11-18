@@ -259,10 +259,10 @@ router.post('/leave-contest', ensureWebsiteNotLocked, (req, res) => {
         });
       }
 
-      // Update leaderboard
-      const lbData = store.getLeaderboard(true);
+      // Update leaderboard (respect current publish status)
+      const lbData = store.getLeaderboard(false);
       io.emit('leaderboardUpdate', {
-        published: true,
+        published: store.isResultsPublished(),
         totalPoints: lbData.totalPoints,
         leaderboard: lbData.leaderboard,
         event: 'TEAM_LEFT_EARLY',
@@ -1450,20 +1450,23 @@ router.post('/admin/grade-submission', verifySirToken, ensureWebsiteNotLocked, (
 
     const io = req.app.get('io');
     if (io) {
-      const lbData = store.getLeaderboard(true);
+      const isPublished = store.isResultsPublished();
+      const lbData = store.getLeaderboard(false);
       io.emit('leaderboardUpdate', {
-        published: true,
+        published: isPublished,
         totalPoints: lbData.totalPoints,
         leaderboard: lbData.leaderboard,
         event: 'GRADE_UPDATED'
       });
 
-      // Unmask and reveal podium to all screens immediately
-      io.emit('resultsPublished', {
-        published: true,
-        totalPoints: lbData.totalPoints,
-        leaderboard: lbData.leaderboard
-      });
+      // Only broadcast resultsPublished if Sir has actually published official results
+      if (isPublished) {
+        io.emit('resultsPublished', {
+          published: true,
+          totalPoints: lbData.totalPoints,
+          leaderboard: lbData.leaderboard
+        });
+      }
     }
 
     return res.status(200).json({
@@ -1488,9 +1491,10 @@ router.post('/submissions/bonus', verifySirToken, ensureWebsiteNotLocked, valida
 
     const io = req.app.get('io');
     if (io) {
-      const lbData = store.getLeaderboard(true);
+      const isPublished = store.isResultsPublished();
+      const lbData = store.getLeaderboard(false);
       io.emit('leaderboardUpdate', {
-        published: true,
+        published: isPublished,
         totalPoints: lbData.totalPoints,
         leaderboard: lbData.leaderboard,
         event: 'BONUS_AWARDED',
@@ -1501,11 +1505,14 @@ router.post('/submissions/bonus', verifySirToken, ensureWebsiteNotLocked, valida
         }
       });
 
-      io.emit('resultsPublished', {
-        published: true,
-        totalPoints: lbData.totalPoints,
-        leaderboard: lbData.leaderboard
-      });
+      // Only broadcast resultsPublished if Sir has actually published official results
+      if (isPublished) {
+        io.emit('resultsPublished', {
+          published: true,
+          totalPoints: lbData.totalPoints,
+          leaderboard: lbData.leaderboard
+        });
+      }
     }
 
     return res.status(200).json({

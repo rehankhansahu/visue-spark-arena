@@ -1128,9 +1128,8 @@ function renderLeaderboard(list, isPublished = false, isArchived = false) {
   const tableContainer = document.getElementById('leaderboardTableCard');
   const archiveBanner = document.getElementById('podiumArchiveBanner');
 
-  // If results are published OR any team has received marks / scored OR archived results exist, unmask the podium!
-  const hasEvaluatedScores = lastLeaderboard.some(t => t.score > 0 || (t.solvedProblems && t.solvedProblems.length > 0));
-  const shouldReveal = isPublished || hasEvaluatedScores || isArchived;
+  // Strictly check isPublished: Until Sir clicks "Publish Results", podium MUST remain 100% hidden!
+  const shouldReveal = Boolean(isPublished);
 
   if (!shouldReveal) {
     // Masked / Hidden State: Only shown if no teams have scores yet and Sir hasn't published

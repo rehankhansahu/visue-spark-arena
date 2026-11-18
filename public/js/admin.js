@@ -1123,6 +1123,17 @@ async function loadApprovedTeams() {
   }
 }
 
+window.onTeamLockStatusChanged = function(data) {
+  if (!approvedTeams || !Array.isArray(approvedTeams) || !data) return;
+  const t = approvedTeams.find(x => x.id === data.teamId || x.username === data.username || (data.passKey && (x.passKey === data.passKey || x.secretKey === data.passKey)));
+  if (t) {
+    t.pcLockStatus = data.pcLockStatus;
+    if (data.pcTamperAlert !== undefined) t.pcTamperAlert = data.pcTamperAlert;
+    renderApprovedTeams(approvedTeams);
+    updateJudgeMetrics();
+  }
+};
+
 function renderPCLockBadge(t) {
   if (t.pcTamperAlert) {
     return `<span class="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-rose-500/30 text-rose-200 border border-rose-500 animate-pulse" title="Tamper Alert: Lock script heartbeat stopped or process was closed!">⚠️ SCRIPT CLOSED</span>`;

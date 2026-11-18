@@ -355,6 +355,8 @@ router.get('/team/exam-lock-script/:passKey', (req, res) => {
 
     const batContent = generateExamLockScript({
       passKey: cleanPassKey,
+      username: team.username,
+      teamId: team.id,
       teamName: cleanTeamName,
       university: cleanUniversity,
       serverUrl,

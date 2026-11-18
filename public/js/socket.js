@@ -105,6 +105,9 @@ function initSocketClient() {
       }
 
       // If Sir's Desk is active, refresh the panels
+      if (window.onTeamLockStatusChanged) {
+        window.onTeamLockStatusChanged(data);
+      }
       if (window.loadApprovedTeams) {
         window.loadApprovedTeams();
       }
@@ -185,6 +188,9 @@ function initSocketClient() {
       if (window.loadPendingRequests) {
         window.loadPendingRequests();
       }
+      if (window.onTeamLockStatusChanged) {
+        window.onTeamLockStatusChanged(data);
+      }
       if (window.loadApprovedTeams) {
         window.loadApprovedTeams();
       }
@@ -205,6 +211,9 @@ function initSocketClient() {
       if (window.loadPendingRequests) {
         window.loadPendingRequests();
       }
+      if (window.onTeamLockStatusChanged) {
+        window.onTeamLockStatusChanged(data);
+      }
       if (window.loadApprovedTeams) {
         window.loadApprovedTeams();
       }
@@ -222,6 +231,9 @@ function initSocketClient() {
           window.updateTeamProfile(null);
         }
         if (window.switchView) window.switchView('pass');
+      }
+      if (window.onTeamLockStatusChanged) {
+        window.onTeamLockStatusChanged(data);
       }
       if (window.loadApprovedTeams) {
         window.loadApprovedTeams();
@@ -241,6 +253,9 @@ function initSocketClient() {
           `Team "${data.teamName}" exited early. Their solutions have been submitted for review.`,
           'warning'
         );
+      }
+      if (window.onTeamLockStatusChanged) {
+        window.onTeamLockStatusChanged(data);
       }
       if (window.loadApprovedTeams) {
         window.loadApprovedTeams();
@@ -323,6 +338,9 @@ function initSocketClient() {
       if (window.refreshArenaState) {
         window.refreshArenaState();
       }
+      if (window.onTeamLockStatusChanged) {
+        window.onTeamLockStatusChanged(data);
+      }
       if (window.loadApprovedTeams) {
         window.loadApprovedTeams();
       }
@@ -357,6 +375,9 @@ function initSocketClient() {
       console.log('[Socket.IO] Contest readiness updated:', data);
       if (window.renderContestReadinessMeter) {
         window.renderContestReadinessMeter(data);
+      }
+      if (window.onTeamLockStatusChanged) {
+        window.onTeamLockStatusChanged(data);
       }
       if (window.loadApprovedTeams) {
         window.loadApprovedTeams();
@@ -467,6 +488,9 @@ function initSocketClient() {
         );
       }
 
+      if (window.onTeamLockStatusChanged) {
+        window.onTeamLockStatusChanged(data);
+      }
       if (window.loadApprovedTeams) {
         window.loadApprovedTeams();
       }
@@ -482,6 +506,9 @@ function initSocketClient() {
           data.message || `Team "${data.teamName}" PC lock script stopped or closed!`,
           'error'
         );
+      }
+      if (window.onTeamLockStatusChanged) {
+        window.onTeamLockStatusChanged(data);
       }
       if (window.loadApprovedTeams) {
         window.loadApprovedTeams();

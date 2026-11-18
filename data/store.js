@@ -2427,7 +2427,7 @@ const store = {
     // If no active teams exist in current round, but archived podium exists from previous contest:
     if (approved.length === 0 && archivedLeaderboard.length > 0) {
       return {
-        published: true,
+        published: resultsPublished,
         isArchived: true,
         archivedAt: archivedAt,
         totalPoints: archivedContestPoints || 60,
