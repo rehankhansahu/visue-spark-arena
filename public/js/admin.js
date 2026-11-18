@@ -539,27 +539,13 @@ async function performSirLogin(username = 'sir_visue', password = 'spark2026', f
       }
     } else {
       if (errorMsg) {
-        errorMsg.innerHTML = `
-          <div class="p-2.5 rounded-lg bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs text-left space-y-1.5 mt-2">
-            <div class="font-bold">❌ ${data.message || 'Access Denied'}</div>
-            <button type="button" onclick="performSirLogin('sir_visue', 'spark2026', true)" class="w-full py-1.5 px-3 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold rounded text-xs transition flex items-center justify-center gap-1 cursor-pointer">
-              <span>⚡</span><span>Click to 1-Click Master Unlock</span>
-            </button>
-          </div>
-        `;
+        errorMsg.textContent = data.message || 'Access Denied: Invalid Admin Credentials.';
       }
-      showToast('Access Denied', data.message || 'Invalid Judge Credentials', 'error');
+      showToast('Access Denied', data.message || 'Invalid Admin Credentials', 'error');
     }
   } catch (err) {
     if (errorMsg) {
-      errorMsg.innerHTML = `
-        <div class="p-2.5 rounded-lg bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs text-left space-y-1.5 mt-2">
-          <div class="font-bold">⚠️ Connection Error</div>
-          <button type="button" onclick="performSirLogin('sir_visue', 'spark2026', true)" class="w-full py-1.5 px-3 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold rounded text-xs transition flex items-center justify-center gap-1 cursor-pointer">
-            <span>⚡</span><span>Retry Master Unlock</span>
-          </button>
-        </div>
-      `;
+      errorMsg.textContent = 'Connection error. Please try again.';
     }
     showToast('Error', 'Authentication failed', 'error');
   }
@@ -3081,7 +3067,6 @@ async function publishOfficialResults() {
       } catch (_) {}
     }
 
-  try {
     const res = await fetch('/api/admin/publish-results', {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${token}` }
