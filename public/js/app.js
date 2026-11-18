@@ -1128,8 +1128,8 @@ function renderLeaderboard(list, isPublished = false, isArchived = false) {
   const tableContainer = document.getElementById('leaderboardTableCard');
   const archiveBanner = document.getElementById('podiumArchiveBanner');
 
-  // Strictly check isPublished: Until Sir clicks "Publish Results", podium MUST remain 100% hidden!
-  const shouldReveal = Boolean(isPublished);
+  // Reveal podium if results are published or if contest was reset and archived winners are available
+  const shouldReveal = Boolean(isPublished || (isArchived && lastLeaderboard.length > 0));
 
   if (!shouldReveal) {
     // Masked / Hidden State: Only shown if no teams have scores yet and Sir hasn't published
@@ -1152,8 +1152,12 @@ function renderLeaderboard(list, isPublished = false, isArchived = false) {
   }
 
   if (archiveBanner) {
-    if (isArchived) {
+    if (isArchived && lastLeaderboard.length > 0) {
       archiveBanner.classList.remove('hidden');
+      const textSpan = archiveBanner.querySelector('span:last-child');
+      if (textSpan) {
+        textSpan.textContent = 'Latest Competition Winners';
+      }
     } else {
       archiveBanner.classList.add('hidden');
     }

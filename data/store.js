@@ -808,15 +808,26 @@ const store = {
 
     // 1. Preserve current evaluated standings as archived podium so users can still view previous winners
     try {
-      const currentLeaderboard = this.getLeaderboard(true);
-      if (currentLeaderboard.leaderboard && currentLeaderboard.leaderboard.length > 0) {
-        // Only archive if there were teams with scores or if results were published
-        const hasScores = currentLeaderboard.leaderboard.some(t => t.score > 0 || (t.solvedProblems && t.solvedProblems.length > 0));
-        if (hasScores || resultsPublished) {
+      const currentTeams = this.getApprovedTeams();
+      if (currentTeams.length > 0) {
+        const currentLeaderboard = this.getLeaderboard(true);
+        if (currentLeaderboard.leaderboard && currentLeaderboard.leaderboard.length > 0) {
           archivedLeaderboard = JSON.parse(JSON.stringify(currentLeaderboard.leaderboard));
           archivedPodium = JSON.parse(JSON.stringify(currentLeaderboard.leaderboard.slice(0, 3)));
           archivedAt = new Date().toISOString();
           archivedContestPoints = this.getTotalContestPoints() || 60;
+        }
+      }
+
+      // If archivedLeaderboard is empty, populate from latest competition history so podium always shows latest competition winners
+      if (archivedLeaderboard.length === 0 && competitionHistory.length > 0) {
+        const sortedHistory = [...competitionHistory].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        const latestComp = sortedHistory[0];
+        if (latestComp && Array.isArray(latestComp.teams) && latestComp.teams.length > 0) {
+          archivedLeaderboard = JSON.parse(JSON.stringify(latestComp.teams));
+          archivedPodium = JSON.parse(JSON.stringify(latestComp.teams.slice(0, 3)));
+          archivedAt = latestComp.timestamp || latestComp.dateFormatted;
+          archivedContestPoints = latestComp.totalPoints || 60;
         }
       }
     } catch (e) {
@@ -844,8 +855,8 @@ const store = {
       teamsCount: 0,
       submissionsCount: 0,
       questionsCount: questionBank.length,
-      hasArchivedPodium: archivedLeaderboard.length > 0,
-      archivedPodium: archivedPodium
+      hasArchivedPodium: this.hasArchivedPodium(),
+      archivedPodium: this.getArchivedPodium()
     };
   },
 
@@ -887,19 +898,41 @@ const store = {
   },
 
   getArchivedLeaderboard() {
-    return archivedLeaderboard;
+    if (archivedLeaderboard.length > 0) return archivedLeaderboard;
+    if (competitionHistory.length > 0) {
+      const sorted = [...competitionHistory].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      const latest = sorted[0];
+      if (latest && Array.isArray(latest.teams) && latest.teams.length > 0) {
+        return latest.teams;
+      }
+    }
+    return [];
   },
 
   getArchivedPodium() {
-    return archivedPodium;
+    if (archivedPodium.length > 0) return archivedPodium;
+    const lb = this.getArchivedLeaderboard();
+    return lb.slice(0, 3);
   },
 
   getArchivedAt() {
-    return archivedAt;
+    if (archivedAt) return archivedAt;
+    if (competitionHistory.length > 0) {
+      const sorted = [...competitionHistory].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      const latest = sorted[0];
+      if (latest) return latest.timestamp || latest.dateFormatted;
+    }
+    return null;
   },
 
   hasArchivedPodium() {
-    return archivedLeaderboard.length > 0;
+    if (archivedLeaderboard.length > 0) return true;
+    if (competitionHistory.length > 0) {
+      const sorted = [...competitionHistory].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      const latest = sorted[0];
+      return Boolean(latest && Array.isArray(latest.teams) && latest.teams.length > 0);
+    }
+    return false;
   },
 
   getCurrentContestElapsedSeconds() {
@@ -2478,20 +2511,40 @@ const store = {
     });
 
     // If no active teams exist in current round, but archived podium exists from previous contest:
-    if (approved.length === 0 && archivedLeaderboard.length > 0) {
+    let effectiveArchived = (archivedLeaderboard && archivedLeaderboard.length > 0) ? archivedLeaderboard : [];
+    let effectiveArchivedAt = archivedAt;
+    let effectiveArchivedPoints = archivedContestPoints;
+    let effectiveCompTitle = null;
+
+    if (effectiveArchived.length === 0 && competitionHistory.length > 0) {
+      const sortedHistory = [...competitionHistory].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      const latestComp = sortedHistory[0];
+      if (latestComp && Array.isArray(latestComp.teams) && latestComp.teams.length > 0) {
+        effectiveArchived = latestComp.teams;
+        effectiveArchivedAt = latestComp.timestamp || latestComp.dateFormatted;
+        effectiveArchivedPoints = latestComp.totalPoints || 60;
+        effectiveCompTitle = latestComp.title || latestComp.arenaName || null;
+      }
+    }
+
+    if (approved.length === 0 && effectiveArchived.length > 0) {
       return {
-        published: resultsPublished,
+        published: true, // Must be true so podium displays latest competition winners after reset!
+        isResultsPublished: true,
         isArchived: true,
-        archivedAt: archivedAt,
-        totalPoints: archivedContestPoints || 60,
-        leaderboard: archivedLeaderboard
+        archivedAt: effectiveArchivedAt,
+        competitionTitle: effectiveCompTitle,
+        totalPoints: effectiveArchivedPoints || 60,
+        leaderboard: effectiveArchived
       };
     }
 
     return {
       published: resultsPublished,
+      isResultsPublished: resultsPublished,
       isArchived: false,
       archivedAt: null,
+      competitionTitle: null,
       totalPoints: totalPoints,
       leaderboard: ranked
     };

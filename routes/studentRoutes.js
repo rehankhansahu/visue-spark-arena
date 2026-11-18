@@ -143,9 +143,10 @@ router.get('/leaderboard', (req, res) => {
       isResultsPublished: Boolean(lbData.published),
       isArchived: Boolean(lbData.isArchived),
       archivedAt: lbData.archivedAt || null,
+      competitionTitle: lbData.competitionTitle || null,
       totalPoints: lbData.totalPoints,
       count: lbData.leaderboard.length,
-      leaderboard: lbData.published || isSir ? lbData.leaderboard : []
+      leaderboard: lbData.published || lbData.isArchived || isSir ? lbData.leaderboard : []
     });
   } catch (err) {
     return res.status(500).json({
