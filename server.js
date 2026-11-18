@@ -51,6 +51,15 @@ app.use((req, res, next) => {
   next();
 });
 
+// Serve Vendor Assets (Local SheetJS Excel Engine)
+app.get('/vendor/xlsx.full.min.js', (req, res, next) => {
+  const localVendor = path.join(__dirname, 'public', 'vendor', 'xlsx.full.min.js');
+  if (fs.existsSync(localVendor)) return res.sendFile(localVendor);
+  const nmPath = path.join(__dirname, 'node_modules', 'xlsx', 'dist', 'xlsx.full.min.js');
+  if (fs.existsSync(nmPath)) return res.sendFile(nmPath);
+  next();
+});
+
 // Serve Frontend Static Assets
 app.use(express.static(path.join(__dirname, 'public')));
 

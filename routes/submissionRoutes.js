@@ -982,14 +982,31 @@ router.put('/admin/questions/:id', verifySirToken, ensureWebsiteNotLocked, ensur
  */
 router.post('/admin/questions/import', verifySirToken, ensureWebsiteNotLocked, ensureContestNotRunning, (req, res) => {
   try {
-    let { questions, csvText } = req.body || {};
+    let { questions, csvText, fileBase64 } = req.body || {};
+
+    // Server-side Excel fallback parser via Node.js SheetJS
+    if ((!questions || !Array.isArray(questions) || questions.length === 0) && fileBase64 && typeof fileBase64 === 'string') {
+      try {
+        const xlsx = require('xlsx');
+        const base64Data = fileBase64.replace(/^data:.*?;base64,/, '');
+        const buffer = Buffer.from(base64Data, 'base64');
+        const workbook = xlsx.read(buffer, { type: 'buffer' });
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        const rawRows = xlsx.utils.sheet_to_json(worksheet, { defval: '' });
+        questions = (rawRows || []).filter(r => r && typeof r === 'object' && Object.values(r).some(v => v !== null && v !== undefined && v.toString().trim() !== ''));
+      } catch (parseErr) {
+        console.error('[Server Excel Parse Error]', parseErr);
+        return res.status(400).json({ success: false, message: 'Server failed to parse Excel workbook: ' + parseErr.message });
+      }
+    }
 
     if ((!questions || !Array.isArray(questions) || questions.length === 0) && csvText && typeof csvText === 'string') {
       questions = store.parseCSVTextToObjects(csvText);
     }
 
     if (!questions || !Array.isArray(questions) || questions.length === 0) {
-      return res.status(400).json({ success: false, message: 'Valid questions array or CSV text is required for bulk import.' });
+      return res.status(400).json({ success: false, message: 'Valid questions array, Excel file, or CSV text is required for bulk import.' });
     }
     const added = store.bulkImportQuestions(questions);
     const io = req.app.get('io');

@@ -2561,10 +2561,45 @@ async function handleUpdateQuestion(e) {
   }
 }
 
+// Dynamic Loader for Excel Engine (Local Vendor first, then CDNs)
+async function ensureXLSXLoaded() {
+  if (typeof XLSX !== 'undefined') return true;
+
+  const sources = [
+    '/vendor/xlsx.full.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
+    'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js',
+    'https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js'
+  ];
+
+  for (const src of sources) {
+    try {
+      await new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = () => resolve();
+        script.onerror = () => reject();
+        document.head.appendChild(script);
+      });
+      if (typeof XLSX !== 'undefined') return true;
+    } catch (e) {}
+  }
+
+  return typeof XLSX !== 'undefined';
+}
+window.ensureXLSXLoaded = ensureXLSXLoaded;
+
 // Download Excel Question Template (.xlsx) with guided edit format
-function downloadQuestionExcelTemplate() {
+async function downloadQuestionExcelTemplate() {
   if (typeof XLSX === 'undefined') {
-    alert('Excel export engine is loading. Please try again in a few seconds.');
+    await ensureXLSXLoaded();
+  }
+  if (typeof XLSX === 'undefined') {
+    if (typeof downloadQuestionCSVTemplate === 'function') {
+      downloadQuestionCSVTemplate();
+    } else {
+      alert('Excel export engine could not be loaded. Please ensure internet connectivity.');
+    }
     return;
   }
 
@@ -2719,8 +2754,26 @@ async function handleExcelQuestionImport(event) {
 
   // Binary Excel files (.xlsx, .xls)
   if (typeof XLSX === 'undefined') {
-    alert('Excel engine (SheetJS) is still loading from CDN. If it does not load, save your file as .csv and upload again or use the "Paste CSV" button.');
-    event.target.value = '';
+    showToast('Loading Engine...', 'Preparing Excel parser...', 'info');
+    await ensureXLSXLoaded();
+  }
+
+  // If client-side XLSX is still not loaded, seamlessly fallback to server-side parser via Base64!
+  if (typeof XLSX === 'undefined') {
+    showToast('Importing...', 'Parsing Excel file via server engine...', 'info');
+    const b64Reader = new FileReader();
+    b64Reader.onload = async function(e) {
+      try {
+        const fileBase64 = e.target.result;
+        await sendImportedQuestionsToServer(null, token, null, fileBase64);
+      } catch (err) {
+        console.error('[Server Excel Fallback Error]', err);
+        alert('Could not import file: ' + err.message);
+      } finally {
+        event.target.value = '';
+      }
+    };
+    b64Reader.readAsDataURL(file);
     return;
   }
 
@@ -2746,10 +2799,20 @@ async function handleExcelQuestionImport(event) {
         return;
       }
     } catch (err) {
-      console.error('[Excel Import Error]', err);
-      alert('Failed to parse Excel file. Please ensure it follows the downloaded template format or save as .csv.');
-      showToast('Import Error', 'Failed to read Excel workbook.', 'error');
-      return;
+      console.error('[Excel Import Error, attempting server fallback]', err);
+      // Fallback: send as Base64 to server parser
+      try {
+        const b64Reader = new FileReader();
+        b64Reader.onload = async function(ev) {
+          await sendImportedQuestionsToServer(null, token, null, ev.target.result);
+        };
+        b64Reader.readAsDataURL(file);
+        return;
+      } catch (fbErr) {
+        alert('Failed to parse Excel file. Please ensure it follows the downloaded template format or save as .csv.');
+        showToast('Import Error', 'Failed to read Excel workbook.', 'error');
+        return;
+      }
     } finally {
       event.target.value = '';
     }
@@ -2759,17 +2822,22 @@ async function handleExcelQuestionImport(event) {
   reader.readAsArrayBuffer(file);
 }
 
-async function sendImportedQuestionsToServer(validRows, token) {
-  showToast('Importing...', `Processing ${validRows.length} question(s)...`, 'info');
+async function sendImportedQuestionsToServer(validRows, token, csvText = null, fileBase64 = null) {
+  showToast('Importing...', `Processing question file...`, 'info');
 
   try {
+    const payload = {};
+    if (validRows && Array.isArray(validRows)) payload.questions = validRows;
+    if (csvText) payload.csvText = csvText;
+    if (fileBase64) payload.fileBase64 = fileBase64;
+
     const res = await fetch('/api/admin/questions/import', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify({ questions: validRows })
+      body: JSON.stringify(payload)
     });
 
     if (res.status === 431) {
@@ -3878,7 +3946,15 @@ async function downloadHistoryReportPDF(id) {
 // Download Historical Competition Audit Report in Excel (.xlsx) Format
 async function downloadHistoryReportExcel(id) {
   if (typeof XLSX === 'undefined') {
-    alert('Excel export engine is loading. Please try again.');
+    await ensureXLSXLoaded();
+  }
+  if (typeof XLSX === 'undefined') {
+    if (typeof downloadHistoryReportCsv === 'function') {
+      showToast('Notice', 'Downloading report in CSV format...', 'info');
+      downloadHistoryReportCsv(id);
+    } else {
+      alert('Excel export engine is loading. Please try again.');
+    }
     return;
   }
   const token = sessionStorage.getItem('sirToken') || sessionStorage.getItem('superAdminToken');
@@ -4018,9 +4094,17 @@ function closeResultsPublishedReportModal() {
 }
 
 // Export Official Student Results in Excel (.xlsx) Format
-function exportResultsExcel() {
+async function exportResultsExcel() {
   if (typeof XLSX === 'undefined') {
-    alert('Excel export engine is loading. Please try again.');
+    await ensureXLSXLoaded();
+  }
+  if (typeof XLSX === 'undefined') {
+    showToast('Notice', 'Downloading report in CSV format...', 'info');
+    if (typeof exportResultsCSV === 'function') {
+      exportResultsCSV();
+    } else {
+      alert('Excel engine could not be loaded. Please ensure internet connectivity.');
+    }
     return;
   }
 
