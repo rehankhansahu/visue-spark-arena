@@ -314,6 +314,38 @@ async function runTests() {
     assert(bonusRes.status === 200 && bonusRes.data.success, 'Sir can award bonus points');
 
     // -------------------------------------------------------------
+    // 10b. RESULTS PUBLISHING GUARDS (Strict checks: in progress, unsubmitted, ungraded)
+    // -------------------------------------------------------------
+    console.log('\n--- 10b. Testing Strict Results Publishing Guards ---');
+    // Guard 1: Block publishing while contest timer is actively running ("Contest horaha hai")
+    const pubFailRunning = await request(testServer, 'POST', '/api/admin/publish-results', {}, authHeaders);
+    assert(pubFailRunning.status === 400, 'Publish results is blocked while contest is running');
+    assert(pubFailRunning.data.message.includes('horaha hai') || pubFailRunning.data.message.includes('in progress'), 'Error message specifies contest is in progress');
+
+    // Submit remaining questions so team completes all challenges
+    const p2 = teamProblemsRes.data.problems[1];
+    const p3 = teamProblemsRes.data.problems[2];
+    await request(testServer, 'POST', '/api/submit', {
+      username: team.username,
+      problemId: p2.id,
+      language: 'cpp',
+      code: '#include <iostream>\nint main() { return 0; }'
+    });
+    await request(testServer, 'POST', '/api/submit', {
+      username: team.username,
+      problemId: p3.id,
+      language: 'cpp',
+      code: '#include <iostream>\nint main() { return 0; }'
+    });
+
+    // Pause timer now that all solutions submitted and team is completed
+    await request(testServer, 'POST', '/api/admin/timer/pause', {}, authHeaders);
+
+    // Guard 2: Once contest complete, all solutions submitted, and all questions graded -> Publish succeeds!
+    const pubSuccess = await request(testServer, 'POST', '/api/admin/publish-results', {}, authHeaders);
+    assert(pubSuccess.status === 200 && pubSuccess.data.success, 'Results published successfully once contest is complete and all questions evaluated');
+
+    // -------------------------------------------------------------
     // 11. COMPETITION SNAPSHOT & HISTORY
     // -------------------------------------------------------------
     console.log('\n--- 11. Testing Competition History Snapshot ---');

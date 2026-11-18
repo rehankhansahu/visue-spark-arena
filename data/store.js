@@ -2347,14 +2347,54 @@ const store = {
       throw new Error('Cannot publish results: There are no approved teams in the contest.');
     }
 
-    // Check that any existing submissions have valid marks and left-early / time-up drafts have been graded
+    // 1. Guard: Contest complete hona zaroori hai (Contest in progress / running na ho)!
+    const timer = this.getContestTimer();
+    const isTimerEnded = Boolean(timer && (timer.status === 'ended' || (timer.remainingSeconds !== undefined && timer.remainingSeconds <= 0 && timer.status !== 'not_started')));
+    const allTeamsConcluded = approvedTeams.every(t => Boolean(t.isCompleted || t.leftEarly || t.status === 'left_early'));
+
+    if (!isTimerEnded && !allTeamsConcluded) {
+      if (timer && (timer.status === 'running' || timer.status === 'paused')) {
+        throw new Error('Contest is currently in progress! (Contest horaha hai). Jab tak contest complete na ho jaye aur all teams solution submit na kar dein, tab tak result publish nahi ho sakta.');
+      } else {
+        throw new Error('Cannot publish results: Contest has not concluded yet. All teams must finish or contest timer must end.');
+      }
+    }
+
+    // 2. Guard: All approved teams must have submitted their solutions (or finished/left)!
+    const unsubmittedTeams = approvedTeams.filter(t => {
+      if (t.isCompleted || t.leftEarly || t.status === 'left_early') return false;
+      const assigned = this.getProblemsForTeam(t.id);
+      if (!assigned || assigned.length === 0) return true;
+      const allSubmitted = assigned.every(p => {
+        const pid = p.id;
+        return (t.solvedProblems && t.solvedProblems.includes(pid)) ||
+               (t.submittedSolutions && t.submittedSolutions[pid]) ||
+               submissions.some(s => s.teamId === t.id && (s.problemId === pid || String(s.problemId) === String(pid)));
+      });
+      return !allSubmitted;
+    });
+
+    if (unsubmittedTeams.length > 0 && !isTimerEnded) {
+      const names = unsubmittedTeams.map(t => `"${t.teamName}" (@${t.username})`).join(', ');
+      throw new Error(`Cannot publish results: Jab tak all teams solution submit nahi karengi, tab tak result publish nahi ho sakta. The following team(s) have not submitted: ${names}.`);
+    }
+
+    // 3. Guard: Sir must have evaluated and awarded marks to all questions of every team!
+    const ungradedSubs = [];
     for (const sub of submissions) {
+      const isApprovedTeam = approvedTeams.some(t => t.id === sub.teamId);
+      if (!isApprovedTeam) continue;
+
       if (sub.scoreAwarded === null || sub.scoreAwarded === undefined || isNaN(sub.scoreAwarded)) {
-        throw new Error(`Cannot publish results: Submission #${sub.id} for Problem #${sub.problemId} (${sub.teamName}) has not been awarded marks.`);
+        ungradedSubs.push(`Question #${sub.problemId} (${sub.teamName})`);
+      } else if ((sub.status === 'LEFT_EARLY' || sub.status === 'TIME_UP') && !sub.isGradedBySir) {
+        ungradedSubs.push(`Question #${sub.problemId} (${sub.teamName})`);
       }
-      if ((sub.status === 'LEFT_EARLY' || sub.status === 'TIME_UP') && !sub.isGradedBySir) {
-        throw new Error(`Cannot publish results: Team "${sub.teamName}" has submission for Problem #${sub.problemId} that has not been evaluated by Sir yet. Please award marks via ✏️ on their submission first.`);
-      }
+    }
+
+    if (ungradedSubs.length > 0) {
+      const listStr = ungradedSubs.slice(0, 5).join(', ') + (ungradedSubs.length > 5 ? ` and ${ungradedSubs.length - 5} more` : '');
+      throw new Error(`Cannot publish results: Jab tak aap har team ke questions ke number (marks) nahi laga lete, tab tak result publish nahi hoga! Pending questions: ${listStr}. Please award marks via ✏️ on each submission.`);
     }
 
     resultsPublished = true;

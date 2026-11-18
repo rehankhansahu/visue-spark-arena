@@ -3016,6 +3016,60 @@ async function publishOfficialResults() {
   const token = sessionStorage.getItem('sirToken');
   if (!token) return;
 
+  const hasApproved = approvedTeams && approvedTeams.length > 0;
+  if (!hasApproved) {
+    alert('⚠️ CANNOT PUBLISH RESULTS!\n\nContest me koi approved team mojud nahi hai.');
+    return;
+  }
+
+  // 1. Guard: Contest complete hona zaroori hai (Contest horaha hai to block karein)
+  const isTimerRunning = Boolean(currentContestTimer && (currentContestTimer.status === 'running' || currentContestTimer.status === 'paused'));
+  const isTimerEnded = Boolean(currentContestTimer && (currentContestTimer.status === 'ended' || (currentContestTimer.remainingSeconds !== undefined && currentContestTimer.remainingSeconds <= 0 && currentContestTimer.status !== 'not_started')));
+  const allTeamsConcluded = approvedTeams.every(t => Boolean(t.isCompleted || t.leftEarly || t.status === 'left_early'));
+
+  if (isTimerRunning && !allTeamsConcluded) {
+    alert('⚠️ CONTEST IN PROGRESS! (Contest chal raha hai)\n\nContest abhi mukammal nahi hua hai aur teams coding kar rahi hain.\n\nJab tak contest complete na ho jaye aur tamam teams apne solution submit na kar dein, tab tak result publish nahi ho sakta.\n\nPlease contest timer ke conclude hone ya tamam teams ke submit karne ka intezar karein.');
+    return;
+  }
+
+  // 2. Guard: All teams must have submitted their solutions!
+  const unsubmittedTeams = approvedTeams.filter(t => {
+    if (t.isCompleted || t.leftEarly || t.status === 'left_early') return false;
+    const assigned = t.assignedProblems || [];
+    if (assigned.length === 0) return true;
+    const hasAll = assigned.every(p => {
+      const pid = p.id;
+      return (t.solvedProblems && t.solvedProblems.includes(pid)) ||
+             (t.submittedSolutions && t.submittedSolutions[pid]) ||
+             allSubmissions.some(s => s.teamId === t.id && (s.problemId === pid || String(s.problemId) === String(pid)));
+    });
+    return !hasAll;
+  });
+
+  if (unsubmittedTeams.length > 0 && !isTimerEnded) {
+    const list = unsubmittedTeams.map((t, idx) => `${idx + 1}. "${t.teamName}" (@${t.username}) - ${t.university}`).join('\n');
+    alert(`⚠️ ALL TEAMS MUST SUBMIT SOLUTIONS!\n\nTamam teams ne abhi apne solutions submit nahi kiye hain:\n\n${list}\n\nJab tak har team apne solutions submit nahi karegi ya contest conclude nahi hoga, tab tak result publish nahi ho sakta!`);
+    return;
+  }
+
+  // 3. Guard: Sir must have evaluated / awarded marks to all questions of every team!
+  const ungradedList = [];
+  allSubmissions.forEach(sub => {
+    const isApproved = approvedTeams.some(t => t.id === sub.teamId);
+    if (!isApproved) return;
+    if (sub.scoreAwarded === null || sub.scoreAwarded === undefined || isNaN(sub.scoreAwarded)) {
+      ungradedList.push(`• Problem #${sub.problemId} (${sub.problemTitle || 'Challenge'}) - Team: "${sub.teamName}"`);
+    } else if ((sub.status === 'LEFT_EARLY' || sub.status === 'TIME_UP') && !sub.isGradedBySir) {
+      ungradedList.push(`• Problem #${sub.problemId} (${sub.problemTitle || 'Draft Code'}) - Team: "${sub.teamName}" [Status: ${sub.status}]`);
+    }
+  });
+
+  if (ungradedList.length > 0) {
+    const displayList = ungradedList.slice(0, 8).join('\n') + (ungradedList.length > 8 ? `\n...aur ${ungradedList.length - 8} mazeed` : '');
+    alert(`⚠️ PENDING QUESTION GRADING!\n\nSir, jab tak aap har team ke submitted questions ke number (marks) nahi laga lete, tab tak result publish nahi hoga!\n\nPending Evaluations:\n\n${displayList}\n\nNiche table me har submission ke samne ✏️ par click karke marks award karein.`);
+    return;
+  }
+
   if (!confirm('Publish Official Results & Standings? The Podium will immediately become visible to all participants and screens!')) return;
 
   try {
@@ -3537,7 +3591,7 @@ async function promptGradeSubmission(submissionId) {
       sub.judgeNotes = notes;
       renderJudgeSubmissions(allSubmissions);
       loadApprovedTeams();
-      updateResultsPublishBadge(true);
+      updateResultsPublishBadge(currentResultsPublished);
       if (window.fetchInitialLeaderboard) {
         window.fetchInitialLeaderboard();
       }
@@ -3575,7 +3629,7 @@ async function awardBonusPoints(submissionId, bonusAmount = 10) {
         renderJudgeSubmissions(allSubmissions);
       }
       loadApprovedTeams();
-      updateResultsPublishBadge(true);
+      updateResultsPublishBadge(currentResultsPublished);
       if (window.fetchInitialLeaderboard) {
         window.fetchInitialLeaderboard();
       }

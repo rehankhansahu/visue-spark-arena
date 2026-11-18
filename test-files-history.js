@@ -207,8 +207,44 @@ async function runFileAndHistoryTests() {
       reason: 'Clean formatting'
     }, authHeaders);
 
-    // Publish results
-    await request(testServer, 'POST', '/api/admin/publish-results', {}, authHeaders);
+    // Team 1 solves remaining questions to complete contest
+    await request(testServer, 'POST', '/api/submit', {
+      username: team1.username,
+      problemId: t1Problems[1].id,
+      language: 'cpp',
+      code: '#include <iostream>\nint main() { return 0; }'
+    });
+    await request(testServer, 'POST', '/api/submit', {
+      username: team1.username,
+      problemId: t1Problems[2].id,
+      language: 'cpp',
+      code: '#include <iostream>\nint main() { return 0; }'
+    });
+
+    // Team 2 leaves early (concludes their contest)
+    const t2Problems = (await request(testServer, 'GET', `/api/problems?teamId=${team2.id}`)).data.problems;
+    await request(testServer, 'POST', '/api/leave-contest', {
+      teamId: team2.id,
+      draftCodeMap: { [t2Problems[0].id]: '// Team 2 partial code' }
+    });
+
+    // Sir awards marks to Team 2's submissions
+    const curSubs = (await request(testServer, 'GET', '/api/submissions', null, authHeaders)).data.submissions;
+    const t2Subs = curSubs.filter(s => s.teamId === team2.id);
+    for (const s of t2Subs) {
+      await request(testServer, 'POST', '/api/admin/grade-submission', {
+        submissionId: s.id,
+        marks: 5,
+        judgeNotes: 'Evaluated by Sir'
+      }, authHeaders);
+    }
+
+    // Now all teams have submitted, contest is concluded, and all questions have marks awarded -> Publish results succeeds!
+    const pubRes = await request(testServer, 'POST', '/api/admin/publish-results', {}, authHeaders);
+    if (!pubRes.data.success) {
+      console.log('DEBUG PUBRES FAIL:', pubRes.data);
+    }
+    assert(pubRes.status === 200 && pubRes.data.success, 'Results published successfully once all teams submitted and graded');
 
     // -------------------------------------------------------------
     // 4. TESTING TXT & CSV EXPORT STRUCTURE
