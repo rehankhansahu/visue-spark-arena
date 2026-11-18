@@ -3022,45 +3022,21 @@ async function publishOfficialResults() {
     return;
   }
 
-  // 1. Guard: Contest complete hona zaroori hai (Contest horaha hai to block karein)
-  const isTimerRunning = Boolean(currentContestTimer && (currentContestTimer.status === 'running' || currentContestTimer.status === 'paused'));
-  const isTimerEnded = Boolean(currentContestTimer && (currentContestTimer.status === 'ended' || (currentContestTimer.remainingSeconds !== undefined && currentContestTimer.remainingSeconds <= 0 && currentContestTimer.status !== 'not_started')));
-  const allTeamsConcluded = approvedTeams.every(t => Boolean(t.isCompleted || t.leftEarly || t.status === 'left_early'));
-
-  if (isTimerRunning && !allTeamsConcluded) {
-    alert('⚠️ CONTEST IN PROGRESS! (Contest chal raha hai)\n\nContest abhi mukammal nahi hua hai aur teams coding kar rahi hain.\n\nJab tak contest complete na ho jaye aur tamam teams apne solution submit na kar dein, tab tak result publish nahi ho sakta.\n\nPlease contest timer ke conclude hone ya tamam teams ke submit karne ka intezar karein.');
-    return;
+  // Refresh latest submissions from server to ensure marks are in sync
+  if (typeof loadJudgeSubmissions === 'function') {
+    try {
+      await loadJudgeSubmissions();
+    } catch (_) {}
   }
 
-  // 2. Guard: All teams must have submitted their solutions!
-  const unsubmittedTeams = approvedTeams.filter(t => {
-    if (t.isCompleted || t.leftEarly || t.status === 'left_early') return false;
-    const assigned = t.assignedProblems || [];
-    if (assigned.length === 0) return true;
-    const hasAll = assigned.every(p => {
-      const pid = p.id;
-      return (t.solvedProblems && t.solvedProblems.includes(pid)) ||
-             (t.submittedSolutions && t.submittedSolutions[pid]) ||
-             allSubmissions.some(s => s.teamId === t.id && (s.problemId === pid || String(s.problemId) === String(pid)));
-    });
-    return !hasAll;
-  });
-
-  if (unsubmittedTeams.length > 0 && !isTimerEnded) {
-    const list = unsubmittedTeams.map((t, idx) => `${idx + 1}. "${t.teamName}" (@${t.username}) - ${t.university}`).join('\n');
-    alert(`⚠️ ALL TEAMS MUST SUBMIT SOLUTIONS!\n\nTamam teams ne abhi apne solutions submit nahi kiye hain:\n\n${list}\n\nJab tak har team apne solutions submit nahi karegi ya contest conclude nahi hoga, tab tak result publish nahi ho sakta!`);
-    return;
-  }
-
-  // 3. Guard: Sir must have evaluated / awarded marks to all questions of every team!
+  // 1. Guard: Check if any submission has missing / non-numeric marks
+  const isNumeric = (val) => val !== null && val !== undefined && val !== '' && !isNaN(Number(val));
   const ungradedList = [];
   allSubmissions.forEach(sub => {
     const isApproved = approvedTeams.some(t => t.id === sub.teamId);
     if (!isApproved) return;
-    if (sub.scoreAwarded === null || sub.scoreAwarded === undefined || isNaN(sub.scoreAwarded)) {
+    if (!isNumeric(sub.scoreAwarded)) {
       ungradedList.push(`• Problem #${sub.problemId} (${sub.problemTitle || 'Challenge'}) - Team: "${sub.teamName}"`);
-    } else if ((sub.status === 'LEFT_EARLY' || sub.status === 'TIME_UP') && !sub.isGradedBySir) {
-      ungradedList.push(`• Problem #${sub.problemId} (${sub.problemTitle || 'Draft Code'}) - Team: "${sub.teamName}" [Status: ${sub.status}]`);
     }
   });
 
@@ -3070,7 +3046,46 @@ async function publishOfficialResults() {
     return;
   }
 
-  if (!confirm('Publish Official Results & Standings? The Podium will immediately become visible to all participants and screens!')) return;
+  // 2. Guard: If timer is actively running, check if teams still have unsubmitted solutions
+  const isTimerRunning = Boolean(currentContestTimer && currentContestTimer.status === 'running');
+  const allTeamsConcluded = approvedTeams.every(t => Boolean(t.isCompleted || t.leftEarly || t.status === 'left_early'));
+
+  if (isTimerRunning && !allTeamsConcluded) {
+    const unsubmittedTeams = approvedTeams.filter(t => {
+      if (t.isCompleted || t.leftEarly || t.status === 'left_early') return false;
+      const assigned = t.assignedProblems || [];
+      if (assigned.length === 0) return true;
+      return !assigned.every(p => {
+        const pid = p.id;
+        return (t.solvedProblems && t.solvedProblems.includes(pid)) ||
+               (t.submittedSolutions && t.submittedSolutions[pid]) ||
+               allSubmissions.some(s => s.teamId === t.id && (s.problemId === pid || String(s.problemId) === String(pid)));
+      });
+    });
+
+    if (unsubmittedTeams.length > 0) {
+      const list = unsubmittedTeams.map((t, idx) => `${idx + 1}. "${t.teamName}" (@${t.username}) - ${t.university}`).join('\n');
+      alert(`⚠️ CONTEST IN PROGRESS! (Contest chal raha hai)\n\nTamam teams ne abhi solutions submit nahi kiye hain aur contest chal raha hai:\n\n${list}\n\nJab tak contest complete na ho jaye ya timer pause/end na ho, tab tak result publish nahi ho sakta.`);
+      return;
+    }
+  }
+
+  const promptText = isTimerRunning
+    ? 'Publish Official Results & Standings?\n\nContest timer will conclude and the Podium will immediately become visible to all participants and screens!'
+    : 'Publish Official Results & Standings? The Podium will immediately become visible to all participants and screens!';
+
+  if (!confirm(promptText)) return;
+
+  try {
+    // If timer was running, end it so state machine smoothly concludes
+    if (isTimerRunning) {
+      try {
+        await fetch('/api/admin/timer/end', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+      } catch (_) {}
+    }
 
   try {
     const res = await fetch('/api/admin/publish-results', {
@@ -3167,6 +3182,8 @@ function deduplicateSubmissionsList(list) {
       map.set(key, sub);
     } else {
       const existing = map.get(key);
+      if (sub.isGradedBySir) existing.isGradedBySir = true;
+      if (existing.isGradedBySir) sub.isGradedBySir = true;
       // Prefer graded submission with higher marks or non-exit submission
       if ((sub.scoreAwarded || 0) > (existing.scoreAwarded || 0)) {
         map.set(key, sub);
@@ -3589,11 +3606,18 @@ async function promptGradeSubmission(submissionId) {
       showToast('Score Updated! ⭐', data.message, 'success');
       sub.scoreAwarded = newMarks;
       sub.judgeNotes = notes;
+      sub.isGradedBySir = true;
+      if (data.submission) {
+        Object.assign(sub, data.submission);
+      }
       renderJudgeSubmissions(allSubmissions);
       loadApprovedTeams();
       updateResultsPublishBadge(currentResultsPublished);
       if (window.fetchInitialLeaderboard) {
         window.fetchInitialLeaderboard();
+      }
+      if (typeof loadJudgeSubmissions === 'function') {
+        loadJudgeSubmissions();
       }
     } else {
       alert(`Grading Error:\n\n${data.message}`);

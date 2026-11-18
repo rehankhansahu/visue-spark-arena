@@ -1395,8 +1395,12 @@ router.post('/admin/publish-results', verifySirToken, ensureWebsiteNotLocked, (r
     const snapshot = store.saveCurrentCompetitionSnapshot(null, null, true);
 
     const fullLeaderboard = store.getLeaderboard(true);
+    const updatedTimer = store.getContestTimer();
     const io = req.app.get('io');
     if (io) {
+      if (updatedTimer) {
+        io.emit('timerUpdate', updatedTimer);
+      }
       io.emit('resultsPublished', {
         published: true,
         leaderboard: fullLeaderboard.leaderboard
